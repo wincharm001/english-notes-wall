@@ -87,6 +87,8 @@ const baseProps = note => ({
   onExpandEntry: () => {},
   onUpdate: async () => ({ status: 'ok' }),
   onDelete: () => {},
+  onPin: () => {},
+  onTag: () => {},
 })
 
 const multi = {
@@ -197,5 +199,57 @@ assert.match(richText, /be meticulous about/)
 assert.match(richText, /expansion\.grammar/)
 assert.match(richText, /expansion\.moreExamples/)
 assert.match(richText, /His\s+meticulous\s+notes helped\./)
+
+// Speech buttons are available for the entry and each sentence.
+assert.ok(collect(tree, 'enw-speak').length >= 2, 'entry and example offer read-aloud buttons')
+
+// Practice mode hides the translation and the structural analysis, then reveals them.
+collect(tree, 'enw-practice-btn')[0].props.onClick()
+cursor = 0
+tree = renderTree(exports.__NoteCard(baseProps(rich)))
+let practiceText = flatten(tree)
+assert.doesNotMatch(practiceText, /她对细节一丝不苟/)
+assert.doesNotMatch(practiceText, /主句：She is meticulous/)
+assert.doesNotMatch(practiceText, /be meticulous about/)
+assert.match(practiceText, /action\.practice/)
+collect(tree, 'enw-practice-reveal')[0].props.onClick()
+cursor = 0
+tree = renderTree(exports.__NoteCard(baseProps(rich)))
+practiceText = flatten(tree)
+assert.match(practiceText, /她对细节一丝不苟/)
+assert.match(practiceText, /主句：She is meticulous/)
+
+// Pin and tag controls call back with the note and tag.
+let pinned = null
+let tagged = null
+const interactive = baseProps({ ...rich, tags: ['tag-one'] })
+interactive.onPin = note => { pinned = note }
+interactive.onTag = tag => { tagged = tag }
+cursor = 0
+tree = renderTree(exports.__NoteCard(interactive))
+const findByTitle = (node, title, out = []) => {
+  if (!node || typeof node !== 'object') return out
+  if (Array.isArray(node)) {
+    for (const item of node) findByTitle(item, title, out)
+    return out
+  }
+  if (node.props?.title === title) out.push(node)
+  findByTitle(node.children, title, out)
+  return out
+}
+findByTitle(tree, 'action.pin')[0].props.onClick()
+assert.equal(pinned?.id, rich.id)
+collect(tree, 'enw-tag--button')[0].props.onClick()
+assert.equal(tagged, 'tag-one')
+// The drag handle only appears when reordering is allowed.
+assert.equal(collect(tree, 'enw-drag-handle').length, 0)
+cursor = 0
+tree = renderTree(exports.__NoteCard({
+  ...baseProps(multi),
+  canReorder: true,
+  onDragStartNote: () => {},
+  onDropNote: () => {},
+}))
+assert.equal(collect(tree, 'enw-drag-handle').length, 1)
 
 console.log('note card tests passed')

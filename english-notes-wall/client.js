@@ -30,6 +30,7 @@ window.__ModuleLoader__.load({
     const SIDEBAR_COLLAPSED_KEY = 'english-notes-wall.sidebar-collapsed.v2'
     const VIEW_MODE_KEY = 'english-notes-wall.view-mode'
     const GROUP_MODE_KEY = 'english-notes-wall.group-mode'
+    const PRACTICE_KEY = 'english-notes-wall.practice-mode'
 
     // -- dictionaries -------------------------------------------------------
 
@@ -95,6 +96,7 @@ window.__ModuleLoader__.load({
       'note.editEmpty': 'Keep at least one entry.',
       'note.translationLabel': 'Meaning',
       'note.tagsLabel': 'Tags',
+      'note.pinnedGroup': 'Pinned',
       'expansion.meaning': 'Meaning',
       'expansion.phonetic': 'Pronunciation',
       'expansion.wordForms': 'Word forms and look-alikes',
@@ -239,6 +241,11 @@ window.__ModuleLoader__.load({
       'stats.streak': 'Day streak',
       'stats.yes': 'Yes',
       'stats.no': 'No',
+      'stats.entries': 'Entries',
+      'stats.due': 'Due for review',
+      'stats.learned': 'Scheduled',
+      'stats.accuracy': '7-day accuracy',
+      'stats.reviewedToday': 'Reviewed today',
       'error.load': 'Could not load the note wall.',
       'error.action': 'The action failed.',
       'error.api': 'The note wall cannot reach its host service. Reload the page to retry.',
@@ -246,12 +253,49 @@ window.__ModuleLoader__.load({
       'error.quizUnavailable': 'The quiz could not be created yet.',
       'notice.added': 'Note added.',
       'notice.updated': 'Note updated.',
-      'notice.deleted': 'Note deleted.',
+      'notice.deleted': 'Note deleted. Use Undo to restore it.',
+      'notice.restored': 'Note restored.',
       'notice.expanded': 'Expansion added.',
+      'notice.expandPartial': 'Some entries could not be expanded. Retry the missing ones.',
+      'notice.expandCancelled': 'Expansion stopped.',
       'notice.missingExpanded': 'Finished expanding the pending notes.',
       'notice.noMissingExpansions': 'Every note is already expanded.',
       'notice.quiz': 'Today’s quiz is ready.',
       'notice.graded': 'Answers saved.',
+      'notice.backup': 'Backup created.',
+      'notice.imported': 'Import finished.',
+      'action.play': 'Read aloud',
+      'action.pin': 'Pin note',
+      'action.unpin': 'Unpin note',
+      'action.practice': 'Practice mode',
+      'action.practiceOn': 'Practice mode: analysis hidden',
+      'action.showAnalysis': 'Show translation and analysis',
+      'action.hideAnalysis': 'Hide translation and analysis',
+      'action.undo': 'Undo',
+      'action.stop': 'Stop',
+      'action.retryFailed': 'Retry failed',
+      'filter.status': 'Study status',
+      'filter.allNotes': 'All notes',
+      'filter.due': 'Due for review',
+      'filter.unexpanded': 'Not expanded',
+      'filter.mastered': 'Scheduled',
+      'filter.tag': 'Tag',
+      'filter.clearTag': 'Clear tag filter',
+      'quiz.due': 'Due',
+      'quiz.type.sentence': 'Long sentence',
+      'quiz.type.dictation': 'Dictation',
+      'quiz.dictationHint': 'Play the audio, then write what you hear.',
+      'quiz.play': 'Play the audio',
+      'settings.dataTitle': 'Data and backup',
+      'settings.dataHint': 'Export a copy, import another wall, or back up now.',
+      'settings.exportJson': 'JSON',
+      'settings.exportCsv': 'CSV',
+      'settings.exportAnki': 'Anki',
+      'settings.import': 'Import JSON',
+      'settings.importing': 'Importing…',
+      'settings.backupNow': 'Back up now',
+      'settings.backupCount': 'Automatic backups',
+      'settings.backupNever': 'No automatic backup yet',
       'time.today': 'Today',
       'time.yesterday': 'Yesterday',
       'common.loading': 'Loading…',
@@ -323,6 +367,7 @@ window.__ModuleLoader__.load({
       'note.editEmpty': '至少保留一个词条。',
       'note.translationLabel': '释义',
       'note.tagsLabel': '标签',
+      'note.pinnedGroup': '置顶',
       'expansion.meaning': '释义',
       'expansion.phonetic': '发音',
       'expansion.wordForms': '词形与形近词',
@@ -467,6 +512,11 @@ window.__ModuleLoader__.load({
       'stats.streak': '连续天数',
       'stats.yes': '有',
       'stats.no': '无',
+      'stats.entries': '词条',
+      'stats.due': '待复习',
+      'stats.learned': '已排期',
+      'stats.accuracy': '7 日正确率',
+      'stats.reviewedToday': '今日已复习',
       'error.load': '无法加载便利贴墙。',
       'error.action': '操作失败。',
       'error.api': '便利贴墙无法连接宿主服务，请刷新页面重试。',
@@ -474,12 +524,49 @@ window.__ModuleLoader__.load({
       'error.quizUnavailable': '暂时无法生成测验。',
       'notice.added': '便利贴已添加。',
       'notice.updated': '便利贴已更新。',
-      'notice.deleted': '便利贴已删除。',
+      'notice.deleted': '便利贴已删除，可用“撤销”恢复。',
+      'notice.restored': '便利贴已恢复。',
       'notice.expanded': '拓展内容已添加。',
+      'notice.expandPartial': '部分词条未能拓展，可重试失败项。',
+      'notice.expandCancelled': '已停止拓展。',
       'notice.missingExpanded': '已补全所有缺失的拓展。',
       'notice.noMissingExpansions': '所有便利贴都已拓展。',
       'notice.quiz': '今日测验已生成。',
       'notice.graded': '答案已保存。',
+      'notice.backup': '备份已创建。',
+      'notice.imported': '导入完成。',
+      'action.play': '朗读',
+      'action.pin': '置顶便利贴',
+      'action.unpin': '取消置顶',
+      'action.practice': '练习模式',
+      'action.practiceOn': '练习模式：已隐藏分析',
+      'action.showAnalysis': '显示翻译与分析',
+      'action.hideAnalysis': '隐藏翻译与分析',
+      'action.undo': '撤销',
+      'action.stop': '停止',
+      'action.retryFailed': '重试失败项',
+      'filter.status': '学习状态',
+      'filter.allNotes': '全部便利贴',
+      'filter.due': '待复习',
+      'filter.unexpanded': '未拓展',
+      'filter.mastered': '已排期',
+      'filter.tag': '标签',
+      'filter.clearTag': '清除标签筛选',
+      'quiz.due': '待复习',
+      'quiz.type.sentence': '长难句',
+      'quiz.type.dictation': '听写',
+      'quiz.dictationHint': '点击朗读，然后写出你听到的内容。',
+      'quiz.play': '播放音频',
+      'settings.dataTitle': '数据与备份',
+      'settings.dataHint': '导出副本、导入另一面墙，或立即备份。',
+      'settings.exportJson': 'JSON',
+      'settings.exportCsv': 'CSV',
+      'settings.exportAnki': 'Anki',
+      'settings.import': '导入 JSON',
+      'settings.importing': '导入中…',
+      'settings.backupNow': '立即备份',
+      'settings.backupCount': '自动备份',
+      'settings.backupNever': '暂无自动备份',
       'time.today': '今天',
       'time.yesterday': '昨天',
       'common.loading': '加载中…',
@@ -526,6 +613,14 @@ window.__ModuleLoader__.load({
       const month = String(date.getMonth() + 1).padStart(2, '0')
       const day = String(date.getDate()).padStart(2, '0')
       return `${date.getFullYear()}-${month}-${day}`
+    }
+
+    function compareNotes(left, right) {
+      const pinned = (right?.pinned ? 1 : 0) - (left?.pinned ? 1 : 0)
+      if (pinned) return pinned
+      const leftOrder = Number.isFinite(left?.order) ? left.order : Number.MAX_SAFE_INTEGER
+      const rightOrder = Number.isFinite(right?.order) ? right.order : Number.MAX_SAFE_INTEGER
+      return leftOrder - rightOrder || (left?.createdAt ?? 0) - (right?.createdAt ?? 0)
     }
 
     function formatTime(ms, localeId) {
@@ -774,6 +869,13 @@ window.__ModuleLoader__.load({
       close: 'M6 6l12 12M18 6L6 18',
       book: 'M4 5.5A2.5 2.5 0 016.5 3H20v18H6.5A2.5 2.5 0 014 18.5zM4 18.5A2.5 2.5 0 016.5 16H20',
       target: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 17a5 5 0 100-10 5 5 0 000 10z',
+      volume: 'M4 9.5v5h3.5L12 18V6L7.5 9.5H4zM15.5 9a4 4 0 010 6M18 6.5a7 7 0 010 11',
+      pin: 'M9 4h6l-1 6 3.5 3.5H6.5L10 10 9 4zM12 13.5V20',
+      download: 'M12 4v10m0 0l3.5-3.5M12 14L8.5 10.5M5 19h14',
+      upload: 'M12 20V10m0 0l3.5 3.5M12 10l-3.5 3.5M5 5h14',
+      eye: 'M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6zM12 15a3 3 0 100-6 3 3 0 000 6z',
+      eyeOff: 'M3 3l18 18M10.6 6.2A9.8 9.8 0 0112 6c6 0 9.5 6 9.5 6a15 15 0 01-3.1 3.6M6.3 8.4A15 15 0 002.5 12s3.5 6 9.5 6a9.6 9.6 0 004.1-.9M9.9 9.9a3 3 0 004.2 4.2',
+      grip: 'M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01',
     }
 
     function Icon({ name, size = 16, className }) {
@@ -870,6 +972,58 @@ window.__ModuleLoader__.load({
       return h('div', { className: 'enw-section-label' }, children)
     }
 
+    // -- speech -------------------------------------------------------------
+
+    function speak(text) {
+      const value = String(text ?? '').trim()
+      if (!value) return false
+      try {
+        const synth = window.speechSynthesis
+        const Utterance = window.SpeechSynthesisUtterance
+        if (!synth || typeof Utterance !== 'function') return false
+        synth.cancel()
+        const utterance = new Utterance(value.slice(0, 1200))
+        utterance.lang = 'en-US'
+        utterance.rate = 0.95
+        synth.speak(utterance)
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    function SpeakButton({ text, t, size = 14, className }) {
+      const label = t('action.play')
+      return h('button', {
+        type: 'button',
+        className: cx('enw-speak', className),
+        title: label,
+        'aria-label': label,
+        onClick: event => {
+          event.stopPropagation()
+          speak(text)
+        },
+      }, h(Icon, { name: 'volume', size }))
+    }
+
+    function saveTextFile(filename, content, mime) {
+      try {
+        const blob = new Blob([content], { type: mime || 'text/plain;charset=utf-8' })
+        const url = URL.createObjectURL(blob)
+        const anchor = document.createElement('a')
+        anchor.href = url
+        anchor.download = filename
+        anchor.style.display = 'none'
+        document.body.append(anchor)
+        anchor.click()
+        anchor.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 2000)
+        return true
+      } catch {
+        return false
+      }
+    }
+
     // -- note card ----------------------------------------------------------
 
     function ExpansionView({ expansion, t, localeId, showUsage = true, collapseSignal = 0, entryText = '', entryTranslation = '', category = '' }) {
@@ -889,6 +1043,13 @@ window.__ModuleLoader__.load({
       )
       const longAnalysis = asArray(expansion?.examples).some(example =>
         example.structure || String(example.en ?? '').trim().split(/\s+/).filter(Boolean).length >= 22)
+      const [practice, setPractice] = useState(false)
+      const [revealed, setRevealed] = useState(false)
+      const hideAnalysis = practice && !revealed
+
+      useEffect(() => {
+        setRevealed(false)
+      }, [practice])
 
       return h(
         'div',
@@ -899,15 +1060,30 @@ window.__ModuleLoader__.load({
           h('span', { className: 'enw-exp-toggle-main' },
             h(Icon, { name: expansion.meaning ? 'check' : 'sparkles', size: 14 }),
           ),
-          h('span', { className: cx('enw-exp-toggle-hint', expansion.meaning && !open && 'enw-exp-toggle-hint--meaning') },
-            open ? t('action.hide') : (expansion.meaning || t('action.show'))),
+          h('span', { className: cx('enw-exp-toggle-hint', expansion.meaning && !open && !practice && 'enw-exp-toggle-hint--meaning') },
+            open ? t('action.hide') : (practice ? t('action.practiceOn') : (expansion.meaning || t('action.show')))),
           h(Icon, { name: 'chevron', size: 14, className: 'enw-chevron' }),
         ),
         open
           ? h(
             'div',
             { className: 'enw-exp-body' },
-            expansion.meaning ? h('p', { className: 'enw-exp-meaning' }, expansion.meaning) : null,
+            h('div', { className: 'enw-practice-bar' },
+              h('button', {
+                type: 'button',
+                className: cx('enw-practice-btn', practice && 'enw-practice-btn--on'),
+                onClick: () => setPractice(value => !value),
+                'aria-pressed': practice,
+              }, h(Icon, { name: practice ? 'eyeOff' : 'eye', size: 13 }), t('action.practice')),
+              practice
+                ? h('button', {
+                  type: 'button',
+                  className: 'enw-practice-reveal',
+                  onClick: () => setRevealed(value => !value),
+                  'aria-pressed': revealed,
+                }, t(revealed ? 'action.hideAnalysis' : 'action.showAnalysis'))
+                : null),
+            expansion.meaning && !hideAnalysis ? h('p', { className: 'enw-exp-meaning' }, expansion.meaning) : null,
             expansion.phonetic ? h('p', { className: 'enw-exp-phonetic' }, expansion.phonetic) : null,
             hasStructured
               ? null
@@ -939,19 +1115,21 @@ window.__ModuleLoader__.load({
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t(longAnalysis ? 'expansion.longSentences' : 'expansion.examples')),
                 asArray(expansion.examples).map((example, index) => h('div', { key: index, className: 'enw-example' },
-                  h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
-                  example.zh ? h('p', { className: 'enw-example-zh' }, highlightTranslation(example.zh, entryTranslation)) : null,
-                  example.structure
+                  h('div', { className: 'enw-example-en-row' },
+                    h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
+                    h(SpeakButton, { text: example.en, t, size: 13 })),
+                  example.zh && !hideAnalysis ? h('p', { className: 'enw-example-zh' }, highlightTranslation(example.zh, entryTranslation)) : null,
+                  example.structure && !hideAnalysis
                     ? h('p', { className: 'enw-example-structure' },
                       h('span', { className: 'enw-example-tag' }, t('expansion.structure')),
                       h('span', null, example.structure))
                     : null,
-                  example.grammar
+                  example.grammar && !hideAnalysis
                     ? h('p', { className: 'enw-example-grammar' },
                       h('span', { className: 'enw-example-tag' }, t('expansion.grammar')),
                       h('span', null, example.grammar))
                     : null,
-                  example.chunk
+                  example.chunk && !hideAnalysis
                     ? h('p', { className: 'enw-example-chunk' },
                       h('span', { className: 'enw-example-tag' }, t('expansion.chunk')),
                       h('strong', null, example.chunk),
@@ -962,8 +1140,10 @@ window.__ModuleLoader__.load({
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t(longAnalysis ? 'expansion.moreExamples' : 'expansion.moreShortExamples')),
                 asArray(expansion.moreExamples).map((example, index) => h('div', { key: index, className: 'enw-example' },
-                  h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
-                  example.zh ? h('p', { className: 'enw-example-zh' }, highlightTranslation(example.zh, entryTranslation)) : null)))
+                  h('div', { className: 'enw-example-en-row' },
+                    h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
+                    h(SpeakButton, { text: example.en, t, size: 13 })),
+                  example.zh && !hideAnalysis ? h('p', { className: 'enw-example-zh' }, highlightTranslation(example.zh, entryTranslation)) : null)))
               : null,
             expansion.tips
               ? h('div', { className: 'enw-exp-sec' },
@@ -986,7 +1166,7 @@ window.__ModuleLoader__.load({
       )
     }
 
-    function NoteCard({ note, t, localeId, busy, collapseSignal, onExpandAll, onExpandEntry, onUpdate, onDelete }) {
+    function NoteCard({ note, t, localeId, busy, collapseSignal, onExpandAll, onExpandEntry, onUpdate, onDelete, onPin, onTag, canReorder = false, onDragStartNote, onDropNote, active = false }) {
       const entries = asArray(note.entries).length
         ? note.entries
         : note.text
@@ -1039,10 +1219,31 @@ window.__ModuleLoader__.load({
 
       return h(
         'article',
-        { className: cx('enw-note', `enw-note--${note.category}`) },
+        {
+          className: cx('enw-note', `enw-note--${note.category}`, active && 'enw-note--active'),
+          'data-note-id': note.id,
+          onDragOver: canReorder && onDropNote ? event => event.preventDefault() : undefined,
+          onDrop: canReorder && onDropNote
+            ? event => {
+              event.preventDefault()
+              onDropNote(note)
+            }
+            : undefined,
+        },
         h(
           'div',
           { className: 'enw-note-head' },
+          canReorder && onDragStartNote
+            ? h('span', {
+              className: 'enw-drag-handle',
+              draggable: true,
+              title: t('view.list'),
+              onDragStart: event => {
+                event.dataTransfer?.setData('text/plain', note.id)
+                onDragStartNote(note)
+              },
+            }, h(Icon, { name: 'grip', size: 13 }))
+            : null,
           h('span', { className: 'enw-note-time' }, formatTime(note.createdAt, localeId)),
           h('span', { className: cx('enw-cat', `enw-cat--${note.category}`) }, t(`category.${note.category}`)),
           entries.length > 0 && (manyEntries || !collapsed)
@@ -1062,6 +1263,20 @@ window.__ModuleLoader__.load({
           editing
             ? null
             : h('div', { className: 'enw-note-actions' },
+              onPin
+                ? h(
+                  Btn,
+                  {
+                    variant: 'quiet',
+                    className: note.pinned ? 'enw-btn--on' : '',
+                    onClick: () => onPin(note),
+                    disabled: Boolean(busy),
+                    title: t(note.pinned ? 'action.unpin' : 'action.pin'),
+                    label: t(note.pinned ? 'action.unpin' : 'action.pin'),
+                  },
+                  h(Icon, { name: 'pin', size: 14 }),
+                )
+                : null,
               h(
                 Btn,
                 {
@@ -1153,14 +1368,16 @@ window.__ModuleLoader__.load({
                     { key: entry.id, className: 'enw-entry' },
                     h('div', { className: 'enw-entry-head' },
                       h('p', { className: 'enw-entry-text' }, entry.text),
-                      h(Btn, {
-                        variant: 'quiet',
-                        className: 'enw-entry-btn',
-                        onClick: () => onExpandEntry(note, entry),
-                        disabled: Boolean(busy),
-                        title: t(entry.expansion ? 'action.expandAgain' : 'action.expand'),
-                        label: t(entry.expansion ? 'action.expandAgain' : 'action.expand'),
-                      }, h(Icon, { name: 'sparkles', size: 14 }))),
+                      h('div', { className: 'enw-entry-tools' },
+                        h(SpeakButton, { text: entry.text, t, size: 13 }),
+                        h(Btn, {
+                          variant: 'quiet',
+                          className: 'enw-entry-btn',
+                          onClick: () => onExpandEntry(note, entry),
+                          disabled: Boolean(busy),
+                          title: t(entry.expansion ? 'action.expandAgain' : 'action.expand'),
+                          label: t(entry.expansion ? 'action.expandAgain' : 'action.expand'),
+                        }, h(Icon, { name: 'sparkles', size: 14 })))),
                     entry.translation ? h('p', { className: 'enw-entry-translation' }, entry.translation) : null,
                     entry.expansion
                       ? h(ExpansionView, {
@@ -1179,7 +1396,15 @@ window.__ModuleLoader__.load({
                       : null,
                   ))),
                 note.tags?.length
-                  ? h('div', { className: 'enw-tags' }, note.tags.map(tag => h('span', { key: tag, className: 'enw-tag' }, `#${tag}`)))
+                  ? h('div', { className: 'enw-tags' }, note.tags.map(tag => (onTag
+                    ? h('button', {
+                      key: tag,
+                      type: 'button',
+                      className: 'enw-tag enw-tag--button',
+                      title: `${t('filter.tag')}: ${tag}`,
+                      onClick: () => onTag(tag),
+                    }, `#${tag}`)
+                    : h('span', { key: tag, className: 'enw-tag' }, `#${tag}`))))
                   : null,
               ),
             confirming
@@ -1288,7 +1513,7 @@ window.__ModuleLoader__.load({
         h('span', { className: 'enw-quiz-countdown' }, remaining > 0 ? formatCountdown(remaining) : t('quiz.soon')))
     }
 
-    function QuizCard({ quiz, history, t, localeId, busy, modelAvailable, settings, nextQuizAt, quizPending, onRefresh, onGenerate, onGrade, onModelGrade }) {
+    function QuizCard({ quiz, history, t, localeId, busy, modelAvailable, settings, nextQuizAt, quizPending, dueCount = 0, onRefresh, onGenerate, onGrade, onModelGrade }) {
       const attempt = quiz?.attempt && typeof quiz.attempt === 'object' ? quiz.attempt : null
       const items = asArray(quiz?.items)
       const [answers, setAnswers] = useState({})
@@ -1369,6 +1594,7 @@ window.__ModuleLoader__.load({
           schedule,
           h('p', { className: 'enw-aside-empty-title' }, t('quiz.empty')),
           h('p', { className: 'enw-aside-hint' }, t('quiz.emptyHint')),
+          dueCount > 0 ? h('p', { className: 'enw-aside-hint' }, `${t('quiz.due')}: ${dueCount}`) : null,
           h(Btn, { variant: 'primary', onClick: () => onGenerate(false), disabled: generating, className: 'enw-block' },
             generating ? h('span', { className: 'enw-spinner enw-spinner--light' }) : h(Icon, { name: 'sparkles', size: 15 }),
             h('span', null, t(generating ? 'quiz.generating' : 'quiz.generate'))),
@@ -1400,6 +1626,7 @@ window.__ModuleLoader__.load({
         schedule,
         h('div', { className: 'enw-quiz-meta' },
           h('span', { className: cx('enw-pill', attempt ? 'enw-pill--ok' : 'enw-pill--wait') }, attempt ? t('quiz.done') : t('quiz.pending')),
+          dueCount > 0 ? h('span', { className: 'enw-pill enw-pill--brand' }, `${t('quiz.due')} ${dueCount}`) : null,
           h('span', { className: cx('enw-pill', quiz.source === 'local' ? 'enw-pill--muted' : 'enw-pill--brand') }, t(quiz.source === 'local' ? 'quiz.source.local' : 'quiz.source.model')),
           attempt ? h('span', { className: 'enw-quiz-score' }, `${formatScore(attempt.score)}/${attempt.total}`) : null),
         collapsed
@@ -1422,7 +1649,15 @@ window.__ModuleLoader__.load({
                   h('div', { className: 'enw-quiz-item-head' },
                     h('span', { className: 'enw-quiz-type' }, t(`quiz.type.${item.type}`)),
                     h('span', { className: 'enw-quiz-index' }, String(index + 1))),
-                  h('p', { className: 'enw-quiz-prompt' }, item.prompt),
+                  item.type === 'dictation'
+                    ? h('div', { className: 'enw-dictation' },
+                      h('p', { className: 'enw-quiz-prompt' }, t('quiz.dictationHint')),
+                      h('button', {
+                        type: 'button',
+                        className: 'enw-dictation-play',
+                        onClick: () => speak(item.answer),
+                      }, h(Icon, { name: 'volume', size: 15 }), t('quiz.play')))
+                    : h('p', { className: 'enw-quiz-prompt' }, item.prompt),
                   openHint,
                   item.hint && !attempt && reveal ? h('p', { className: 'enw-quiz-hint' }, `${t('quiz.hint')}: ${item.hint}`) : null,
                   attempt
@@ -1453,13 +1688,13 @@ window.__ModuleLoader__.load({
                         : null,
                       item.explanation ? h('p', { className: 'enw-quiz-explanation' }, item.explanation) : null)
                     : h(
-                      item.type === 'cn2en' || item.type === 'usage'
+                      item.type === 'cn2en' || item.type === 'usage' || item.type === 'sentence'
                         ? 'textarea'
                         : 'input',
                       {
                         className: 'enw-quiz-input',
                         value,
-                        rows: item.type === 'cn2en' || item.type === 'usage' ? 2 : undefined,
+                        rows: item.type === 'cn2en' || item.type === 'usage' || item.type === 'sentence' ? 2 : undefined,
                         placeholder: t('quiz.blank'),
                         onChange: event => setAnswers(current => ({ ...current, [item.id]: event.target.value })),
                       },
@@ -1523,7 +1758,7 @@ window.__ModuleLoader__.load({
 
     // -- settings card ------------------------------------------------------
 
-    function SettingsCard({ settings, model, promptDefaults, t, busy, api, onSave, onClose }) {
+    function SettingsCard({ settings, model, promptDefaults, t, localeId = 'en-US', backup, busy, api, onRefresh, onSave, onClose }) {
       const initialLlm = settings.llm && typeof settings.llm === 'object'
         ? settings.llm
         : { provider: '', model: '', reasoningEffort: '' }
@@ -1535,6 +1770,10 @@ window.__ModuleLoader__.load({
       const [catalogError, setCatalogError] = useState('')
       const [promptsOpen, setPromptsOpen] = useState(false)
       const [promptKey, setPromptKey] = useState('expansion')
+      const [dataBusy, setDataBusy] = useState('')
+      const [dataError, setDataError] = useState('')
+      const [dataNotice, setDataNotice] = useState('')
+      const importRef = useRef(null)
       const saving = busy === 'settings'
       const llm = draft.llm || { provider: '', model: '', reasoningEffort: '' }
       const prompts = draft.prompts || {}
@@ -1590,6 +1829,70 @@ window.__ModuleLoader__.load({
       }
 
       const onEffort = value => update({ llm: { ...llm, reasoningEffort: value } })
+
+      const exportAs = async format => {
+        if (!api || dataBusy) return
+        setDataBusy(`export-${format}`)
+        setDataError('')
+        setDataNotice('')
+        try {
+          const result = await api.exportData(format)
+          if (result?.status !== 'ok') {
+            setDataError(result?.message || t('error.action'))
+            return
+          }
+          if (!saveTextFile(result.filename, result.content, result.mime)) {
+            setDataError(t('error.action'))
+          }
+        } catch (error) {
+          setDataError(errorText(error) || t('error.action'))
+        } finally {
+          setDataBusy('')
+        }
+      }
+
+      const importFile = async event => {
+        const file = event.target?.files?.[0]
+        if (event.target) event.target.value = ''
+        if (!file || !api || dataBusy) return
+        setDataBusy('import')
+        setDataError('')
+        setDataNotice('')
+        try {
+          const content = await file.text()
+          const result = await api.importData(content)
+          if (result?.status !== 'ok') {
+            setDataError(result?.message || t('error.action'))
+            return
+          }
+          setDataNotice(`${t('notice.imported')} ${result.addedNotes} · ${result.addedEntries}`)
+          await onRefresh?.()
+        } catch (error) {
+          setDataError(errorText(error) || t('error.action'))
+        } finally {
+          setDataBusy('')
+        }
+      }
+
+      const runBackup = async () => {
+        if (!api || dataBusy) return
+        setDataBusy('backup')
+        setDataError('')
+        setDataNotice('')
+        try {
+          const result = await api.backupNow()
+          if (result?.status !== 'ok') {
+            setDataError(result?.message || t('error.action'))
+            return
+          }
+          setDataNotice(t('notice.backup'))
+          await onRefresh?.()
+        } catch (error) {
+          setDataError(errorText(error) || t('error.action'))
+        } finally {
+          setDataBusy('')
+        }
+      }
 
       const providers = asArray(catalog?.providers)
       const models = asArray(catalog?.models)
@@ -1714,6 +2017,41 @@ window.__ModuleLoader__.load({
                 value: draft.currency ?? '$',
                 onChange: event => update({ currency: event.target.value }),
               })))),
+        h('div', { className: 'enw-settings-group' },
+          h('div', { className: 'enw-settings-group-head' }, t('settings.dataTitle')),
+          h('p', { className: 'enw-setting-hint', style: { marginTop: 0, marginBottom: 6 } }, t('settings.dataHint')),
+          h('div', { className: 'enw-data-actions' },
+            ['json', 'csv', 'anki'].map(format => h(Btn, {
+              key: format,
+              variant: 'quiet',
+              onClick: () => { void exportAs(format) },
+              disabled: Boolean(dataBusy),
+            },
+            dataBusy === `export-${format}` ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'download', size: 14 }),
+            h('span', null, t(`settings.export${format === 'json' ? 'Json' : format === 'csv' ? 'Csv' : 'Anki'}`)))),
+            h(Btn, {
+              variant: 'quiet',
+              onClick: () => importRef.current?.click(),
+              disabled: Boolean(dataBusy),
+            },
+            dataBusy === 'import' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'upload', size: 14 }),
+            h('span', null, t(dataBusy === 'import' ? 'settings.importing' : 'settings.import'))),
+            h('input', {
+              ref: importRef,
+              type: 'file',
+              accept: '.json,application/json',
+              className: 'enw-file-input',
+              onChange: event => { void importFile(event) },
+            })),
+          h('div', { className: 'enw-data-backup' },
+            h('span', { className: 'enw-setting-hint' }, backup?.count
+              ? `${t('settings.backupCount')}: ${backup.count} · ${new Date(backup.lastAt).toLocaleString(localeId)}`
+              : t('settings.backupNever')),
+            h(Btn, { variant: 'quiet', onClick: () => { void runBackup() }, disabled: Boolean(dataBusy) },
+              dataBusy === 'backup' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'download', size: 14 }),
+              h('span', null, t('settings.backupNow')))),
+          dataNotice ? h('p', { className: 'enw-setting-hint enw-data-notice' }, dataNotice) : null,
+          dataError ? h('p', { className: 'enw-setting-error' }, dataError) : null),
         h('div', { className: 'enw-settings-group' },
           h('div', { className: 'enw-settings-group-head enw-prompt-head' },
             h('span', null, t('settings.prompts')),
@@ -1937,10 +2275,15 @@ window.__ModuleLoader__.load({
       const [notice, setNotice] = useState('')
       const [busy, setBusy] = useState('')
       const [filter, setFilter] = useState('all')
+      const [statusFilter, setStatusFilter] = useState('all')
+      const [tagFilter, setTagFilter] = useState('')
       const [query, setQuery] = useState('')
       const [settingsOpen, setSettingsOpen] = useState(false)
       const [draft, setDraft] = useState({ text: '', tags: '', category: 'word' })
       const [collapseSignal, setCollapseSignal] = useState(0)
+      const [deleted, setDeleted] = useState(null)
+      const [activeNoteId, setActiveNoteId] = useState('')
+      const [dragNoteId, setDragNoteId] = useState('')
       const [composerOpen, setComposerOpen] = useState(() => {
         try {
           return window.localStorage.getItem(COMPOSER_COLLAPSED_KEY) !== '1'
@@ -1971,14 +2314,20 @@ window.__ModuleLoader__.load({
       })
       const [organizePlan, setOrganizePlan] = useState(null)
       const [expandProgress, setExpandProgress] = useState(null)
+      const [expandFailed, setExpandFailed] = useState([])
       const organizedActive = groupMode === 'organized' && Boolean(snap?.organization)
       const scheme = useThemeScheme(ctx)
       const noticeTimer = useRef(null)
+      const undoRef = useRef(null)
+      const searchRef = useRef(null)
+      const composerRef = useRef(null)
+      const stopExpansion = useRef(false)
       const alive = useRef(true)
 
       useEffect(() => () => {
         alive.current = false
         if (noticeTimer.current) clearTimeout(noticeTimer.current)
+        if (undoRef.current) clearTimeout(undoRef.current)
       }, [])
 
       const toast = message => {
@@ -2061,7 +2410,7 @@ window.__ModuleLoader__.load({
           const result = await operation()
           if (!alive.current) return undefined
           const status = result?.status
-          if (status && status !== 'ok' && status !== 'exists') {
+          if (status && status !== 'ok' && status !== 'exists' && status !== 'partial' && status !== 'cancelled') {
             if (status === 'unavailable') setActionError(t('error.expandUnavailable'))
             else if (status === 'empty') setActionError(t('error.quizUnavailable'))
             else setActionError(result.message || t('error.action'))
@@ -2139,38 +2488,57 @@ window.__ModuleLoader__.load({
         }
       }
 
-      const expandMissing = async () => {
+      const expandMissing = async onlyIds => {
         if (!api || busy) return
-        const targets = asArray(snap?.notes)
-          .filter(note => asArray(note.entries).some(entry => !entry.expansion))
-          .map(note => note.id)
+        const requested = Array.isArray(onlyIds) ? onlyIds.filter(Boolean) : null
+        const targets = requested?.length
+          ? requested
+          : asArray(snap?.notes)
+            .filter(note => asArray(note.entries).some(entry => !entry.expansion))
+            .map(note => note.id)
         if (!targets.length) {
           toast(t('notice.noMissingExpansions'))
           return
         }
         setBusy('expand-missing')
         setActionError('')
+        setExpandFailed([])
         setExpandProgress({ done: 0, total: targets.length })
+        stopExpansion.current = false
         let completed = 0
-        let failure = ''
-        try {
-          for (const noteId of targets) {
-            if (!alive.current) return
-            const result = await api.expandNote(noteId, false)
-            if (result?.status === 'ok' || result?.status === 'exists') {
-              completed += 1
-              if (alive.current) setExpandProgress({ done: completed, total: targets.length })
-              continue
+        const failed = []
+        let cancelled = false
+        const queue = targets.slice()
+        const worker = async () => {
+          while (queue.length && !stopExpansion.current && alive.current) {
+            const noteId = queue.shift()
+            try {
+              const result = await api.expandNote(noteId, false)
+              if (stopExpansion.current || result?.status === 'cancelled') {
+                cancelled = true
+                break
+              }
+              if (result?.status === 'ok' || result?.status === 'exists' || result?.status === 'partial') {
+                completed += 1
+                if (alive.current) setExpandProgress({ done: completed, total: targets.length })
+                if (result?.status === 'partial') failed.push(noteId)
+                continue
+              }
+              failed.push(noteId)
+            } catch (error) {
+              if (stopExpansion.current) cancelled = true
+              else failed.push(noteId)
             }
-            failure = result?.status === 'unavailable'
-              ? t('error.expandUnavailable')
-              : (result?.message || t('error.action'))
-            break
           }
+        }
+        try {
+          await Promise.all([worker(), worker()])
           if (!alive.current) return
           await refresh()
           if (!alive.current) return
-          if (failure) setActionError(failure)
+          setExpandFailed(failed)
+          if (failed.length) setActionError(`${t('notice.expandPartial')} (${failed.length})`)
+          else if (cancelled) toast(t('notice.expandCancelled'))
           else toast(t('notice.missingExpanded'))
         } catch (error) {
           if (alive.current) setActionError(errorText(error) || t('error.action'))
@@ -2179,6 +2547,15 @@ window.__ModuleLoader__.load({
             setBusy('')
             setExpandProgress(null)
           }
+        }
+      }
+
+      const stopExpand = async () => {
+        stopExpansion.current = true
+        try {
+          await api?.cancelExpansion()
+        } catch {
+          /* the in-flight request also ends through its own abort */
         }
       }
 
@@ -2202,6 +2579,8 @@ window.__ModuleLoader__.load({
         void act(`expand:${note.id}:${entry.id}`, () => api.expandNote(note.id, Boolean(entry.expansion), entry.id), result => {
           if (result?.status === 'ok') {
             toast(t('notice.expanded'))
+          } else if (result?.status === 'partial') {
+            setActionError(t('notice.expandPartial'))
           } else if (result?.status === 'unavailable') {
             setActionError(t('error.expandUnavailable'))
           }
@@ -2212,6 +2591,8 @@ window.__ModuleLoader__.load({
         void act(`expand:${note.id}`, () => api.expandNote(note.id, Boolean(force), ''), result => {
           if (result?.status === 'ok') {
             toast(t('notice.expanded'))
+          } else if (result?.status === 'partial') {
+            setActionError(t('notice.expandPartial'))
           } else if (result?.status === 'unavailable') {
             setActionError(t('error.expandUnavailable'))
           }
@@ -2224,8 +2605,61 @@ window.__ModuleLoader__.load({
 
       const deleteNote = note => {
         void act(`delete:${note.id}`, () => api.deleteNote(note.id), result => {
-          if (result?.status === 'ok') toast(t('notice.deleted'))
+          if (result?.status === 'ok' && result.note) {
+            setDeleted({ note: result.note })
+            if (undoRef.current) clearTimeout(undoRef.current)
+            undoRef.current = setTimeout(() => {
+              if (alive.current) setDeleted(null)
+            }, 12000)
+          }
         })
+      }
+
+      const undoDelete = async () => {
+        if (!deleted?.note || !api || busy) return
+        setBusy('restore')
+        setActionError('')
+        try {
+          const result = await api.restoreNote({ note: deleted.note })
+          if (!alive.current) return
+          if (result?.status === 'ok') {
+            setDeleted(null)
+            if (undoRef.current) clearTimeout(undoRef.current)
+            toast(t('notice.restored'))
+            await refresh()
+          } else {
+            setActionError(result?.message || t('error.action'))
+          }
+        } catch (error) {
+          if (alive.current) setActionError(errorText(error) || t('error.action'))
+        } finally {
+          if (alive.current) setBusy('')
+        }
+      }
+
+      const pinNote = note => {
+        void act(`pin:${note.id}`, () => api.updateNote({ id: note.id, pinned: !note.pinned }))
+      }
+
+      const dropNote = async target => {
+        if (!dragNoteId || dragNoteId === target.id || !api) {
+          setDragNoteId('')
+          return
+        }
+        const ordered = asArray(snap?.notes).slice().sort(compareNotes)
+        const from = ordered.findIndex(note => note.id === dragNoteId)
+        const to = ordered.findIndex(note => note.id === target.id)
+        setDragNoteId('')
+        if (from < 0 || to < 0) return
+        const next = ordered.slice()
+        const [moved] = next.splice(from, 1)
+        next.splice(to, 0, moved)
+        try {
+          await api.reorderNotes(next.map(note => note.id))
+          await refresh()
+        } catch (error) {
+          setActionError(errorText(error) || t('error.action'))
+        }
       }
 
       const generateQuiz = force => {
@@ -2268,13 +2702,22 @@ window.__ModuleLoader__.load({
       const filtered = useMemo(() => {
         const notes = asArray(snap?.notes)
         const needle = query.trim().toLowerCase()
+        const now = Date.now()
         return notes.filter(note => {
           if (filter !== 'all' && note.category !== filter) return false
+          if (tagFilter && !asArray(note.tags).some(tag => tag.toLowerCase() === tagFilter.toLowerCase())) return false
+          if (statusFilter === 'due') {
+            if (!asArray(note.entries).some(entry => !entry.review?.dueAt || entry.review.dueAt <= now)) return false
+          } else if (statusFilter === 'unexpanded') {
+            if (!asArray(note.entries).some(entry => !entry.expansion)) return false
+          } else if (statusFilter === 'mastered') {
+            if (!asArray(note.entries).length || !asArray(note.entries).every(entry => entry.review)) return false
+          }
           if (!needle) return true
           const haystack = `${note.text} ${asArray(note.entries).map(entry => entry.translation).join(' ')} ${asArray(note.tags).join(' ')}`.toLowerCase()
           return haystack.includes(needle)
-        })
-      }, [snap, filter, query])
+        }).sort(compareNotes)
+      }, [snap, filter, query, statusFilter, tagFilter])
 
       const groups = useMemo(() => {
         if (organizedActive) {
@@ -2294,6 +2737,8 @@ window.__ModuleLoader__.load({
           list.sort(([left], [right]) => rank(left) - rank(right) || left.localeCompare(right))
           for (const [, entries] of list) {
             entries.sort((left, right) => {
+              const pinned = (right.pinned ? 1 : 0) - (left.pinned ? 1 : 0)
+              if (pinned) return pinned
               const leftPosition = Number.isFinite(left.position) ? left.position : Number.MAX_SAFE_INTEGER
               const rightPosition = Number.isFinite(right.position) ? right.position : Number.MAX_SAFE_INTEGER
               return leftPosition - rightPosition || left.createdAt - right.createdAt
@@ -2303,14 +2748,18 @@ window.__ModuleLoader__.load({
         }
         const map = new Map()
         for (const note of filtered) {
+          if (note.pinned) continue
           const key = dayKey(note.createdAt)
           if (!map.has(key)) map.set(key, [])
           map.get(key).push(note)
         }
-        return [...map.entries()]
+        const list = [...map.entries()]
+        const pinned = filtered.filter(note => note.pinned)
+        return pinned.length ? [['__pinned__', pinned], ...list] : list
       }, [filtered, organizedActive, snap])
 
       const dayLabel = key => {
+        if (key === '__pinned__') return t('note.pinnedGroup')
         const today = dayKey(Date.now())
         const yesterday = dayKey(Date.now() - 86400000)
         if (key === today) return t('time.today')
@@ -2322,6 +2771,53 @@ window.__ModuleLoader__.load({
           return key
         }
       }
+
+      useEffect(() => {
+        const onKey = event => {
+          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+          const target = event.target
+          const tag = target?.tagName
+          const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable
+          if (event.key === 'Escape') {
+            if (typing) target.blur()
+            else {
+              setActiveNoteId('')
+              setQuery('')
+            }
+            return
+          }
+          if (typing) return
+          if (event.key === '/') {
+            event.preventDefault()
+            searchRef.current?.focus()
+            return
+          }
+          if (event.key === 'n') {
+            event.preventDefault()
+            setComposerOpen(true)
+            setTimeout(() => composerRef.current?.focus(), 0)
+            return
+          }
+          if (event.key !== 'j' && event.key !== 'k') return
+          event.preventDefault()
+          setActiveNoteId(current => {
+            const list = groups.flatMap(([, entries]) => entries)
+            if (!list.length) return ''
+            let index = list.findIndex(note => note.id === current)
+            if (index < 0) index = 0
+            else index = Math.max(0, Math.min(list.length - 1, index + (event.key === 'j' ? 1 : -1)))
+            const id = list[index]?.id || ''
+            if (id) {
+              setTimeout(() => {
+                document.querySelector(`[data-note-id="${id}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+              }, 0)
+            }
+            return id
+          })
+        }
+        document.addEventListener('keydown', onKey)
+        return () => document.removeEventListener('keydown', onKey)
+      }, [groups])
 
       if (!api) {
         return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
@@ -2351,10 +2847,13 @@ window.__ModuleLoader__.load({
 
       const notes = asArray(snap?.notes)
       const counts = snap?.stats?.counts || {}
+      const stats = snap?.stats || {}
+      const dueCount = stats.due ?? 0
       const model = snap?.model || { available: false, label: '' }
       const categories = CATEGORIES
       const hasExpansions = notes.some(note => asArray(note.entries).some(entry => entry.expansion))
       const pendingExpansions = notes.filter(note => asArray(note.entries).some(entry => !entry.expansion))
+      const canReorder = !organizedActive && filter === 'all' && statusFilter === 'all' && !tagFilter && !query.trim()
       const expandMissingLabel = busy === 'expand-missing'
         ? `${t('action.expandingMissing')} ${expandProgress?.done ?? 0}/${expandProgress?.total ?? pendingExpansions.length}`
         : `${t('action.expandMissing')} (${pendingExpansions.length})`
@@ -2385,6 +2884,11 @@ window.__ModuleLoader__.load({
 
           actionError ? h(Banner, { tone: 'error', onClose: () => setActionError('') }, actionError) : null,
           notice ? h(Banner, { tone: 'ok' }, notice) : null,
+          deleted ? h('div', { className: 'enw-undo' },
+            h('span', { className: 'enw-undo-text' }, t('notice.deleted')),
+            h(Btn, { variant: 'quiet', onClick: () => { void undoDelete() }, disabled: busy === 'restore' },
+              busy === 'restore' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'refresh', size: 14 }),
+              h('span', null, t('action.undo')))) : null,
           loadError ? h(Banner, { tone: 'warn', onClose: () => setLoadError('') }, `${t('error.load')} ${loadError}`) : null,
 
           h('div', { className: cx('enw-layout', sidebarCollapsed && 'enw-layout--collapsed') },
@@ -2408,6 +2912,7 @@ window.__ModuleLoader__.load({
                     null,
                     h('textarea', {
                       className: 'enw-textarea',
+                      ref: composerRef,
                       value: draft.text,
                       rows: 5,
                       placeholder: t('form.placeholder'),
@@ -2446,18 +2951,56 @@ window.__ModuleLoader__.load({
                     active: filter === category,
                     onClick: () => setFilter(category),
                     count: counts[category] ?? 0,
-                  }, t(`category.${category}`)))),
+                  }, t(`category.${category}`))),
+                  h('select', {
+                    className: 'enw-select enw-status-select',
+                    value: statusFilter,
+                    'aria-label': t('filter.status'),
+                    onChange: event => setStatusFilter(event.target.value),
+                  },
+                  h('option', { value: 'all' }, t('filter.allNotes')),
+                  h('option', { value: 'due' }, `${t('filter.due')} (${dueCount})`),
+                  h('option', { value: 'unexpanded' }, t('filter.unexpanded')),
+                  h('option', { value: 'mastered' }, t('filter.mastered'))),
+                  tagFilter
+                    ? h('button', {
+                      type: 'button',
+                      className: 'enw-chip enw-chip--on enw-tag-chip',
+                      onClick: () => setTagFilter(''),
+                      title: t('filter.clearTag'),
+                    }, `#${tagFilter}`, h(Icon, { name: 'close', size: 12 }))
+                    : null),
                 h('div', { className: 'enw-toolbar-actions' },
-                  pendingExpansions.length
+                  busy === 'expand-missing'
                     ? h(Btn, {
                       variant: 'quiet',
-                      onClick: expandMissing,
-                      disabled: Boolean(busy),
-                      title: expandMissingLabel,
-                      label: expandMissingLabel,
+                      onClick: () => { void stopExpand() },
+                      title: t('action.stop'),
+                      label: t('action.stop'),
                     },
-                    busy === 'expand-missing' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'sparkles', size: 15 }),
-                    h('span', { className: 'enw-btn-text' }, expandMissingLabel))
+                    h(Icon, { name: 'close', size: 14 }),
+                    h('span', { className: 'enw-btn-text' }, t('action.stop')))
+                    : pendingExpansions.length
+                      ? h(Btn, {
+                        variant: 'quiet',
+                        onClick: () => { void expandMissing() },
+                        disabled: Boolean(busy),
+                        title: expandMissingLabel,
+                        label: expandMissingLabel,
+                      },
+                      busy === 'expand-missing' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'sparkles', size: 15 }),
+                      h('span', { className: 'enw-btn-text' }, expandMissingLabel))
+                      : null,
+                  expandFailed.length && busy !== 'expand-missing'
+                    ? h(Btn, {
+                      variant: 'quiet',
+                      onClick: () => { void expandMissing(expandFailed) },
+                      disabled: Boolean(busy),
+                      title: t('action.retryFailed'),
+                      label: t('action.retryFailed'),
+                    },
+                    h(Icon, { name: 'refresh', size: 14 }),
+                    h('span', { className: 'enw-btn-text' }, `${t('action.retryFailed')} (${expandFailed.length})`))
                     : null,
                   h(Btn, {
                     variant: 'quiet',
@@ -2507,6 +3050,7 @@ window.__ModuleLoader__.load({
                     h(Icon, { name: 'search', size: 15 }),
                     h('input', {
                       className: 'enw-search-input',
+                      ref: searchRef,
                       value: query,
                       placeholder: t('filter.search'),
                       onChange: event => setQuery(event.target.value),
@@ -2556,6 +3100,15 @@ window.__ModuleLoader__.load({
                             onExpandEntry: expandEntry,
                             onUpdate: updateNote,
                             onDelete: deleteNote,
+                            onPin: pinNote,
+                            onTag: tag => {
+                              setTagFilter(tag)
+                              setFilter('all')
+                            },
+                            canReorder,
+                            onDragStartNote: dragged => setDragNoteId(dragged.id),
+                            onDropNote: target => { void dropNote(target) },
+                            active: activeNoteId === note.id,
                           }))))
                     }))),
 
@@ -2566,8 +3119,11 @@ window.__ModuleLoader__.load({
                   model,
                   promptDefaults: snap?.promptDefaults || {},
                   t,
+                  localeId,
+                  backup: snap?.backup,
                   busy,
                   api,
+                  onRefresh: refresh,
                   onSave: saveSettings,
                   onClose: () => setSettingsOpen(false),
                 })
@@ -2582,6 +3138,7 @@ window.__ModuleLoader__.load({
                 settings: snap?.settings || null,
                 nextQuizAt: snap?.nextQuizAt ?? null,
                 quizPending: Boolean(snap?.quizPending),
+                dueCount,
                 onRefresh: refresh,
                 onGenerate: generateQuiz,
                 onGrade: gradeQuiz,
@@ -2593,8 +3150,12 @@ window.__ModuleLoader__.load({
                   h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'book', size: 16 }), t('stats.title'))),
                 h('dl', { className: 'enw-stats' },
                   h('div', { className: 'enw-stat' }, h('dt', null, t('stats.total')), h('dd', null, String(notes.length))),
-                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.pending')), h('dd', null, snap?.stats?.pending ? t('stats.yes') : t('stats.no'))),
-                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.streak')), h('dd', null, `${snap?.stats?.streak ?? 0}`))))),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.entries')), h('dd', null, String(stats.entries ?? 0))),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.due')), h('dd', null, String(stats.due ?? 0))),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.accuracy')), h('dd', null, stats.accuracy7 == null ? '—' : `${Math.round(stats.accuracy7 * 100)}%`)),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.reviewedToday')), h('dd', null, String(stats.reviewedToday ?? 0))),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.pending')), h('dd', null, stats.pending ? t('stats.yes') : t('stats.no'))),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.streak')), h('dd', null, `${stats.streak ?? 0}`))))),
           ),
         ),
       )
@@ -2665,6 +3226,12 @@ window.__ModuleLoader__.load({
       .enw-prompt-input:focus { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
       .enw-prompt-actions { display: flex; justify-content: flex-end; }
       .enw-setting-error { margin: 6px 0 0; font-size: 11px; color: var(--dsw-alias-state-error-primary); overflow-wrap: anywhere; }
+      .enw-data-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+      .enw-file-input { display: none; }
+      .enw-data-backup { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 10px; }
+      .enw-data-notice { margin: 6px 0 0; color: var(--dsw-alias-state-success-primary); }
+      .enw-undo { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; margin-bottom: 12px; border-radius: 9px; border: 1px dashed var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); font-size: 12px; }
+      .enw-undo-text { overflow-wrap: anywhere; }
       .enw-usage { display: flex; flex-direction: column; gap: 8px; }
       .enw-usage-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
       .enw-usage-model { font-size: 11.5px; overflow-wrap: anywhere; }
@@ -2795,6 +3362,13 @@ window.__ModuleLoader__.load({
       .enw-note-translation-label { display: inline-block; margin-right: 6px; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.8; }
       .enw-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
       .enw-tag { font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-tag--button { border: 0; background: transparent; padding: 0; font: inherit; font-size: 11px; cursor: pointer; }
+      .enw-tag--button:hover { color: var(--dsw-alias-brand-primary); text-decoration: underline; }
+      .enw-tag-chip { display: inline-flex; align-items: center; gap: 4px; }
+      .enw-status-select { width: auto; min-width: 118px; max-width: 180px; padding-top: 4px; padding-bottom: 4px; font-size: 11.5px; }
+      .enw-drag-handle { display: inline-flex; align-items: center; color: var(--dsw-alias-label-secondary); cursor: grab; opacity: 0.55; flex: none; }
+      .enw-drag-handle:hover { opacity: 1; }
+      .enw-note--active { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
       .enw-btn-text { display: inline; }
       .enw-exp { margin-top: 10px; border-radius: 9px; background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l1); overflow: hidden; }
       .enw-exp-toggle { width: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 12px; cursor: pointer; text-align: left; }
@@ -2814,7 +3388,17 @@ window.__ModuleLoader__.load({
       .enw-exp-chips { display: flex; flex-wrap: wrap; gap: 5px; }
       .enw-exp-chip { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); }
       .enw-example { padding-left: 9px; border-left: 2px solid var(--dsw-alias-border-l2); }
-      .enw-example-en { margin: 0; font-size: 12.5px; }
+      .enw-example-en-row { display: flex; align-items: flex-start; gap: 6px; }
+      .enw-example-en { margin: 0; font-size: 12.5px; flex: 1; min-width: 0; }
+      .enw-entry-tools { display: inline-flex; align-items: center; gap: 2px; flex: none; }
+      .enw-speak { flex: none; display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; padding: 3px; border-radius: 6px; opacity: 0.7; }
+      .enw-speak:hover { opacity: 1; background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
+      .enw-practice-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .enw-practice-btn { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--dsw-alias-border-l1); background: transparent; color: var(--dsw-alias-label-secondary); border-radius: 999px; padding: 2px 9px; font: inherit; font-size: 10.5px; cursor: pointer; }
+      .enw-practice-btn:hover { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l2); }
+      .enw-practice-btn--on { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
+      .enw-practice-reveal { border: 0; background: transparent; color: var(--dsw-alias-brand-primary); font: inherit; font-size: 11px; cursor: pointer; padding: 0; }
+      .enw-practice-reveal:hover { text-decoration: underline; }
       .enw-hl { background: var(--dsw-alias-bg-layer-2); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 18%, transparent); color: inherit; border-bottom: 2px solid var(--dsw-alias-brand-primary); border-radius: 3px; padding: 0 2px; font-weight: 600; }
       .enw-example-zh { margin: 2px 0 0; font-size: 12px; color: var(--dsw-alias-label-secondary); }
       .enw-example-chunk, .enw-example-structure, .enw-example-grammar { margin: 3px 0 0; font-size: 11.5px; line-height: 1.55; color: var(--dsw-alias-label-secondary); }
@@ -2869,6 +3453,9 @@ window.__ModuleLoader__.load({
       .enw-quiz-type { font-size: 10.5px; color: var(--dsw-alias-label-secondary); letter-spacing: 0.03em; }
       .enw-quiz-index { font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
       .enw-quiz-prompt { margin: 0; font-size: 13px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .enw-dictation { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .enw-dictation-play { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--dsw-alias-brand-primary); background: transparent; color: var(--dsw-alias-brand-primary); border-radius: 8px; padding: 5px 10px; font: inherit; font-size: 11.5px; cursor: pointer; }
+      .enw-dictation-play:hover { background: var(--dsw-alias-bg-layer-2); }
       .enw-quiz-hint { margin: 0; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
       .enw-quiz-input { width: 100%; box-sizing: border-box; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12.5px; resize: vertical; }
       .enw-quiz-answer { margin: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
@@ -3004,6 +3591,12 @@ window.__ModuleLoader__.load({
             gradeWithModel: (date, answers) => call('gradeWithModel', { date, answers }),
             saveSettings: patch => call('saveSettings', { patch }),
             llmCatalog: (provider, model) => call('llmCatalog', { provider, model }),
+            cancelExpansion: () => call('cancelExpansion'),
+            restoreNote: input => call('restoreNote', { input }),
+            reorderNotes: ids => call('reorderNotes', { ids }),
+            exportData: format => call('exportData', { format }),
+            importData: content => call('importData', { content }),
+            backupNow: () => call('backupNow'),
           }
         }
 
