@@ -9,7 +9,7 @@ process.env.DSH_HOME = home
 const module = await import('./english-notes-wall/index.js')
 const { apply, __internals } = module
 
-const { matchesAnswer, parseModelJson, nextOccurrence, nextQuizPublication, normalizeAnswer } = __internals
+const { matchesAnswer, parseModelJson, nextOccurrence, nextQuizPublication, normalizeAnswer, applyReviewResult, reviewStats, quizCandidates } = __internals
 
 assert.equal(matchesAnswer('give up', 'Give up.'), true)
 assert.equal(matchesAnswer('give up', 'gave up'), false)
@@ -20,6 +20,44 @@ assert.deepEqual(parseModelJson('```json\n{"items":[1]}\n```'), { items: [1] })
 assert.deepEqual(parseModelJson('prefix {"ok":true} suffix'), { ok: true })
 assert.equal(parseModelJson('not json'), null)
 assert.ok(nextOccurrence('08:00') > Date.now())
+
+// Spaced repetition: correct answers schedule the entry, wrong answers reset it.
+{
+  const entry = {}
+  applyReviewResult(entry, true, 1_000)
+  assert.equal(entry.review.level, 1)
+  assert.equal(entry.review.seen, 1)
+  assert.equal(entry.review.correct, 1)
+  assert.equal(entry.review.lastResult, 'correct')
+  assert.ok(entry.review.dueAt > 1_000)
+  applyReviewResult(entry, true, 2_000)
+  assert.equal(entry.review.level, 2)
+  assert.equal(entry.review.correct, 2)
+  applyReviewResult(entry, false, 3_000)
+  assert.equal(entry.review.level, 0)
+  assert.equal(entry.review.lastResult, 'wrong')
+  assert.ok(entry.review.dueAt > 3_000)
+  const summary = reviewStats([{ entries: [entry, {}] }], 4_000)
+  assert.equal(summary.entries, 2)
+  assert.equal(summary.learned, 1)
+  assert.equal(summary.due, 1)
+
+  const now = 10_000_000
+  const candidates = quizCandidates([{
+    id: 'n1',
+    createdAt: 1,
+    category: 'word',
+    entries: [
+      { id: 'e1', text: 'future', translation: '未来', review: { level: 3, dueAt: now + 86_400_000 } },
+      { id: 'e2', text: 'overdue', translation: '逾期', review: { level: 1, dueAt: now - 86_400_000 } },
+      { id: 'e3', text: 'new', translation: '新词' },
+    ],
+  }], now)
+  assert.equal(candidates[0].text, 'new')
+  assert.equal(candidates[1].text, 'overdue')
+  assert.equal(candidates[2].text, 'future')
+  assert.equal(candidates.filter(item => item.due).length, 2)
+}
 
 // Next-quiz publication, independent of the machine wall clock.
 {
@@ -98,7 +136,7 @@ apply(first.ctx)
 
 assert.equal(first.contributions.length, 1, 'one typert contribution')
 assert.equal(first.contributions[0].package, '@local/english-notes-wall')
-assert.equal(first.contributions[0].invocations.length, 12, 'twelve remote methods')
+assert.equal(first.contributions[0].invocations.length, 18, 'eighteen remote methods')
 assert.ok(first.registered.has('english_notes'), 'agent tool registered')
 
 const tool = first.registered.get('english_notes')
@@ -133,8 +171,10 @@ const generated = await add({ action: 'quiz' })
 assert.equal(generated.status, 'ok')
 assert.equal(generated.quiz.source, 'local')
 assert.equal(generated.quiz.items.length, 5)
-assert.ok(generated.quiz.items.every(item => ['cn2en', 'en2cn', 'cloze'].includes(item.type)))
+assert.ok(generated.quiz.items.every(item => ['cn2en', 'en2cn', 'cloze', 'dictation'].includes(item.type)))
 assert.ok(generated.quiz.items.some(item => item.type === 'cloze'), 'local set includes a cloze item')
+assert.ok(generated.quiz.items.every(item => item.entryId), 'local items point at an entry')
+assert.ok(generated.quiz.items.every(item => item.noteId), 'local items point at a note')
 assert.ok(generated.quiz.items.some(item => item.open === true), 'translation items are open-ended')
 assert.ok(generated.quiz.items.some(item => item.open === false), 'cloze items are fixed-answer')
 assert.equal(generated.quiz.items.find(item => item.type === 'cloze').open, false)
@@ -476,6 +516,25 @@ assert.equal(oneEntry.status, 'ok')
 assert.ok(oneEntry.note.entries[1].expansion)
 assert.equal(oneEntry.note.entries[0].expansion.meaning, '释义1', 'the untouched entry keeps its old expansion')
 
+// A five-entry note is split into smaller requests, so a long long-sentence
+// response cannot truncate the whole expansion.
+const five = await tool3.execute({
+  action: 'add',
+  text: 'alpha\nbeta\ngamma\ndelta\nepsilon',
+  category: 'word',
+}, {})
+assert.equal(five.status, 'ok')
+assert.equal(five.note.entries.length, 5)
+const beforeFiveCalls = streamCalls.length
+const fiveExpanded = await tool3.execute({ action: 'expand', id: five.note.id }, {})
+assert.equal(fiveExpanded.status, 'ok')
+assert.equal(fiveExpanded.expanded, 5)
+assert.equal(fiveExpanded.note.entries.filter(entry => entry.expansion).length, 5)
+assert.equal(streamCalls.length, beforeFiveCalls + 3, 'five entries use three chunked calls')
+const fiveSnapshot = await services3.englishNotes.snapshot()
+assert.equal(fiveSnapshot.stats.entries >= 5, true)
+assert.ok(fiveSnapshot.stats.learned >= 0)
+
 // Whole-wall organization: the model plan is validated, then applied to notes.
 const beforeOrganize = await services3.englishNotes.snapshot()
 const organized = await services3.englishNotes.organizeWall()
@@ -552,6 +611,136 @@ for (const dispose of sixth.disposers) {
 }
 
 for (const dispose of third.disposers) {
+  try {
+    await dispose()
+  } catch {
+    /* cleanup */
+  }
+}
+
+// Export/import, daily backup, review scheduling, restore/reorder, and
+// partial expansion failures all work against the same persisted store.
+let partialCalls = 0
+const services8 = {}
+const eighth = makeContext(services8)
+services8.llm = {
+  listProviders: () => [{ id: 'fake', name: 'Fake' }],
+  listModels: async provider => [{ provider, id: 'fake-1', name: 'Fake 1' }],
+  resolveModelInfo: async (provider, model) => ({ provider, model, reasoning: { efforts: [], defaultEffort: '' } }),
+  stream: options => (async function* () {
+    const prompt = options.messages?.[0]?.content?.[0]?.text ?? ''
+    partialCalls += 1
+    let text = 'not json at all'
+    if (partialCalls === 1 && prompt.includes('Entries (JSON):')) {
+      const marker = 'Entries (JSON): '
+      let entries = []
+      try {
+        entries = JSON.parse(prompt.slice(prompt.lastIndexOf(marker) + marker.length).trim())
+      } catch {
+        entries = []
+      }
+      text = JSON.stringify({
+        items: entries.map((entry, index) => ({
+          index,
+          meaning: `partial-${index + 1}`,
+          collocations: [`partial-coll-${index + 1}`],
+        })),
+      })
+    }
+    yield { type: 'text-delta', index: 0, text }
+    yield { type: 'usage', usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 } }
+    yield { type: 'finish', reason: { kind: 'stop' } }
+  })(),
+}
+services8.agentDefaultModel = { currentSelection: () => ({ provider: 'default', model: 'default-1' }) }
+apply(eighth.ctx)
+const svc8 = services8.englishNotes
+
+const exportedJson = await svc8.exportData('json')
+assert.equal(exportedJson.status, 'ok')
+assert.ok(exportedJson.filename.endsWith('.json'))
+assert.ok(exportedJson.content.includes('"notes"'))
+const exportedCsv = await svc8.exportData('csv')
+assert.equal(exportedCsv.status, 'ok')
+assert.ok(exportedCsv.content.startsWith('"text"'))
+const exportedAnki = await svc8.exportData('anki')
+assert.equal(exportedAnki.status, 'ok')
+assert.ok(exportedAnki.content.startsWith('#separator:tab'))
+
+const selfImport = await svc8.importData(exportedJson.content)
+assert.equal(selfImport.status, 'ok')
+assert.equal(selfImport.addedEntries, 0, 'exporting and importing the same wall adds nothing')
+const freshImport = await svc8.importData(JSON.stringify({
+  notes: [{ text: 'serendipity | 意外发现', category: 'word', tags: ['imported'] }],
+}))
+assert.equal(freshImport.status, 'ok')
+assert.equal(freshImport.addedEntries, 1)
+assert.equal(freshImport.addedNotes, 1)
+const badImport = await svc8.importData('not json')
+assert.equal(badImport.status, 'invalid')
+
+const manualBackup = await svc8.backupNow()
+assert.equal(manualBackup.status, 'ok')
+assert.ok(manualBackup.path.includes('manual-'))
+const backupSnapshot = await svc8.snapshot()
+assert.ok(backupSnapshot.backup)
+assert.ok(backupSnapshot.backup.directory)
+assert.ok(backupSnapshot.backup.count >= 1, 'an automatic daily backup exists')
+
+// A locally generated quiz schedules the entries it covers.
+const beforeQuiz = await svc8.snapshot()
+const srsQuiz = await svc8.generateQuiz(true)
+assert.equal(srsQuiz.status, 'ok')
+const srsAnswers = Object.fromEntries(srsQuiz.quiz.items.map(item => [item.id, item.answer]))
+const srsGraded = await svc8.gradeQuiz(srsQuiz.quiz.date, srsAnswers)
+assert.equal(srsGraded.status, 'ok')
+const afterQuiz = await svc8.snapshot()
+assert.ok(afterQuiz.stats.reviewedToday >= beforeQuiz.stats.reviewedToday)
+assert.ok(afterQuiz.stats.due <= beforeQuiz.stats.due)
+assert.ok(afterQuiz.stats.accuracy7 > 0)
+const quizEntryIds = new Set(srsQuiz.quiz.items.map(item => item.entryId).filter(Boolean))
+const reviewedEntries = afterQuiz.notes.flatMap(note => note.entries)
+  .filter(entry => quizEntryIds.has(entry.id) && entry.review)
+assert.ok(reviewedEntries.length > 0)
+assert.ok(reviewedEntries.every(entry => entry.review.level >= 1))
+assert.ok(reviewedEntries.every(entry => entry.review.dueAt > srsGraded.quiz.attempt.submittedAt))
+
+// Restore a deleted note, then pin and reorder it.
+const wall = await svc8.snapshot()
+const targetNote = wall.notes[0]
+const removed = await svc8.deleteNote(targetNote.id)
+assert.equal(removed.status, 'ok')
+assert.ok(removed.note)
+const restored = await svc8.restoreNote({ note: removed.note })
+assert.equal(restored.status, 'ok')
+const pinned = await svc8.updateNote({ id: targetNote.id, pinned: true })
+assert.equal(pinned.status, 'ok')
+assert.equal(pinned.note.pinned, true)
+const orderIds = [targetNote.id, ...wall.notes.filter(note => note.id !== targetNote.id).map(note => note.id)]
+const reordered = await svc8.reorderNotes(orderIds)
+assert.equal(reordered.status, 'ok')
+const afterReorder = await svc8.snapshot()
+const ordered = afterReorder.notes.find(note => note.id === targetNote.id)
+assert.equal(ordered.pinned, true)
+assert.equal(ordered.order, 0)
+
+// A failed second chunk keeps the successful first chunk and reports partial.
+const savedFake = await svc8.saveSettings({ llm: { provider: 'fake', model: 'fake-1', reasoningEffort: '' } })
+assert.equal(savedFake.status, 'ok')
+const three = await svc8.addNote({ text: 'chunk-one\nchunk-two\nchunk-three', category: 'word' })
+assert.equal(three.status, 'ok')
+partialCalls = 0
+const partial = await svc8.expandNote(three.note.id)
+assert.equal(partial.status, 'partial')
+assert.equal(partial.expanded, 2)
+assert.equal(partial.failed.length, 1)
+assert.equal(partial.failed[0].text, 'chunk-three')
+assert.equal(partialCalls, 3, 'the failed chunk is retried once')
+const afterPartial = await svc8.snapshot()
+const partialNote = afterPartial.notes.find(note => note.id === three.note.id)
+assert.equal(partialNote.entries.filter(entry => entry.expansion).length, 2)
+
+for (const dispose of eighth.disposers) {
   try {
     await dispose()
   } catch {

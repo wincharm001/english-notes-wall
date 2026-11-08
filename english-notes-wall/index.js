@@ -7,7 +7,8 @@
  * the authenticated `/api` RPC; the tool calls the same methods, so both
  * callers share one implementation.
  */
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { constants as fsConstants } from 'node:fs'
+import { copyFile, mkdir, readFile, readdir, rename, stat, unlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
@@ -20,6 +21,17 @@ const MAX_ENTRIES = 50
 const MAX_ITEM_PROMPT = 1200
 const MAX_ITEM_ANSWER = 600
 const MAX_DAILY_QUIZZES = 60
+const MAX_ENTRY_IMPORT = 20 * 1024 * 1024
+// Leitner-style intervals in days for levels 0..6. A wrong answer resets to 0
+// and is due again in ten minutes; a right answer moves up one level.
+const REVIEW_INTERVAL_DAYS = Object.freeze([0, 1, 3, 7, 15, 30, 60])
+const MAX_REVIEW_LEVEL = REVIEW_INTERVAL_DAYS.length - 1
+const REVIEW_WRONG_DELAY_MS = 10 * 60 * 1000
+const EXPANSION_CHUNK_SIZE = 2
+const EXPANSION_TIMEOUT_MS = 120000
+const EXPANSION_MAX_TOKENS = 6000
+const EXPANSION_ATTEMPTS = 2
+const BACKUP_KEEP = 7
 const DEFAULT_SETTINGS = Object.freeze({
   quizTime: '08:00',
   dailyCount: 5,
@@ -30,8 +42,8 @@ const DEFAULT_SETTINGS = Object.freeze({
 })
 const DEFAULT_LLM = Object.freeze({ provider: '', model: '', reasoningEffort: '' })
 const CATEGORIES = Object.freeze(['word', 'phrase', 'collocation', 'pattern', 'sentence', 'other'])
-const QUIZ_TYPES = Object.freeze(['cn2en', 'en2cn', 'cloze', 'collocation', 'usage'])
-const OPEN_TYPES = Object.freeze(['cn2en', 'en2cn', 'usage'])
+const QUIZ_TYPES = Object.freeze(['cn2en', 'en2cn', 'cloze', 'collocation', 'usage', 'sentence', 'dictation'])
+const OPEN_TYPES = Object.freeze(['cn2en', 'en2cn', 'usage', 'sentence'])
 const PROMPT_KEYS = Object.freeze(['expansion', 'quiz', 'grading', 'organize'])
 const USAGE_PURPOSES = Object.freeze(['expansion', 'quiz', 'grading', 'organize'])
 const MAX_PROMPT = 8000
@@ -67,6 +79,12 @@ const DESCRIPTORS = Object.freeze([
   method('gradeWithModel', ['date', 'answers']),
   method('saveSettings', ['patch']),
   method('llmCatalog', ['provider', 'model']),
+  method('cancelExpansion'),
+  method('restoreNote', ['input']),
+  method('reorderNotes', ['ids']),
+  method('exportData', ['format']),
+  method('importData', ['content']),
+  method('backupNow'),
 ])
 
 const EXPANSION_SYSTEM = [
@@ -126,8 +144,14 @@ const DEFAULT_PROMPTS = Object.freeze({
     '- "cloze": an English sentence with one word replaced by "____"; the answer is that word.',
     '- "collocation": a natural collocation with one gap, such as "make a ____"; the answer is the missing word.',
     '- "usage": ask the learner to write an English sentence using a given word, phrase, or pattern (open-ended).',
+    '- "sentence": give one long English sentence from an expansion; the answer is its Chinese translation (open-ended).',
+    '- "dictation": the player hears the word or phrase and writes it down; the prompt is a short instruction in Chinese, and the answer is the exact English item.',
     'Return JSON: {"items":[{"type":"...","prompt":"...","answer":"reference answer",',
-    '"hint":"short optional hint","explanation":"short optional explanation in Chinese","open":true|false}]}',
+    '"hint":"short optional hint","explanation":"short optional explanation in Chinese","open":true|false,',
+    '"noteId":"the note id from the input","entryId":"the entry id from the input"}]}',
+    'Every item must copy the noteId and entryId of the entry it practices when that input provides them.',
+    'Use each entry at most once in the quiz.',
+    'Entries marked "due":true are review priorities; prefer them while still using a varied mix.',
     'For open-ended items the answer is one good reference answer; the learner may answer differently.',
     'Keep every fixed answer short and unambiguous. Prefer material from the notes and their expansions.',
     'Do not repeat the same question, prompt, or answer within the quiz.',
@@ -495,6 +519,8 @@ function normalizeEntry(raw) {
   }
   const expansion = normalizeExpansion(raw.expansion)
   if (expansion) entry.expansion = expansion
+  const review = normalizeReview(raw.review)
+  if (review) entry.review = review
   return entry
 }
 
@@ -537,6 +563,9 @@ function normalizeNote(raw) {
   if (position >= 0) note.position = position
   const organizationTags = asStringArray(raw.organizationTags, 10, 32)
   if (organizationTags.length) note.organizationTags = organizationTags
+  if (raw.pinned === true) note.pinned = true
+  const order = Math.trunc(asNumber(raw.order, -1))
+  if (order >= 0) note.order = order
   return note
 }
 
@@ -557,6 +586,7 @@ function normalizeQuiz(raw) {
       hint: asString(entry.hint, 400),
       explanation: asString(entry.explanation, 800),
       noteId: asString(entry.noteId, 80),
+      entryId: asString(entry.entryId, 80),
       open: typeof entry.open === 'boolean' ? entry.open : isOpenType(type),
     })
     if (items.length >= 12) break
@@ -804,6 +834,227 @@ function matchesAnswer(answer, given) {
   return acceptedVariants(answer).includes(normalized)
 }
 
+// -- spaced repetition ------------------------------------------------------
+
+function clamp(value, low, high) {
+  return Math.min(high, Math.max(low, value))
+}
+
+function normalizeReview(raw) {
+  if (!isObject(raw)) return null
+  const review = {
+    level: clamp(Math.trunc(asNumber(raw.level, 0)), 0, MAX_REVIEW_LEVEL),
+    dueAt: Math.max(0, Math.trunc(asNumber(raw.dueAt, 0))),
+    seen: Math.max(0, Math.trunc(asNumber(raw.seen, 0))),
+    correct: Math.max(0, Math.trunc(asNumber(raw.correct, 0))),
+    lastAt: Math.max(0, Math.trunc(asNumber(raw.lastAt, 0))),
+  }
+  const lastResult = asString(raw.lastResult, 16)
+  if (lastResult === 'correct' || lastResult === 'wrong') review.lastResult = lastResult
+  return review
+}
+
+function reviewDue(entry, now = Date.now()) {
+  const review = normalizeReview(entry?.review)
+  return !review || !review.dueAt || review.dueAt <= now
+}
+
+function applyReviewResult(entry, passed, now = Date.now()) {
+  if (!entry) return
+  const review = normalizeReview(entry.review) ?? {
+    level: 0,
+    dueAt: 0,
+    seen: 0,
+    correct: 0,
+    lastAt: 0,
+  }
+  review.seen += 1
+  if (passed) {
+    review.correct += 1
+    review.level = Math.min(MAX_REVIEW_LEVEL, review.level + 1)
+    review.dueAt = now + REVIEW_INTERVAL_DAYS[review.level] * 86400000
+    review.lastResult = 'correct'
+  } else {
+    review.level = 0
+    review.dueAt = now + REVIEW_WRONG_DELAY_MS
+    review.lastResult = 'wrong'
+  }
+  review.lastAt = now
+  entry.review = review
+}
+
+function reviewStats(notes, now = Date.now()) {
+  let entries = 0
+  let due = 0
+  let learned = 0
+  let reviewedToday = 0
+  const start = new Date(now)
+  start.setHours(0, 0, 0, 0)
+  const dayStart = start.getTime()
+  for (const note of Array.isArray(notes) ? notes : []) {
+    for (const entry of Array.isArray(note?.entries) ? note.entries : []) {
+      entries += 1
+      const review = normalizeReview(entry.review)
+      if (review) learned += 1
+      if (review?.lastAt >= dayStart) reviewedToday += 1
+      if (!review || !review.dueAt || review.dueAt <= now) due += 1
+    }
+  }
+  return { entries, due, learned, reviewedToday }
+}
+
+function quizAccuracy(quizzes, days = 7) {
+  const keys = Object.keys(isObject(quizzes) ? quizzes : {})
+    .filter(key => quizzes[key]?.attempt?.total > 0)
+    .sort()
+    .slice(-days)
+  if (!keys.length) return null
+  let score = 0
+  let total = 0
+  for (const key of keys) {
+    score += asNumber(quizzes[key].attempt.score, 0)
+    total += asNumber(quizzes[key].attempt.total, 0)
+  }
+  if (!total) return null
+  return Math.round((score / total) * 1000) / 1000
+}
+
+function exportFileName(extension, now = Date.now()) {
+  return `english-notes-${localDateKey(now)}.${extension}`
+}
+
+function csvCell(value) {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`
+}
+
+function buildCsvExport(notes) {
+  const header = [
+    'text', 'translation', 'category', 'tags', 'meaning', 'phonetic',
+    'collocations', 'synonyms', 'example_en', 'example_zh', 'structure',
+    'grammar', 'chunk', 'tips', 'level', 'due_at',
+  ]
+  const lines = [header.map(csvCell).join(',')]
+  for (const note of Array.isArray(notes) ? notes : []) {
+    for (const entry of Array.isArray(note.entries) ? note.entries : []) {
+      const expansion = entry.expansion ?? {}
+      const examples = Array.isArray(expansion.examples) ? expansion.examples : []
+      const first = examples[0] ?? {}
+      const review = normalizeReview(entry.review)
+      lines.push([
+        entry.text,
+        entry.translation,
+        note.category,
+        Array.isArray(note.tags) ? note.tags.join('; ') : '',
+        expansion.meaning ?? '',
+        expansion.phonetic ?? '',
+        Array.isArray(expansion.collocations) ? expansion.collocations.join('; ') : '',
+        Array.isArray(expansion.synonyms) ? expansion.synonyms.join('; ') : '',
+        examples.map(value => value.en).join(' || '),
+        examples.map(value => value.zh ?? '').join(' || '),
+        first.structure ?? '',
+        first.grammar ?? '',
+        first.chunk ?? '',
+        expansion.tips ?? '',
+        review?.level ?? 0,
+        review?.dueAt ?? 0,
+      ].map(csvCell).join(','))
+    }
+  }
+  return `${lines.join('\n')}\n`
+}
+
+function buildAnkiExport(notes) {
+  const clean = value => String(value ?? '').replace(/[\t\r\n]+/g, ' ').trim()
+  const lines = ['#separator:tab', '#html:false']
+  for (const note of Array.isArray(notes) ? notes : []) {
+    for (const entry of Array.isArray(note.entries) ? note.entries : []) {
+      const expansion = entry.expansion ?? {}
+      const example = Array.isArray(expansion.examples) ? expansion.examples[0] : null
+      const front = [
+        clean(entry.text),
+        expansion.phonetic ? `/ ${clean(expansion.phonetic)} /` : '',
+      ].filter(Boolean).join(' ')
+      const back = [
+        clean(entry.translation),
+        clean(expansion.meaning),
+        example ? `${clean(example.en)}${example.zh ? ` — ${clean(example.zh)}` : ''}` : '',
+      ].filter(Boolean).join(' ')
+      const tags = [note.category, ...(Array.isArray(note.tags) ? note.tags : [])]
+        .map(tag => clean(tag).replace(/\s+/g, '_'))
+        .filter(Boolean)
+        .join(' ')
+      lines.push(`${front}\t${back}\t${tags}`)
+    }
+  }
+  return `${lines.join('\n')}\n`
+}
+
+function findQuizEntry(notes, item) {
+  const entryId = asString(item?.entryId, 80)
+  const noteId = asString(item?.noteId, 80)
+  const candidates = []
+  for (const note of Array.isArray(notes) ? notes : []) {
+    if (noteId && note.id !== noteId) continue
+    for (const entry of Array.isArray(note.entries) ? note.entries : []) {
+      candidates.push(entry)
+      if (entryId && entry.id === entryId) return entry
+    }
+  }
+  if (entryId) return null
+  const answer = normalizeAnswer(item?.answer)
+  const prompt = normalizeAnswer(item?.prompt)
+  const lookup = (value, matcher) => {
+    if (!value) return null
+    for (const entry of candidates) {
+      if (matcher(entry, value)) return entry
+    }
+    return null
+  }
+  const direct = lookup(answer, (entry, value) => normalizeAnswer(entry.text) === value || normalizeAnswer(entry.translation) === value)
+    ?? lookup(prompt, (entry, value) => normalizeAnswer(entry.text) === value || normalizeAnswer(entry.translation) === value)
+  if (direct) return direct
+  for (const entry of candidates) {
+    for (const example of Array.isArray(entry.expansion?.examples) ? entry.expansion.examples : []) {
+      if (answer && normalizeAnswer(example.zh) === answer) return entry
+      if (prompt && normalizeAnswer(example.en) === prompt) return entry
+    }
+  }
+  return null
+}
+
+function quizCandidates(notes, now = Date.now()) {
+  const list = []
+  for (const note of Array.isArray(notes) ? notes : []) {
+    for (const entry of Array.isArray(note.entries) ? note.entries : []) {
+      const review = normalizeReview(entry.review)
+      const examples = Array.isArray(entry.expansion?.examples) ? entry.expansion.examples : []
+      const longExample = examples.find(value => value?.structure || String(value?.en ?? '').split(/\s+/).length >= 22)
+      list.push({
+        noteId: note.id,
+        entryId: entry.id,
+        text: entry.text.slice(0, 300),
+        translation: entry.translation.slice(0, 300),
+        category: note.category,
+        meaning: entry.expansion?.meaning ?? '',
+        collocations: entry.expansion?.collocations?.slice(0, 3) ?? [],
+        examples: examples.slice(0, 2).map(value => ({ en: value.en, zh: value.zh ?? '' })),
+        sentence: longExample ? { en: longExample.en, zh: longExample.zh ?? '' } : null,
+        due: !review || !review.dueAt || review.dueAt <= now,
+        level: review?.level ?? 0,
+        dueAt: review?.dueAt ?? 0,
+        lastAt: review?.lastAt ?? 0,
+        createdAt: note.createdAt,
+      })
+    }
+  }
+  const due = list.filter(item => item.due)
+  const later = list.filter(item => !item.due)
+  // Never-seen and most-overdue entries come first; then the weakest level.
+  due.sort((left, right) => (left.dueAt || 0) - (right.dueAt || 0) || left.level - right.level || left.createdAt - right.createdAt)
+  later.sort((left, right) => left.dueAt - right.dueAt || left.level - right.level)
+  return [...due, ...later]
+}
+
 function seededRandom(seed) {
   let state = seed >>> 0
   return () => {
@@ -852,20 +1103,17 @@ function clozeItem(unit, random) {
     hint: unit.translation ? `提示：${unit.translation.slice(0, 60)}` : '',
     explanation: '',
     noteId: unit.noteId,
+    entryId: unit.entryId,
     open: false,
   }
 }
 
 function buildLocalQuiz(notes, count, dateKey) {
-  const units = []
-  for (const note of notes) {
-    for (const entry of note.entries) {
-      units.push({ noteId: note.id, text: entry.text, translation: entry.translation })
-    }
-  }
-  const random = seededRandom(seedFrom(`${dateKey}:${units.length}`))
-  const pool = shuffle(units.slice(-60), random)
-  const buckets = { cn2en: [], en2cn: [], cloze: [] }
+  const candidates = quizCandidates(notes).slice(0, 60)
+  const random = seededRandom(seedFrom(`${dateKey}:${candidates.length}`))
+  // Keep the due-first order, then shuffle inside a small window.
+  const pool = shuffle(candidates.slice(0, 24), random)
+  const buckets = { cn2en: [], en2cn: [], cloze: [], sentence: [], dictation: [] }
   for (const unit of pool) {
     const translation = asString(unit.translation, 600)
     if (translation) {
@@ -877,6 +1125,7 @@ function buildLocalQuiz(notes, count, dateKey) {
         hint: '',
         explanation: '',
         noteId: unit.noteId,
+        entryId: unit.entryId,
         open: true,
       })
     }
@@ -889,14 +1138,41 @@ function buildLocalQuiz(notes, count, dateKey) {
         hint: '',
         explanation: '',
         noteId: unit.noteId,
+        entryId: unit.entryId,
         open: true,
       })
     }
     const cloze = clozeItem(unit, random)
     if (cloze) buckets.cloze.push(cloze)
+    if (unit.sentence?.en && unit.sentence?.zh && unit.sentence.en !== unit.text) {
+      buckets.sentence.push({
+        id: newId('q'),
+        type: 'sentence',
+        prompt: unit.sentence.en,
+        answer: unit.sentence.zh,
+        hint: unit.meaning || '',
+        explanation: '',
+        noteId: unit.noteId,
+        entryId: unit.entryId,
+        open: true,
+      })
+    }
+    if (translation && unit.text.length <= 80 && /[A-Za-z]/.test(unit.text)) {
+      buckets.dictation.push({
+        id: newId('q'),
+        type: 'dictation',
+        prompt: translation,
+        answer: unit.text,
+        hint: '',
+        explanation: '',
+        noteId: unit.noteId,
+        entryId: unit.entryId,
+        open: false,
+      })
+    }
   }
   const items = []
-  const types = ['cn2en', 'en2cn', 'cloze']
+  const types = ['cn2en', 'en2cn', 'cloze', 'sentence', 'dictation']
   let progressed = true
   while (items.length < count && progressed) {
     progressed = false
@@ -952,6 +1228,10 @@ class NoteStore {
     return this.#file
   }
 
+  get backupDirectory() {
+    return path.join(path.dirname(this.#file), 'backups')
+  }
+
   async load() {
     if (this.#state) return this.#state
     if (this.#loading) return this.#loading
@@ -995,9 +1275,90 @@ class NoteStore {
 
   async #persist(state) {
     await mkdir(path.dirname(this.#file), { recursive: true })
+    await this.#dailyBackup()
     const temporary = `${this.#file}.tmp`
     await writeFile(temporary, `${JSON.stringify(state, null, 2)}\n`, 'utf8')
     await rename(temporary, this.#file)
+  }
+
+  // Capture the previous store once per day. The copy is made before the new
+  // state replaces the file, so a bad edit still leaves a recoverable day.
+  async #dailyBackup() {
+    const target = path.join(this.backupDirectory, `store-${localDateKey()}.json`)
+    try {
+      await mkdir(this.backupDirectory, { recursive: true })
+      await copyFile(this.#file, target, fsConstants.COPYFILE_EXCL)
+    } catch (error) {
+      if (error?.code !== 'ENOENT' && error?.code !== 'EEXIST') {
+        this.#warn(`daily backup failed: ${error?.message ?? error}`)
+      }
+      return
+    }
+    await this.#pruneBackups()
+  }
+
+  async #pruneBackups() {
+    try {
+      const names = (await readdir(this.backupDirectory))
+        .filter(name => /^store-\d{4}-\d{2}-\d{2}\.json$/.test(name))
+        .sort()
+      while (names.length > BACKUP_KEEP) {
+        await unlink(path.join(this.backupDirectory, names.shift())).catch(() => {})
+      }
+    } catch {
+      /* backup pruning is best effort */
+    }
+  }
+
+  async backupInfo() {
+    try {
+      const names = (await readdir(this.backupDirectory))
+        .filter(name => /^store-\d{4}-\d{2}-\d{2}\.json$/.test(name))
+        .sort()
+      let lastAt = 0
+      if (names.length) {
+        const info = await stat(path.join(this.backupDirectory, names.at(-1)))
+        lastAt = info.mtimeMs
+      }
+      return { count: names.length, lastAt, directory: this.backupDirectory }
+    } catch {
+      return { count: 0, lastAt: 0, directory: this.backupDirectory }
+    }
+  }
+
+  async backupNow() {
+    const stamp = new Date()
+    const clock = [stamp.getHours(), stamp.getMinutes(), stamp.getSeconds()]
+      .map(value => String(value).padStart(2, '0'))
+      .join('-')
+    const target = path.join(this.backupDirectory, `manual-${localDateKey()}-${clock}.json`)
+    await mkdir(this.backupDirectory, { recursive: true })
+    try {
+      await copyFile(this.#file, target)
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        // No persisted state yet: write the current in-memory state instead.
+        const state = await this.load()
+        await writeFile(target, `${JSON.stringify(state, null, 2)}\n`, 'utf8')
+      } else {
+        throw error
+      }
+    }
+    await this.#pruneManualBackups()
+    return { status: 'ok', path: target, at: Date.now() }
+  }
+
+  async #pruneManualBackups() {
+    try {
+      const names = (await readdir(this.backupDirectory))
+        .filter(name => /^manual-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}\.json$/.test(name))
+        .sort()
+      while (names.length > 10) {
+        await unlink(path.join(this.backupDirectory, names.shift())).catch(() => {})
+      }
+    } catch {
+      /* manual backup pruning is best effort */
+    }
   }
 
   async #backupCorrupt() {
@@ -1022,6 +1383,7 @@ class EnglishNotesWall {
   #generating = null
   #organizing = null
   #controllers = new Set()
+  #expansionControllers = new Set()
 
   constructor(ctx, store) {
     this.#ctx = ctx
@@ -1071,6 +1433,7 @@ class EnglishNotesWall {
     if (!selection || !llm || typeof llm.stream !== 'function') return null
     const controller = new AbortController()
     this.#controllers.add(controller)
+    if (options.purpose === 'expansion') this.#expansionControllers.add(controller)
     const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 90000)
     timeout.unref?.()
     let text = ''
@@ -1101,6 +1464,7 @@ class EnglishNotesWall {
     } finally {
       clearTimeout(timeout)
       this.#controllers.delete(controller)
+      this.#expansionControllers.delete(controller)
     }
     return { text: text.trim(), usage, selection }
   }
@@ -1131,10 +1495,13 @@ class EnglishNotesWall {
       })
     const today = state.quizzes[date] ?? null
     const nextQuiz = nextQuizPublication(state, now)
+    const review = reviewStats(state.notes, now)
+    const backup = await this.#store.backupInfo()
     return {
       now,
       nextQuizAt: nextQuiz.at,
       quizPending: nextQuiz.pending,
+      backup,
       organization: state.organization
         ? {
           appliedAt: state.organization.appliedAt,
@@ -1165,6 +1532,11 @@ class EnglishNotesWall {
         counts,
         streak: countStreak(state.quizzes),
         pending: Boolean(today && !today.attempt),
+        entries: review.entries,
+        due: review.due,
+        learned: review.learned,
+        reviewedToday: review.reviewedToday,
+        accuracy7: quizAccuracy(state.quizzes, 7),
       },
     }
   }
@@ -1213,7 +1585,7 @@ class EnglishNotesWall {
         const previous = new Map(target.entries.map(entry => [entry.text.toLowerCase(), entry]))
         const entries = parsed.map(entry => {
           const old = previous.get(entry.text.toLowerCase())
-          return old ? { ...entry, id: old.id, expansion: old.expansion } : entry
+          return old ? { ...entry, id: old.id, expansion: old.expansion, review: old.review } : entry
         })
         target.entries = entries
         target.text = entries.map(entry => entry.text).join('\n')
@@ -1223,6 +1595,11 @@ class EnglishNotesWall {
         target.category = payload.category
       }
       if (payload.tags !== undefined) target.tags = asStringArray(payload.tags, 8, 32)
+      if (payload.pinned !== undefined) target.pinned = Boolean(payload.pinned)
+      if (payload.order !== undefined) {
+        const order = Math.trunc(asNumber(payload.order, -1))
+        if (order >= 0) target.order = order
+      }
       target.updatedAt = Date.now()
       return { ...target }
     })
@@ -1235,11 +1612,45 @@ class EnglishNotesWall {
     if (!noteId) return { status: 'invalid', message: 'A note id is required.' }
     const removed = await this.#store.mutate(state => {
       const index = state.notes.findIndex(note => note.id === noteId)
-      if (index < 0) return false
-      state.notes.splice(index, 1)
-      return true
+      if (index < 0) return null
+      return state.notes.splice(index, 1)[0]
     })
-    return removed ? { status: 'ok' } : { status: 'missing', message: 'That note no longer exists.' }
+    return removed ? { status: 'ok', note: { ...removed } } : { status: 'missing', message: 'That note no longer exists.' }
+  }
+
+  async restoreNote(input) {
+    const payload = isObject(input) ? input : {}
+    const note = normalizeNote(isObject(payload.note) ? payload.note : payload)
+    if (!note) return { status: 'invalid', message: 'That deleted note could not be restored.' }
+    const state = await this.#store.load()
+    if (state.notes.some(entry => entry.id === note.id)) {
+      return { status: 'exists', message: 'That note is already on the wall.' }
+    }
+    await this.#store.mutate(current => {
+      current.notes.push(note)
+      current.notes.sort((left, right) => left.createdAt - right.createdAt)
+    })
+    return { status: 'ok', note: { ...note } }
+  }
+
+  async reorderNotes(ids) {
+    const list = [...new Set((Array.isArray(ids) ? ids : [])
+      .map(value => asString(value, 80))
+      .filter(Boolean))]
+    if (!list.length) return { status: 'invalid', message: 'The new note order is empty.' }
+    const changed = await this.#store.mutate(state => {
+      const known = new Set(state.notes.map(note => note.id))
+      const rank = new Map(list.filter(id => known.has(id)).map((id, index) => [id, index]))
+      let count = 0
+      for (const note of state.notes) {
+        const order = rank.get(note.id)
+        if (order === undefined) continue
+        note.order = order
+        count += 1
+      }
+      return count
+    })
+    return changed ? { status: 'ok', reordered: changed } : { status: 'invalid', message: 'No known notes were listed.' }
   }
 
   async expandNote(id, force = false, entryId = '') {
@@ -1254,82 +1665,19 @@ class EnglishNotesWall {
     if (!targets.length) return { status: 'missing', message: 'That entry no longer exists.' }
     if (!force) targets = targets.filter(entry => !entry.expansion)
     if (!targets.length) return { status: 'exists', note: { ...note } }
-
-    const entriesPayload = targets.map((entry, index) => ({
-      index,
-      text: entry.text,
-      translation: entry.translation,
-      category: note.category,
-    }))
-    const prompt = resolvePrompt(state.settings, 'expansion', {
-      note: JSON.stringify(entriesPayload),
-      count: targets.length,
-      text: targets.map(entry => entry.text).join('\n'),
-      category: note.category,
-      tags: note.tags.join(', '),
-    })
-
-    let completion = null
-    try {
-      completion = await this.#complete(EXPANSION_SYSTEM, prompt, {
-        maxTokens: Math.min(8000, 1600 + targets.length * 1600),
-        temperature: 0.5,
-      })
-    } catch (error) {
-      return { status: 'error', message: error?.message ?? String(error) }
-    }
-    if (!completion || !completion.text) {
+    if (!this.#effectiveSelection()) {
       return { status: 'unavailable', message: 'No model is configured, so this note cannot be expanded yet.' }
     }
-    const raw = completion.text
-    const modelLabel = selectionLabel(completion.selection)
-    const usage = normalizeTokenUsage(completion.usage)
-    const meta = {
-      generatedAt: Date.now(),
-      model: modelLabel,
-      reasoningEffort: completion.selection.reasoningEffort || '',
-      usage,
-    }
-    const data = parseModelJson(raw)
-    const list = data && Array.isArray(data.items)
-      ? data.items
-      : data && isObject(data) ? [data] : []
-    const byIndex = new Map()
-    for (const item of list) {
-      if (!isObject(item)) continue
-      const index = Number.isInteger(item.index)
-        ? item.index
-        : (list.length === 1 && targets.length === 1 ? 0 : -1)
-      if (index < 0 || index >= targets.length) continue
-      const expansion = normalizeExpansion({
-        meaning: item.meaning,
-        phonetic: item.phonetic,
-        wordForms: item.wordForms,
-        discrimination: item.discrimination,
-        collocations: item.collocations,
-        synonyms: item.synonyms,
-        examples: item.examples,
-        moreExamples: item.moreExamples,
-        tips: item.tips,
-        related: item.related,
-        ...meta,
-      })
-      if (!expansion) continue
-      const hasContent = expansion.meaning || expansion.phonetic || expansion.wordForms
-        || expansion.discrimination || expansion.collocations || expansion.synonyms
-        || expansion.examples || expansion.moreExamples || expansion.tips || expansion.related
-      if (hasContent) byIndex.set(index, expansion)
-    }
-    if (!byIndex.size && targets.length === 1) {
-      byIndex.set(0, normalizeExpansion({ text: raw, ...meta }))
-    }
-    if (!byIndex.size) {
-      return { status: 'error', message: 'The model did not return one usable expansion per entry. Check the expansion prompt template.' }
-    }
 
-    // Remove repeated collocations, synonyms, forms, and examples across the batch.
+    const assignments = new Map()
+    const failures = []
+    const completions = []
     const seen = { collocations: new Set(), synonyms: new Set(), examples: new Set(), forms: new Set() }
-    for (const [, expansion] of [...byIndex.entries()].sort((left, right) => left[0] - right[0])) {
+    let cancelled = false
+
+    // Deduplicate across the whole note so chunks behave like one batch.
+    const absorb = (entry, expansion) => {
+      if (!expansion) return
       if (Array.isArray(expansion.wordForms)) {
         expansion.wordForms = expansion.wordForms.filter(value => {
           const key = String(value?.word ?? '').toLowerCase()
@@ -1370,13 +1718,124 @@ class EnglishNotesWall {
           return true
         })
       }
+      assignments.set(entry.id, expansion)
     }
 
-    const assignments = new Map()
-    targets.forEach((entry, index) => {
-      const expansion = byIndex.get(index)
-      if (expansion) assignments.set(entry.id, expansion)
-    })
+    for (let start = 0; start < targets.length; start += EXPANSION_CHUNK_SIZE) {
+      if (this.#stopped) {
+        cancelled = true
+        break
+      }
+      const chunk = targets.slice(start, start + EXPANSION_CHUNK_SIZE)
+      const entriesPayload = chunk.map((entry, index) => ({
+        index,
+        text: entry.text,
+        translation: entry.translation,
+        category: note.category,
+      }))
+      const prompt = resolvePrompt(state.settings, 'expansion', {
+        note: JSON.stringify(entriesPayload),
+        count: chunk.length,
+        text: chunk.map(entry => entry.text).join('\n'),
+        category: note.category,
+        tags: note.tags.join(', '),
+      })
+
+      let byIndex = new Map()
+      let lastError = ''
+      for (let attempt = 0; attempt < EXPANSION_ATTEMPTS; attempt += 1) {
+        if (this.#stopped) {
+          cancelled = true
+          break
+        }
+        try {
+          const completion = await this.#complete(EXPANSION_SYSTEM, prompt, {
+            maxTokens: EXPANSION_MAX_TOKENS,
+            temperature: attempt === 0 ? 0.5 : 0.3,
+            timeoutMs: EXPANSION_TIMEOUT_MS,
+            purpose: 'expansion',
+          })
+          if (!completion?.text) {
+            lastError = 'No model is configured, so this note cannot be expanded yet.'
+            break
+          }
+          const meta = {
+            generatedAt: Date.now(),
+            model: selectionLabel(completion.selection),
+            reasoningEffort: completion.selection.reasoningEffort || '',
+            usage: normalizeTokenUsage(completion.usage),
+          }
+          const data = parseModelJson(completion.text)
+          const list = data && Array.isArray(data.items)
+            ? data.items
+            : data && isObject(data) ? [data] : []
+          byIndex = new Map()
+          for (const item of list) {
+            if (!isObject(item)) continue
+            const index = Number.isInteger(item.index)
+              ? item.index
+              : (list.length === 1 && chunk.length === 1 ? 0 : -1)
+            if (index < 0 || index >= chunk.length) continue
+            const expansion = normalizeExpansion({
+              meaning: item.meaning,
+              phonetic: item.phonetic,
+              wordForms: item.wordForms,
+              discrimination: item.discrimination,
+              collocations: item.collocations,
+              synonyms: item.synonyms,
+              examples: item.examples,
+              moreExamples: item.moreExamples,
+              tips: item.tips,
+              related: item.related,
+              ...meta,
+            })
+            if (!expansion) continue
+            const hasContent = expansion.meaning || expansion.phonetic || expansion.wordForms
+              || expansion.discrimination || expansion.collocations || expansion.synonyms
+              || expansion.examples || expansion.moreExamples || expansion.tips || expansion.related
+            if (hasContent) byIndex.set(index, expansion)
+          }
+          if (byIndex.size) {
+            completions.push({ usage: meta.usage, model: meta.model, reasoningEffort: meta.reasoningEffort })
+            break
+          }
+          lastError = 'The model did not return one usable expansion per entry. Check the expansion prompt template.'
+        } catch (error) {
+          lastError = error?.message ?? String(error)
+          if (/cancel|abort/i.test(lastError)) cancelled = true
+          if (cancelled) break
+        }
+      }
+
+      if (cancelled) break
+      if (!byIndex.size) {
+        for (const entry of chunk) {
+          failures.push({ entryId: entry.id, text: entry.text, message: lastError || 'Expansion failed.' })
+        }
+        continue
+      }
+      for (let index = 0; index < chunk.length; index += 1) {
+        const expansion = byIndex.get(index)
+        if (expansion) {
+          absorb(chunk[index], expansion)
+        } else {
+          failures.push({
+            entryId: chunk[index].id,
+            text: chunk[index].text,
+            message: lastError || 'The model skipped this entry.',
+          })
+        }
+      }
+    }
+
+    if (!assignments.size) {
+      return {
+        status: cancelled ? 'cancelled' : 'error',
+        message: cancelled ? 'Expansion was cancelled.' : (failures[0]?.message || 'Expansion failed.'),
+        failed: failures,
+      }
+    }
+
     const updated = await this.#store.mutate(current => {
       const target = current.notes.find(entry => entry.id === noteId)
       if (!target) return null
@@ -1385,16 +1844,37 @@ class EnglishNotesWall {
         if (expansion) entry.expansion = expansion
       }
       target.updatedAt = Date.now()
-      recordUsage(current, usage, {
-        model: modelLabel,
-        reasoningEffort: completion.selection.reasoningEffort || '',
-        purpose: 'expansion',
-        noteId,
-      })
+      for (const completion of completions) {
+        recordUsage(current, completion.usage, {
+          model: completion.model,
+          reasoningEffort: completion.reasoningEffort,
+          purpose: 'expansion',
+          noteId,
+        })
+      }
       return { ...target }
     })
     if (!updated) return { status: 'missing', message: 'That note no longer exists.' }
-    return { status: 'ok', note: updated, expanded: assignments.size }
+    return {
+      status: failures.length ? 'partial' : 'ok',
+      note: updated,
+      expanded: assignments.size,
+      failed: failures,
+    }
+  }
+
+  async cancelExpansion() {
+    let cancelled = 0
+    for (const controller of this.#expansionControllers) {
+      try {
+        controller.abort()
+        cancelled += 1
+      } catch {
+        /* already settled */
+      }
+    }
+    this.#expansionControllers.clear()
+    return { status: 'ok', cancelled }
   }
 
   async organizeWall() {
@@ -1520,20 +2000,10 @@ class EnglishNotesWall {
     }
 
     const count = state.settings.dailyCount
-    const pool = []
-    for (const note of state.notes.slice(-14)) {
-      for (const entry of note.entries) {
-        pool.push({
-          text: entry.text.slice(0, 300),
-          translation: entry.translation.slice(0, 300),
-          category: note.category,
-          meaning: entry.expansion?.meaning ?? '',
-          collocations: entry.expansion?.collocations?.slice(0, 4) ?? [],
-          examples: entry.expansion?.examples?.slice(0, 2) ?? [],
-        })
-      }
-    }
-    const bounded = pool.slice(-24)
+    // Due entries come first, then the soonest-due ones. The model sees a
+    // bounded slice so the prompt stays small; local fallback uses the same order.
+    const pool = quizCandidates(state.notes, Date.now()).slice(0, 60)
+    const bounded = pool.slice(0, 30)
     const prompt = resolvePrompt(state.settings, 'quiz', {
       count,
       notes: JSON.stringify(bounded),
@@ -1564,6 +2034,7 @@ class EnglishNotesWall {
             hint: asString(entry.hint, 400),
             explanation: asString(entry.explanation, 800),
             noteId: asString(entry.noteId, 80),
+            entryId: asString(entry.entryId, 80),
             open: typeof entry.open === 'boolean' ? entry.open : isOpenType(type),
           })
           if (items.length >= count) break
@@ -1624,6 +2095,15 @@ class EnglishNotesWall {
     await this.#store.mutate(current => {
       const target = current.quizzes[key]
       if (target) target.attempt = attempt
+      const touched = new Set()
+      for (const item of quiz.items) {
+        if (!cleaned[item.id]) continue
+        const entry = findQuizEntry(current.notes, item)
+        if (!entry || touched.has(entry.id)) continue
+        touched.add(entry.id)
+        if (correct[item.id]) applyReviewResult(entry, true, attempt.submittedAt)
+        else if (!item.open) applyReviewResult(entry, false, attempt.submittedAt)
+      }
     })
     return { status: 'ok', quiz: { ...quiz, attempt } }
   }
@@ -1714,6 +2194,16 @@ class EnglishNotesWall {
     await this.#store.mutate(current => {
       const target = current.quizzes[key]
       if (target) target.attempt = attempt
+      const touched = new Set()
+      for (const item of quiz.items) {
+        if (!submitted[item.id]) continue
+        const entry = findQuizEntry(current.notes, item)
+        if (!entry || touched.has(entry.id)) continue
+        touched.add(entry.id)
+        const verdict = feedback[item.id]?.verdict
+        if (verdict === 'correct' || verdict === 'partial') applyReviewResult(entry, true, attempt.submittedAt)
+        else applyReviewResult(entry, false, attempt.submittedAt)
+      }
       recordUsage(current, normalizeTokenUsage(completion.usage), {
         model: selectionLabel(completion.selection),
         reasoningEffort: completion.selection.reasoningEffort || '',
@@ -1859,6 +2349,132 @@ class EnglishNotesWall {
     }
   }
 
+  async exportData(format = 'json') {
+    const state = await this.#store.load()
+    const kind = ['json', 'csv', 'anki'].includes(format) ? format : 'json'
+    if (kind === 'csv') {
+      const content = buildCsvExport(state.notes)
+      return {
+        status: 'ok',
+        format: kind,
+        filename: exportFileName('csv'),
+        mime: 'text/csv;charset=utf-8',
+        content,
+        bytes: Buffer.byteLength(content, 'utf8'),
+      }
+    }
+    if (kind === 'anki') {
+      const content = buildAnkiExport(state.notes)
+      return {
+        status: 'ok',
+        format: kind,
+        filename: exportFileName('txt'),
+        mime: 'text/tab-separated-values;charset=utf-8',
+        content,
+        bytes: Buffer.byteLength(content, 'utf8'),
+      }
+    }
+    const content = `${JSON.stringify({
+      format: 'english-notes-wall',
+      version: STORE_VERSION,
+      exportedAt: new Date().toISOString(),
+      notes: state.notes,
+      organization: state.organization,
+      settings: state.settings,
+    }, null, 2)}\n`
+    return {
+      status: 'ok',
+      format: 'json',
+      filename: exportFileName('json'),
+      mime: 'application/json;charset=utf-8',
+      content,
+      bytes: Buffer.byteLength(content, 'utf8'),
+    }
+  }
+
+  async importData(content) {
+    if (typeof content !== 'string' || !content.trim()) {
+      return { status: 'invalid', message: 'The import file is empty.' }
+    }
+    if (content.length > MAX_ENTRY_IMPORT) {
+      return { status: 'invalid', message: 'The import file is too large.' }
+    }
+    let parsed = null
+    try {
+      parsed = JSON.parse(content)
+    } catch {
+      return { status: 'invalid', message: 'The import file is not valid JSON.' }
+    }
+    const rawNotes = Array.isArray(parsed)
+      ? parsed
+      : parsed && isObject(parsed) && Array.isArray(parsed.notes) ? parsed.notes : null
+    if (!rawNotes) {
+      return { status: 'invalid', message: 'The import file does not contain a notes array.' }
+    }
+    const imported = rawNotes.map(normalizeNote).filter(Boolean).slice(0, 500)
+    if (!imported.length) {
+      return { status: 'invalid', message: 'The import file contains no usable notes.' }
+    }
+    const summary = await this.#store.mutate(state => {
+      const byText = new Map()
+      for (const note of state.notes) {
+        for (const entry of note.entries) byText.set(entry.text.toLowerCase(), entry)
+      }
+      let addedNotes = 0
+      let addedEntries = 0
+      let enriched = 0
+      let skipped = 0
+      for (const note of imported) {
+        const fresh = []
+        for (const entry of note.entries) {
+          const existing = byText.get(entry.text.toLowerCase())
+          if (existing) {
+            if (!existing.expansion && entry.expansion) {
+              existing.expansion = entry.expansion
+              enriched += 1
+            }
+            if (!existing.review && entry.review) existing.review = entry.review
+            continue
+          }
+          fresh.push(entry)
+        }
+        if (!fresh.length) {
+          skipped += 1
+          continue
+        }
+        const now = Date.now()
+        const created = {
+          ...note,
+          id: newId('note'),
+          entries: fresh,
+          text: fresh.map(entry => entry.text).join('\n'),
+          translation: fresh[0]?.translation ?? '',
+          createdAt: now,
+          updatedAt: now,
+        }
+        delete created.pinned
+        delete created.order
+        delete created.topic
+        state.notes.push(created)
+        for (const entry of fresh) byText.set(entry.text.toLowerCase(), entry)
+        addedNotes += 1
+        addedEntries += fresh.length
+      }
+      state.notes.sort((left, right) => left.createdAt - right.createdAt)
+      return { addedNotes, addedEntries, enriched, skipped }
+    })
+    return { status: 'ok', ...summary }
+  }
+
+  async backupNow() {
+    try {
+      const result = await this.#store.backupNow()
+      return { ...result, backup: await this.#store.backupInfo() }
+    } catch (error) {
+      return { status: 'error', message: error?.message ?? String(error) }
+    }
+  }
+
   async listNotes(options = {}) {
     const state = await this.#store.load()
     const category = CATEGORIES.includes(options?.category) ? options.category : ''
@@ -1891,6 +2507,7 @@ class EnglishNotesWall {
     this.#catchUp = null
     for (const controller of this.#controllers) controller.abort()
     this.#controllers.clear()
+    this.#expansionControllers.clear()
   }
 
   #scheduleNext() {
@@ -2153,4 +2770,11 @@ export const __internals = {
   localDateKey,
   isOpenType,
   renderPrompt,
+  reviewDue,
+  reviewStats,
+  applyReviewResult,
+  quizCandidates,
+  findQuizEntry,
+  buildCsvExport,
+  buildAnkiExport,
 }
