@@ -160,8 +160,8 @@ const DEFAULT_PROMPTS = Object.freeze({
   grading: [
     'Grade the learner\'s answers to the quiz below. Be encouraging and precise.',
     'Judge each answer on its own merits:',
-    '- Fixed-answer items (cloze, collocation) accept the intended word or a clearly valid inflection; otherwise mark partial or incorrect.',
-    '- Open-ended items (cn2en, en2cn, usage) accept any natural, grammatically correct answer that conveys the same meaning; never require the reference wording.',
+    '- Fixed-answer items (cloze, collocation, dictation) accept the intended word or a clearly valid inflection; otherwise mark partial or incorrect.',
+    '- Open-ended items (cn2en, en2cn, usage, sentence) accept any natural, grammatically correct answer that conveys the same meaning; never require the reference wording.',
     'For every item, also widen the learner\'s vocabulary from their own answer: offer a more natural expression when useful, and 2-4 related words, collocations, or patterns.',
     'Return JSON: {"items":[{"id":"...","verdict":"correct|partial|incorrect","score":0|0.5|1,',
     '"feedback":"中文点评","better":"a more natural or richer expression, or an empty string",',
