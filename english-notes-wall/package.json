@@ -1,8 +1,8 @@
 {
   "name": "@local/english-notes-wall",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "private": true,
-  "description": "English learning sticky-note wall with every note collapsed to one compact summary line, category-colored cards, placeholder-aware example highlighting, rich model expansion with word forms, discrimination, and long-sentence analysis, batch expansion of pending notes, token cost estimates with per-purpose breakdown, a live next-quiz countdown, model-assisted whole-wall organization, list/grid layouts, collapsible composer, sidebar and expansions, selectable model expansion, prompt templates, collapsible quizzes, model grading, and token usage.",
+  "description": "English learning sticky-note wall with spaced-repetition review, category-colored cards, long-sentence analysis and practice mode, read-aloud and dictation, resilient chunked model expansion, JSON/CSV/Anki export with automatic backups, tag and study-status filters, keyboard shortcuts, undo, pinning, whole-wall organization, token cost estimates, and a daily quiz.",
   "type": "module",
   "exports": {
     ".": "./index.js",

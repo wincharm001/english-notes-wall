@@ -1,0 +1,24 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax
+        run: |
+          node --check english-notes-wall/index.js
+          node --check english-notes-wall/client.js
+      - name: Tests
+        run: |
+          for file in check-*.mjs test-*.mjs; do
+            echo "== $file"
+            node "$file"
+          done
