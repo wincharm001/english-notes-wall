@@ -144,7 +144,7 @@ const DEFAULT_PROMPTS = Object.freeze({
     '- "cloze": an English sentence with one word replaced by "____"; the answer is that word.',
     '- "collocation": a natural collocation with one gap, such as "make a ____"; the answer is the missing word.',
     '- "usage": ask the learner to write an English sentence using a given word, phrase, or pattern (open-ended).',
-    '- "sentence": give one long English sentence from an expansion; the answer is its Chinese translation (open-ended).',
+    '- "sentence": give one long English sentence from an expansion and ask for its Chinese translation, or give the Chinese translation and ask for the English sentence (open-ended).',
     '- "dictation": the player hears the word or phrase and writes it down; the prompt is a short instruction in Chinese, and the answer is the exact English item.',
     'Return JSON: {"items":[{"type":"...","prompt":"...","answer":"reference answer",',
     '"hint":"short optional hint","explanation":"short optional explanation in Chinese","open":true|false,',
@@ -1145,11 +1145,12 @@ function buildLocalQuiz(notes, count, dateKey) {
     const cloze = clozeItem(unit, random)
     if (cloze) buckets.cloze.push(cloze)
     if (unit.sentence?.en && unit.sentence?.zh && unit.sentence.en !== unit.text) {
+      const toEnglish = random() < 0.35
       buckets.sentence.push({
         id: newId('q'),
         type: 'sentence',
-        prompt: unit.sentence.en,
-        answer: unit.sentence.zh,
+        prompt: toEnglish ? unit.sentence.zh : unit.sentence.en,
+        answer: toEnglish ? unit.sentence.en : unit.sentence.zh,
         hint: unit.meaning || '',
         explanation: '',
         noteId: unit.noteId,

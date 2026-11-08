@@ -269,6 +269,7 @@ window.__ModuleLoader__.load({
       'action.unpin': 'Unpin note',
       'action.practice': 'Practice mode',
       'action.practiceOn': 'Practice mode: analysis hidden',
+      'practice.hint': 'Find the main clause and subordinate clauses first, then reveal the analysis.',
       'action.showAnalysis': 'Show translation and analysis',
       'action.hideAnalysis': 'Hide translation and analysis',
       'action.undo': 'Undo',
@@ -541,6 +542,7 @@ window.__ModuleLoader__.load({
       'action.unpin': '取消置顶',
       'action.practice': '练习模式',
       'action.practiceOn': '练习模式：已隐藏分析',
+      'practice.hint': '先自己找主干和从句，再显示翻译与分析。',
       'action.showAnalysis': '显示翻译与分析',
       'action.hideAnalysis': '隐藏翻译与分析',
       'action.undo': '撤销',
@@ -1085,6 +1087,9 @@ window.__ModuleLoader__.load({
                   onClick: () => setRevealed(value => !value),
                   'aria-pressed': revealed,
                 }, t(revealed ? 'action.hideAnalysis' : 'action.showAnalysis'))
+                : null,
+              practice && !revealed
+                ? h('span', { className: 'enw-practice-hint' }, t('practice.hint'))
                 : null),
             expansion.meaning && !hideAnalysis ? h('p', { className: 'enw-exp-meaning' }, expansion.meaning) : null,
             expansion.phonetic ? h('p', { className: 'enw-exp-phonetic' }, expansion.phonetic) : null,
@@ -3423,6 +3428,7 @@ window.__ModuleLoader__.load({
       .enw-practice-btn--on { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
       .enw-practice-reveal { border: 0; background: transparent; color: var(--dsw-alias-brand-primary); font: inherit; font-size: 11px; cursor: pointer; padding: 0; }
       .enw-practice-reveal:hover { text-decoration: underline; }
+      .enw-practice-hint { font-size: 10.5px; color: var(--dsw-alias-label-secondary); }
       .enw-hl { background: var(--dsw-alias-bg-layer-2); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 18%, transparent); color: inherit; border-bottom: 2px solid var(--dsw-alias-brand-primary); border-radius: 3px; padding: 0 2px; font-weight: 600; }
       .enw-example-zh { margin: 2px 0 0; font-size: 12px; color: var(--dsw-alias-label-secondary); }
       .enw-example-chunk, .enw-example-structure, .enw-example-grammar { margin: 3px 0 0; font-size: 11.5px; line-height: 1.55; color: var(--dsw-alias-label-secondary); }
