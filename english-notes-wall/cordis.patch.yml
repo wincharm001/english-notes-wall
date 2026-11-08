@@ -1,0 +1,5 @@
+# English Notes Wall: one Host row owns notes, model expansion, the daily quiz,
+# and the agent tool; the Client half renders the wall in the main column.
+- insert:
+    - id: english-notes-wall
+      name: '@local/english-notes-wall'

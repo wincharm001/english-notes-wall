@@ -1,0 +1,3034 @@
+/**
+ * Browser half of the English Notes Wall bundle.
+ *
+ * Renders the wall as a root-scoped main panel plus its sidebar entry. Every
+ * data operation is an authenticated unary RPC on the shared client connection
+ * (`/api` endpoint `englishNotes/<method>`), which dispatches into the same
+ * Host service the `english_notes` tool calls.
+ */
+window.__ModuleLoader__.load({
+  id: '@local/english-notes-wall',
+  factory(require) {
+    const React = require('react')
+    const h = React.createElement
+    const { useState, useEffect, useMemo, useRef, useSyncExternalStore } = React
+
+    const SERVICE = 'englishNotes'
+    const LOCALE_NS = 'englishNotes'
+    const PANEL_KEY = 'english-notes'
+    const CATEGORIES = ['word', 'phrase', 'collocation', 'pattern', 'sentence', 'other']
+    const PROMPT_TASKS = ['expansion', 'quiz', 'grading', 'organize']
+    const USAGE_PURPOSE_KEYS = ['expansion', 'quiz', 'grading', 'organize']
+    const PROMPT_PLACEHOLDERS = {
+      expansion: ['{{note}}'],
+      quiz: ['{{count}}', '{{notes}}'],
+      grading: ['{{quiz}}', '{{answers}}', '{{notes}}'],
+      organize: ['{{notes}}', '{{count}}'],
+    }
+    const QUIZ_COLLAPSED_KEY = 'english-notes-wall.quiz-collapsed'
+    const COMPOSER_COLLAPSED_KEY = 'english-notes-wall.composer-collapsed'
+    const SIDEBAR_COLLAPSED_KEY = 'english-notes-wall.sidebar-collapsed.v2'
+    const VIEW_MODE_KEY = 'english-notes-wall.view-mode'
+    const GROUP_MODE_KEY = 'english-notes-wall.group-mode'
+
+    // -- dictionaries -------------------------------------------------------
+
+    const en = {
+      'panel.title': 'English Notes Wall',
+      'panel.subtitle': 'Collect words, phrases, collocations, and sentence patterns. Expand them with a model and practise a fresh quiz every day.',
+      'action.add': 'Add note',
+      'action.refresh': 'Refresh',
+      'action.settings': 'Settings',
+      'action.expand': 'Expand with model',
+      'action.expandAll': 'Expand all entries',
+      'action.expandMissing': 'Expand missing',
+      'action.expandingMissing': 'Expanding',
+      'action.expandAgain': 'Expand again',
+      'action.edit': 'Edit',
+      'action.collapseExpansions': 'Collapse all expansions',
+      'action.expandExpansions': 'Expand all expansions',
+      'sidebar.collapse': 'Hide the right sidebar',
+      'sidebar.expand': 'Show the right sidebar',
+      'view.label': 'Note layout',
+      'view.list': 'List layout',
+      'view.grid': 'Grid layout',
+      'action.show': 'Show details',
+      'action.hide': 'Hide details',
+      'action.delete': 'Delete',
+      'action.confirmDelete': 'Delete this note?',
+      'action.confirm': 'Delete',
+      'action.cancel': 'Cancel',
+      'action.save': 'Save',
+      'action.saving': 'Saving…',
+      'action.regenerate': 'Regenerate',
+      'action.viewAnswer': 'Show answers',
+      'action.hideAnswers': 'Hide answers',
+      'action.submit': 'Submit answers',
+      'action.close': 'Dismiss',
+      'form.heading': 'New sticky note',
+      'form.placeholder': 'One entry per line: a word, phrase, collocation, sentence pattern, or sentence. Add a Chinese meaning after |.',
+      'form.entriesHint': 'One entry per line. Use "text | 中文" to add a meaning, e.g. "give up | 放弃".',
+      'form.tags': 'Tags, comma separated (optional)',
+      'form.category': 'Category',
+      'form.hint': 'Ctrl + Enter to save',
+      'form.collapse': 'Collapse the new-note form',
+      'form.expand': 'Show the new-note form',
+      'form.expandHint': 'The new-note form is collapsed. Click to expand.',
+      'form.required': 'Write something before saving.',
+      'filter.all': 'All',
+      'filter.search': 'Search notes…',
+      'filter.empty': 'No notes match this view.',
+      'filter.emptyHint': 'Add your first note above, or clear the search.',
+      'category.word': 'Word',
+      'category.phrase': 'Phrase',
+      'category.collocation': 'Collocation',
+      'category.pattern': 'Sentence pattern',
+      'category.sentence': 'Sentence',
+      'category.other': 'Other',
+      'note.expanded': 'Expanded',
+      'note.expandEntries': 'Show all entries',
+      'note.collapseEntries': 'Collapse entries',
+      'note.expandEntry': 'Show entry',
+      'note.collapseEntry': 'Collapse entry',
+      'note.entries': 'entries',
+      'note.editHint': 'One entry per line; use "text | 中文" for a meaning.',
+      'note.editEmpty': 'Keep at least one entry.',
+      'note.translationLabel': 'Meaning',
+      'note.tagsLabel': 'Tags',
+      'expansion.meaning': 'Meaning',
+      'expansion.phonetic': 'Pronunciation',
+      'expansion.wordForms': 'Word forms and look-alikes',
+      'expansion.form.derivative': 'Derivative',
+      'expansion.form.same-root': 'Same root',
+      'expansion.form.similar': 'Look-alike',
+      'expansion.discrimination': 'Word discrimination',
+      'expansion.collocations': 'Collocations',
+      'expansion.synonyms': 'Synonyms',
+      'expansion.examples': 'Examples',
+      'expansion.longSentences': 'Long-sentence analysis',
+      'expansion.structure': 'Structure',
+      'expansion.chunk': 'Natural chunk',
+      'expansion.grammar': 'Grammar',
+      'expansion.moreExamples': 'More long sentences',
+      'expansion.moreShortExamples': 'More examples',
+      'expansion.tips': 'Usage tips',
+      'expansion.related': 'Related',
+      'expansion.empty': 'No expansion yet.',
+      'quiz.title': 'Daily quiz',
+      'quiz.today': 'Today',
+      'quiz.tomorrow': 'Tomorrow',
+      'quiz.next': 'Next quiz',
+      'quiz.soon': 'Publishing soon…',
+      'quiz.paused': 'Daily quiz paused',
+      'quiz.empty': 'No quiz for today yet.',
+      'quiz.emptyHint': 'The daily quiz appears at the configured time, or you can build one now from your notes.',
+      'quiz.generate': 'Create today’s quiz',
+      'quiz.generating': 'Building today’s quiz…',
+      'quiz.confirmRegenerate': 'Replace today’s quiz and its answers?',
+      'quiz.replace': 'Replace',
+      'quiz.score': 'Score',
+      'quiz.correct': 'Correct',
+      'quiz.wrong': 'Review',
+      'quiz.yourAnswer': 'Your answer',
+      'quiz.answer': 'Answer',
+      'quiz.noAnswer': 'No answer',
+      'quiz.pending': 'Not finished',
+      'quiz.done': 'Finished',
+      'quiz.source.model': 'Model',
+      'quiz.source.local': 'Local practice set',
+      'quiz.type.cn2en': 'Chinese → English',
+      'quiz.type.en2cn': 'English → Chinese',
+      'quiz.type.cloze': 'Fill the blank',
+      'quiz.type.collocation': 'Collocation',
+      'quiz.type.usage': 'Use it in a sentence',
+      'quiz.hint': 'Hint',
+      'quiz.explanation': 'Note',
+      'quiz.history': 'Recent days',
+      'quiz.localNote': 'The model was unavailable, so this quiz was built from your notes.',
+      'quiz.blank': 'Write your answer…',
+      'quiz.collapse': 'Collapse questions',
+      'quiz.expand': 'Expand questions',
+      'quiz.gradeModel': 'Grade with model',
+      'quiz.gradeExact': 'Compare answers',
+      'quiz.gradingModel': 'Grading…',
+      'quiz.partial': 'Partly right',
+      'quiz.openReview': 'Reference',
+      'quiz.openHint': 'Open answer — other natural wordings are accepted.',
+      'quiz.feedback': 'Feedback',
+      'quiz.better': 'A better way',
+      'quiz.related': 'Related vocabulary',
+      'quiz.summary': 'Overall',
+      'quiz.noModel': 'Configure a model to use model grading.',
+      'quiz.needAnswer': 'Answer at least one question first.',
+      'organize.action': 'Organize',
+      'organize.title': 'Organization plan',
+      'organize.working': 'Reading the whole wall…',
+      'organize.apply': 'Apply plan',
+      'organize.applied': 'The wall is now grouped by topic.',
+      'organize.groups': 'Topic groups',
+      'organize.categories': 'Category changes',
+      'organize.relations': 'Synonyms and confusions',
+      'organize.relation.synonym': 'Synonyms',
+      'organize.relation.confusable': 'Confusable',
+      'organize.relation.topic': 'Related',
+      'organize.ungrouped': 'Ungrouped',
+      'organize.byTopic': 'Group by topic',
+      'organize.byTime': 'Group by time',
+      'organize.mode': 'Grouping',
+      'organize.notesUnit': 'notes',
+      'organize.empty': 'Add at least one note before organizing the wall.',
+      'organize.unavailable': 'Configure a model before organizing the wall.',
+      'organize.failed': 'The model did not return a usable organization plan.',
+      'organize.invalid': 'The organization plan no longer matches the saved notes.',
+      'organize.planHint': 'The model reads every note; applying updates categories, topics, and tags.',
+      'organize.emptyPlan': 'No usable topic groups were returned.',
+      'usage.title': 'Token usage',
+      'usage.last': 'Last call',
+      'usage.total': 'Total',
+      'usage.input': 'In',
+      'usage.output': 'Out',
+      'usage.calls': 'Calls',
+      'usage.tokens': 'tokens',
+      'usage.empty': 'No token usage recorded yet.',
+      'usage.unreported': 'The provider did not report token usage.',
+      'usage.purpose.expansion': 'Expansion',
+      'usage.purpose.quiz': 'Quiz',
+      'usage.purpose.grading': 'Grading',
+      'usage.purpose.organize': 'Organize',
+      'usage.cost': 'Estimated cost',
+      'usage.costHint': 'Set token prices in settings to estimate cost.',
+      'usage.breakdown': 'By purpose',
+      'usage.breakdownHint': 'Purpose details start from this update; earlier calls count only in the total.',
+      'settings.title': 'Quiz and model settings',
+      'settings.enabled': 'Publish a quiz every day',
+      'settings.quizHint': 'Generated from your saved notes at this time.',
+      'settings.time': 'Time of day',
+      'settings.count': 'Questions per day',
+      'settings.expansionTitle': 'Expansion and organize model',
+      'settings.provider': 'Provider',
+      'settings.model': 'Model',
+      'settings.reasoning': 'Thinking effort',
+      'settings.modelNone': 'Not configured',
+      'settings.modelHint': 'Expansion, wall organization, and model-authored quizzes use this model.',
+      'settings.priceTitle': 'Token pricing',
+      'settings.priceHint': 'Prices per 1M tokens from your provider; used only for the local estimate.',
+      'settings.priceInput': 'Input / 1M',
+      'settings.priceOutput': 'Output / 1M',
+      'settings.currency': 'Currency',
+      'settings.followDefault': 'Follow the default session model',
+      'settings.modelDefault': 'Model default',
+      'settings.reasoningNone': 'This model has no thinking-effort options.',
+      'settings.catalogLoading': 'Loading models…',
+      'settings.catalogError': 'Could not read the model catalog.',
+      'settings.saved': 'Settings saved.',
+      'settings.invalid': 'Check the time, question count, token prices, and model selection.',
+      'settings.prompts': 'Prompts',
+      'settings.promptsToggle': 'Edit prompts',
+      'settings.promptsHint': 'Leave a field empty to use its default. Keep the JSON output requirements so results stay parseable.',
+      'settings.prompt.expansion': 'Expansion',
+      'settings.prompt.quiz': 'Quiz',
+      'settings.prompt.grading': 'Model grading',
+      'settings.prompt.organize': 'Organize',
+      'settings.prompt.organizeHint': 'Reads every note and proposes topic groups, category fixes, and relations.',
+      'settings.prompt.reset': 'Use default',
+      'settings.prompt.loadDefault': 'Load default for editing',
+      'settings.prompt.placeholders': 'Placeholders:',
+      'stats.title': 'Wall overview',
+      'stats.total': 'Notes',
+      'stats.pending': 'Quiz waiting',
+      'stats.streak': 'Day streak',
+      'stats.yes': 'Yes',
+      'stats.no': 'No',
+      'error.load': 'Could not load the note wall.',
+      'error.action': 'The action failed.',
+      'error.api': 'The note wall cannot reach its host service. Reload the page to retry.',
+      'error.expandUnavailable': 'A model is not configured, so expansion is unavailable.',
+      'error.quizUnavailable': 'The quiz could not be created yet.',
+      'notice.added': 'Note added.',
+      'notice.updated': 'Note updated.',
+      'notice.deleted': 'Note deleted.',
+      'notice.expanded': 'Expansion added.',
+      'notice.missingExpanded': 'Finished expanding the pending notes.',
+      'notice.noMissingExpansions': 'Every note is already expanded.',
+      'notice.quiz': 'Today’s quiz is ready.',
+      'notice.graded': 'Answers saved.',
+      'time.today': 'Today',
+      'time.yesterday': 'Yesterday',
+      'common.loading': 'Loading…',
+      'common.retry': 'Retry',
+      'common.optional': 'optional',
+      'empty.title': 'Your wall is empty',
+      'empty.body': 'Save the first word or phrase you want to remember. Everything stays on this machine.',
+    }
+
+    const zh = {
+      'panel.title': '英语便利贴墙',
+      'panel.subtitle': '记录单词、词组、固定搭配和常用句式，用大模型拓展用法，每天自动生成一套小测验。',
+      'action.add': '添加便利贴',
+      'action.refresh': '刷新',
+      'action.settings': '设置',
+      'action.expand': '用大模型拓展',
+      'action.expandAll': '拓展全部词条',
+      'action.expandMissing': '补全拓展',
+      'action.expandingMissing': '补全中',
+      'action.expandAgain': '重新拓展',
+      'action.edit': '编辑',
+      'action.collapseExpansions': '收起全部拓展',
+      'action.expandExpansions': '展开全部拓展',
+      'sidebar.collapse': '收起右侧边栏',
+      'sidebar.expand': '展开右侧边栏',
+      'view.label': '便利贴排列方式',
+      'view.list': '列表排列',
+      'view.grid': '方格排列',
+      'action.show': '展开详情',
+      'action.hide': '收起详情',
+      'action.delete': '删除',
+      'action.confirmDelete': '确定删除这张便利贴？',
+      'action.confirm': '删除',
+      'action.cancel': '取消',
+      'action.save': '保存',
+      'action.saving': '保存中…',
+      'action.regenerate': '重新生成',
+      'action.viewAnswer': '查看答案',
+      'action.hideAnswers': '隐藏答案',
+      'action.submit': '提交答案',
+      'action.close': '关闭',
+      'form.heading': '新建便利贴',
+      'form.placeholder': '每行一个词条：单词、词组、固定搭配或句式。可用 | 附中文释义。',
+      'form.entriesHint': '每行一个词条；可用「词条 | 中文」补充释义，例如「give up | 放弃」。',
+      'form.tags': '标签，用逗号分隔（可选）',
+      'form.category': '分类',
+      'form.hint': 'Ctrl + Enter 保存',
+      'form.collapse': '收起新建便利贴',
+      'form.expand': '展开新建便利贴',
+      'form.expandHint': '新建便利贴已收起，点击展开。',
+      'form.required': '写点内容再保存。',
+      'filter.all': '全部',
+      'filter.search': '搜索便利贴…',
+      'filter.empty': '当前视图没有便利贴。',
+      'filter.emptyHint': '在上方添加第一条，或清空搜索条件。',
+      'category.word': '单词',
+      'category.phrase': '词组',
+      'category.collocation': '固定搭配',
+      'category.pattern': '常用句式',
+      'category.sentence': '例句',
+      'category.other': '其他',
+      'note.expanded': '已拓展',
+      'note.expandEntries': '展开全部词条',
+      'note.collapseEntries': '收起词条',
+      'note.expandEntry': '展开词条',
+      'note.collapseEntry': '收起词条',
+      'note.entries': '个词条',
+      'note.editHint': '每行一个词条；可用「词条 | 中文」补充释义。',
+      'note.editEmpty': '至少保留一个词条。',
+      'note.translationLabel': '释义',
+      'note.tagsLabel': '标签',
+      'expansion.meaning': '释义',
+      'expansion.phonetic': '发音',
+      'expansion.wordForms': '词形与形近词',
+      'expansion.form.derivative': '派生词',
+      'expansion.form.same-root': '同根词',
+      'expansion.form.similar': '形近词',
+      'expansion.discrimination': '词汇辨析',
+      'expansion.collocations': '固定搭配',
+      'expansion.synonyms': '近义词',
+      'expansion.examples': '例句',
+      'expansion.longSentences': '长难句分析',
+      'expansion.structure': '句子结构',
+      'expansion.chunk': '地道表达',
+      'expansion.grammar': '语法',
+      'expansion.moreExamples': '更多长难句',
+      'expansion.moreShortExamples': '更多例句',
+      'expansion.tips': '用法提示',
+      'expansion.related': '相关表达',
+      'expansion.empty': '还没有拓展内容。',
+      'quiz.title': '每日小测验',
+      'quiz.today': '今天',
+      'quiz.tomorrow': '明天',
+      'quiz.next': '下次测验',
+      'quiz.soon': '即将发布…',
+      'quiz.paused': '每日测验已暂停',
+      'quiz.empty': '今天还没有小测验。',
+      'quiz.emptyHint': '到设定时间会自动发布，也可以现在就用已记录的内容生成一套。',
+      'quiz.generate': '生成今日测验',
+      'quiz.generating': '正在生成今日测验…',
+      'quiz.confirmRegenerate': '替换今天的测验和作答记录？',
+      'quiz.replace': '替换',
+      'quiz.score': '得分',
+      'quiz.correct': '正确',
+      'quiz.wrong': '待复习',
+      'quiz.yourAnswer': '你的答案',
+      'quiz.answer': '参考答案',
+      'quiz.noAnswer': '未作答',
+      'quiz.pending': '未完成',
+      'quiz.done': '已完成',
+      'quiz.source.model': '大模型出题',
+      'quiz.source.local': '本地题库',
+      'quiz.type.cn2en': '中翻英',
+      'quiz.type.en2cn': '英翻中',
+      'quiz.type.cloze': '语法填空',
+      'quiz.type.collocation': '搭配填空',
+      'quiz.type.usage': '造句运用',
+      'quiz.hint': '提示',
+      'quiz.explanation': '说明',
+      'quiz.history': '最近几天',
+      'quiz.localNote': '大模型暂时不可用，这套题由已记录的内容自动组成。',
+      'quiz.blank': '在这里作答…',
+      'quiz.collapse': '收起题目',
+      'quiz.expand': '展开题目',
+      'quiz.gradeModel': '大模型改题',
+      'quiz.gradeExact': '对照答案',
+      'quiz.gradingModel': '正在改题…',
+      'quiz.partial': '部分正确',
+      'quiz.openReview': '参考',
+      'quiz.openHint': '开放题：意思相近、表达自然的其他答案同样算对。',
+      'quiz.feedback': '点评',
+      'quiz.better': '更自然的表达',
+      'quiz.related': '相关词汇',
+      'quiz.summary': '总评',
+      'quiz.noModel': '需要先配置模型才能使用大模型改题。',
+      'quiz.needAnswer': '请先至少作答一题。',
+      'organize.action': '整理',
+      'organize.title': '整理方案',
+      'organize.working': '正在阅读全部笔记…',
+      'organize.apply': '应用整理',
+      'organize.applied': '已按主题重新整理便利贴墙。',
+      'organize.groups': '主题分组',
+      'organize.categories': '类别调整',
+      'organize.relations': '近义与易混',
+      'organize.relation.synonym': '近义',
+      'organize.relation.confusable': '易混',
+      'organize.relation.topic': '相关',
+      'organize.ungrouped': '未归类',
+      'organize.byTopic': '按主题分组',
+      'organize.byTime': '按时间分组',
+      'organize.mode': '分组方式',
+      'organize.notesUnit': '条',
+      'organize.empty': '先添加至少一条笔记再整理。',
+      'organize.unavailable': '需要先配置模型才能整理便利贴墙。',
+      'organize.failed': '模型没有返回可用的整理方案。',
+      'organize.invalid': '整理方案与当前笔记不再匹配。',
+      'organize.planHint': '大模型会阅读全部笔记；应用后会更新类别、主题和标签。',
+      'organize.emptyPlan': '没有生成可用的主题分组。',
+      'usage.title': 'Tokens 用量',
+      'usage.last': '最近一次',
+      'usage.total': '累计',
+      'usage.input': '输入',
+      'usage.output': '输出',
+      'usage.calls': '次数',
+      'usage.tokens': 'token',
+      'usage.empty': '还没有 token 记录。',
+      'usage.unreported': '服务商未返回 token 用量。',
+      'usage.purpose.expansion': '拓展',
+      'usage.purpose.quiz': '出题',
+      'usage.purpose.grading': '改题',
+      'usage.purpose.organize': '整理',
+      'usage.cost': '预估费用',
+      'usage.costHint': '在设置中填写 Token 单价即可估算费用。',
+      'usage.breakdown': '按用途',
+      'usage.breakdownHint': '按用途明细从本次更新开始累计，此前的调用只计入总计。',
+      'settings.title': '测验与模型设置',
+      'settings.enabled': '每天定时发布小测验',
+      'settings.quizHint': '到点后会用已记录的内容生成测验。',
+      'settings.time': '发布时间',
+      'settings.count': '每天题目数量',
+      'settings.expansionTitle': '拓展与整理模型',
+      'settings.provider': '服务商',
+      'settings.model': '模型',
+      'settings.reasoning': '思考强度',
+      'settings.modelNone': '未配置',
+      'settings.modelHint': '拓展、整理和智能出题使用所选模型。',
+      'settings.priceTitle': 'Token 计费',
+      'settings.priceHint': '按服务商价格填写每百万 Token 单价，仅用于本地费用估算。',
+      'settings.priceInput': '输入 / 百万',
+      'settings.priceOutput': '输出 / 百万',
+      'settings.currency': '货币符号',
+      'settings.followDefault': '跟随会话默认模型',
+      'settings.modelDefault': '模型默认',
+      'settings.reasoningNone': '该模型没有可选的思考强度。',
+      'settings.catalogLoading': '正在加载模型…',
+      'settings.catalogError': '无法读取模型列表。',
+      'settings.saved': '设置已保存。',
+      'settings.invalid': '请检查发布时间、题目数量、Token 单价和模型选择。',
+      'settings.prompts': '提示词',
+      'settings.promptsToggle': '修改提示词',
+      'settings.promptsHint': '留空则使用默认提示词；请保留 JSON 输出要求，否则可能无法解析结果。',
+      'settings.prompt.expansion': '拓展',
+      'settings.prompt.quiz': '出题',
+      'settings.prompt.grading': '大模型改题',
+      'settings.prompt.organize': '整理',
+      'settings.prompt.organizeHint': '阅读全部笔记，给出主题分组、类别调整和近义关系。',
+      'settings.prompt.reset': '恢复默认',
+      'settings.prompt.loadDefault': '载入默认再修改',
+      'settings.prompt.placeholders': '占位符：',
+      'stats.title': '墙面概览',
+      'stats.total': '便利贴',
+      'stats.pending': '待完成测验',
+      'stats.streak': '连续天数',
+      'stats.yes': '有',
+      'stats.no': '无',
+      'error.load': '无法加载便利贴墙。',
+      'error.action': '操作失败。',
+      'error.api': '便利贴墙无法连接宿主服务，请刷新页面重试。',
+      'error.expandUnavailable': '尚未配置大模型，暂时无法拓展。',
+      'error.quizUnavailable': '暂时无法生成测验。',
+      'notice.added': '便利贴已添加。',
+      'notice.updated': '便利贴已更新。',
+      'notice.deleted': '便利贴已删除。',
+      'notice.expanded': '拓展内容已添加。',
+      'notice.missingExpanded': '已补全所有缺失的拓展。',
+      'notice.noMissingExpansions': '所有便利贴都已拓展。',
+      'notice.quiz': '今日测验已生成。',
+      'notice.graded': '答案已保存。',
+      'time.today': '今天',
+      'time.yesterday': '昨天',
+      'common.loading': '加载中…',
+      'common.retry': '重试',
+      'common.optional': '可选',
+      'empty.title': '墙上还是空的',
+      'empty.body': '先记下第一个想记住的单词或句子。所有内容都保存在本机。',
+    }
+
+    // -- badge store --------------------------------------------------------
+
+    const badge = (() => {
+      let value = false
+      const listeners = new Set()
+      return {
+        get: () => value,
+        set(next) {
+          if (next === value) return
+          value = next
+          for (const listener of listeners) listener()
+        },
+        subscribe(listener) {
+          listeners.add(listener)
+          return () => listeners.delete(listener)
+        },
+      }
+    })()
+
+    // -- small helpers ------------------------------------------------------
+
+    const cx = (...parts) => parts.filter(Boolean).join(' ')
+
+    function errorText(error) {
+      if (!error) return ''
+      return String(error.message || error)
+    }
+
+    function asArray(value) {
+      return Array.isArray(value) ? value : []
+    }
+
+    function dayKey(ms) {
+      const date = new Date(ms)
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${date.getFullYear()}-${month}-${day}`
+    }
+
+    function formatTime(ms, localeId) {
+      try {
+        return new Intl.DateTimeFormat(localeId, { hour: '2-digit', minute: '2-digit' }).format(new Date(ms))
+      } catch {
+        return new Date(ms).toTimeString().slice(0, 5)
+      }
+    }
+
+    function formatQuizDate(value, localeId) {
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value ?? ''))
+      if (!match) return String(value ?? '')
+      const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+      try {
+        return new Intl.DateTimeFormat(localeId, { month: 'short', day: 'numeric' }).format(date)
+      } catch {
+        return `${match[2]}/${match[3]}`
+      }
+    }
+
+    function parseTags(value) {
+      return String(value ?? '')
+        .split(/[,，]+/)
+        .map(tag => tag.trim())
+        .filter(Boolean)
+        .filter((tag, index, all) => all.indexOf(tag) === index)
+        .slice(0, 8)
+    }
+
+    function useActiveLocale(ctx) {
+      const [active, setActive] = useState(() => {
+        try {
+          return ctx.locale.getLocale().active
+        } catch {
+          return 'en'
+        }
+      })
+      useEffect(() => {
+        try {
+          return ctx.locale.subscribe(() => {
+            try {
+              setActive(ctx.locale.getLocale().active)
+            } catch {
+              /* ignore */
+            }
+          })
+        } catch {
+          return undefined
+        }
+      }, [ctx])
+      return active
+    }
+
+    function useThemeScheme(ctx) {
+      const [scheme, setScheme] = useState(() => {
+        try {
+          return ctx.get('theme')?.getTheme?.().active?.colorScheme || 'light'
+        } catch {
+          return 'light'
+        }
+      })
+      useEffect(() => {
+        const theme = ctx.get('theme')
+        if (!theme) return undefined
+        const update = () => {
+          try {
+            setScheme(theme.getTheme().active?.colorScheme || 'light')
+          } catch {
+            /* ignore */
+          }
+        }
+        update()
+        try {
+          return ctx.on('theme/change', update)
+        } catch {
+          return undefined
+        }
+      }, [ctx])
+      return scheme
+    }
+
+    // -- example highlighting ----------------------------------------------
+    //
+    // Words, phrases and collocations match literally. An entry with a
+    // placeholder (sb., sth., adj., ...) is matched by its frame instead: the
+    // placeholders are dropped, then the remaining words are followed in order
+    // through the example. The span between the first and last hit covers the
+    // fillers too, so the whole frame gets the highlight. Sentence patterns use
+    // the same frame matcher even when they contain no placeholder.
+
+    const HIGHLIGHT_PLACEHOLDERS = new Set([
+      'sb', 'sb.', "sb's", 'sth', 'sth.', "sth's", 'somebody', "somebody's", 'something', "something's",
+      'someone', "someone's", 'ones', "one's", 'one',
+      'adj', 'adj.', 'adv', 'adv.', 'n', 'n.', 'v', 'v.', 'vt', 'vi', 'prep', 'pron', 'conj',
+      'clause', 'do', 'does', 'did', 'doing', 'done', 'to do', '...', '…',
+    ])
+
+    const HIGHLIGHT_PLACEHOLDER_DETECT = /\b(?:sb|sth|somebody|something|someone|adj|adv|vt|vi|prep|pron|conj|clause)\b\.?|one['’]s\b/i
+
+    function hasHighlightPlaceholder(entryText) {
+      return HIGHLIGHT_PLACEHOLDER_DETECT.test(stripEntryGlosses(entryText))
+    }
+
+    function stripEntryGlosses(value) {
+      return String(value ?? '')
+        .replace(/[（(][^）)]*[\u3400-\u9fff][^）)]*[）)]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    }
+
+    function highlightNeedles(entryText) {
+      const base = stripEntryGlosses(entryText)
+      if (!base) return []
+      const needles = [base]
+      for (const part of base.split(/\s*(?:\/|\||;|；|\.\.\.|…|\+)\s*/)) {
+        const trimmed = part.replace(/\s+/g, ' ').trim()
+        if (trimmed.length < 2) continue
+        if (needles.some(item => item.toLowerCase() === trimmed.toLowerCase())) continue
+        needles.push(trimmed)
+      }
+      return needles.filter(item => item.length >= 2)
+    }
+
+    function literalRanges(source, needle) {
+      const hay = source.toLowerCase()
+      const target = String(needle ?? '').toLowerCase()
+      if (!target) return []
+      const ranges = []
+      let at = hay.indexOf(target)
+      while (at >= 0) {
+        ranges.push([at, at + target.length])
+        at = hay.indexOf(target, at + target.length)
+      }
+      return ranges
+    }
+
+    function isHighlightWordChar(char) {
+      return Boolean(char) && /[a-z0-9'’-]/.test(char)
+    }
+
+    function findWholeWord(hay, token, from) {
+      if (!token) return null
+      if (token.length <= 2) {
+        let at = hay.indexOf(token, from)
+        while (at >= 0) {
+          if (!isHighlightWordChar(hay[at - 1]) && !isHighlightWordChar(hay[at + token.length])) {
+            return { start: at, end: at + token.length }
+          }
+          at = hay.indexOf(token, at + 1)
+        }
+        return null
+      }
+      const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const pattern = new RegExp(`\\b${escaped}(?:s|es|ed|d|ing)?\\b`, 'g')
+      pattern.lastIndex = from
+      const match = pattern.exec(hay)
+      return match ? { start: match.index, end: match.index + match[0].length } : null
+    }
+
+    function patternAnchorRange(source, entryText) {
+      const tokens = (stripEntryGlosses(entryText).toLowerCase().replace(/[’]/g, "'").match(/[a-z][a-z'’-]*/g) || [])
+        .filter(token => !HIGHLIGHT_PLACEHOLDERS.has(token))
+      if (tokens.length < 2) return []
+      const hay = source.toLowerCase()
+      let cursor = 0
+      let first = -1
+      let last = -1
+      let matched = 0
+      for (const token of tokens) {
+        const match = findWholeWord(hay, token, cursor)
+        if (!match) continue
+        if (first < 0) first = match.start
+        last = match.end
+        cursor = match.end
+        matched += 1
+      }
+      if (matched < 2 || first < 0 || last - first > 96) return []
+      return [[first, last]]
+    }
+
+    function mergeHighlightRanges(ranges) {
+      const sorted = ranges.slice().sort((left, right) => left[0] - right[0])
+      const merged = []
+      for (const [start, end] of sorted) {
+        const previous = merged[merged.length - 1]
+        if (previous && start <= previous[1]) previous[1] = Math.max(previous[1], end)
+        else merged.push([start, end])
+      }
+      return merged.slice(0, 4)
+    }
+
+    function highlightRanges(source, entryText, category) {
+      const text = String(source ?? '')
+      if (!text) return []
+      const ranges = []
+      for (const needle of highlightNeedles(entryText)) ranges.push(...literalRanges(text, needle))
+      if (category === 'pattern' || hasHighlightPlaceholder(entryText)) {
+        ranges.push(...patternAnchorRange(text, entryText))
+      }
+      return mergeHighlightRanges(ranges)
+    }
+
+    function renderHighlighted(source, ranges) {
+      if (!ranges.length) return source
+      const nodes = []
+      let cursor = 0
+      ranges.forEach(([start, end], index) => {
+        if (start > cursor) nodes.push(source.slice(cursor, start))
+        nodes.push(h('mark', { key: `hl-${index}`, className: 'enw-hl' }, source.slice(start, end)))
+        cursor = end
+      })
+      if (cursor < source.length) nodes.push(source.slice(cursor))
+      return nodes
+    }
+
+    function highlightExample(text, entryText, category) {
+      return renderHighlighted(text, highlightRanges(text, entryText, category))
+    }
+
+    function highlightTranslation(text, translation) {
+      return renderHighlighted(text, highlightRanges(text, translation, 'translation'))
+    }
+
+
+
+
+    // -- primitives ---------------------------------------------------------
+
+    const ICON_PATHS = {
+      plus: 'M12 5v14M5 12h14',
+      sparkles: 'M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8L12 3.5zM18.5 16l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.1z',
+      trash: 'M4 7h16M9.5 7V4h5v3M6.5 7l1 13h9l1-13',
+      edit: 'M4 20h4L18.5 9.5l-4-4L4 16v4zM13.5 6.5l4 4',
+      refresh: 'M20 11a8 8 0 10-2.3 5.7M20 5v6h-6',
+      check: 'M4.5 12.5l5 5L20 6.5',
+      clock: 'M12 7.5v5l3 2M12 21a9 9 0 100-18 9 9 0 000 18z',
+      settings: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12c0 .4 0 .8-.1 1.2l2 1.6-2 3.4-2.4-1a7 7 0 01-2 1.2L14 21h-4l-.5-2.6a7 7 0 01-2-1.2l-2.4 1-2-3.4 2-1.6A7 7 0 015 12c0-.4 0-.8.1-1.2l-2-1.6 2-3.4 2.4 1a7 7 0 012-1.2L10 3h4l.5 2.6a7 7 0 012 1.2l2.4-1 2 3.4-2 1.6c.1.4.1.8.1 1.2z',
+      chevron: 'M9 6l6 6-6 6',
+      chevronDown: 'M6 9l6 6 6-6',
+      chevronUp: 'M6 15l6-6 6 6',
+      list: 'M4 6h16M4 12h16M4 18h16',
+      grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+      panel: 'M4 5h16v14H4zM15 5v14',
+      search: 'M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.3-4.3',
+      close: 'M6 6l12 12M18 6L6 18',
+      book: 'M4 5.5A2.5 2.5 0 016.5 3H20v18H6.5A2.5 2.5 0 014 18.5zM4 18.5A2.5 2.5 0 016.5 16H20',
+      target: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 17a5 5 0 100-10 5 5 0 000 10z',
+    }
+
+    function Icon({ name, size = 16, className }) {
+      return h(
+        'svg',
+        {
+          className: cx('enw-icon', className),
+          width: size,
+          height: size,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.7,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          'aria-hidden': true,
+        },
+        h('path', { d: ICON_PATHS[name] ?? ICON_PATHS.book }),
+      )
+    }
+
+    function Glyph({ size = 20 }) {
+      return h(
+        'svg',
+        {
+          width: size,
+          height: size,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.6,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          'aria-hidden': true,
+        },
+        h('path', { d: 'M5.5 3.5h9L18.5 7.5v13h-13z' }),
+        h('path', { d: 'M14.5 3.5V7.5h4' }),
+        h('path', { d: 'M8.5 11h6M8.5 14.5h4' }),
+        h('path', { d: 'M18.5 16.5l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8.8-1.7z', fill: 'currentColor', stroke: 'none' }),
+      )
+    }
+
+    function Btn({ children, onClick, variant = 'ghost', disabled = false, title, label, type = 'button', className }) {
+      return h(
+        'button',
+        {
+          type,
+          className: cx('enw-btn', `enw-btn--${variant}`, className),
+          onClick,
+          disabled,
+          title: title || undefined,
+          'aria-label': label || undefined,
+        },
+        children,
+      )
+    }
+
+    function Chip({ active, onClick, children, count }) {
+      return h(
+        'button',
+        { type: 'button', className: cx('enw-chip', active && 'enw-chip--on'), onClick, 'aria-pressed': Boolean(active) },
+        h('span', null, children),
+        typeof count === 'number' ? h('span', { className: 'enw-chip-count' }, count) : null,
+      )
+    }
+
+    function Toggle({ checked, onChange, label }) {
+      return h(
+        'button',
+        {
+          type: 'button',
+          role: 'switch',
+          'aria-checked': Boolean(checked),
+          'aria-label': label,
+          className: cx('enw-toggle', checked && 'enw-toggle--on'),
+          onClick: () => onChange(!checked),
+        },
+        h('span', { className: 'enw-toggle-knob' }),
+      )
+    }
+
+    function Banner({ tone = 'error', children, onClose }) {
+      return h(
+        'div',
+        { className: cx('enw-banner', `enw-banner--${tone}`), role: tone === 'error' ? 'alert' : 'status' },
+        h('span', { className: 'enw-banner-text' }, children),
+        onClose
+          ? h('button', { type: 'button', className: 'enw-banner-close', onClick: onClose, 'aria-label': 'close' }, h(Icon, { name: 'close', size: 14 }))
+          : null,
+      )
+    }
+
+    function SectionLabel({ children }) {
+      return h('div', { className: 'enw-section-label' }, children)
+    }
+
+    // -- note card ----------------------------------------------------------
+
+    function ExpansionView({ expansion, t, localeId, showUsage = true, collapseSignal = 0, entryText = '', entryTranslation = '', category = '' }) {
+      const [open, setOpen] = useState(true)
+      const lastCollapse = useRef(collapseSignal)
+      useEffect(() => {
+        if (collapseSignal !== lastCollapse.current) {
+          lastCollapse.current = collapseSignal
+          setOpen(false)
+        }
+      }, [collapseSignal])
+      const hasStructured = expansion && (
+        expansion.meaning || expansion.phonetic || asArray(expansion.wordForms).length
+        || expansion.discrimination || asArray(expansion.collocations).length
+        || asArray(expansion.synonyms).length || asArray(expansion.examples).length
+        || asArray(expansion.moreExamples).length || expansion.tips || asArray(expansion.related).length
+      )
+      const longAnalysis = asArray(expansion?.examples).some(example =>
+        example.structure || String(example.en ?? '').trim().split(/\s+/).filter(Boolean).length >= 22)
+
+      return h(
+        'div',
+        { className: 'enw-exp' },
+        h(
+          'button',
+          { type: 'button', className: 'enw-exp-toggle', onClick: () => setOpen(value => !value), 'aria-expanded': open },
+          h('span', { className: 'enw-exp-toggle-main' },
+            h(Icon, { name: expansion.meaning ? 'check' : 'sparkles', size: 14 }),
+          ),
+          h('span', { className: cx('enw-exp-toggle-hint', expansion.meaning && !open && 'enw-exp-toggle-hint--meaning') },
+            open ? t('action.hide') : (expansion.meaning || t('action.show'))),
+          h(Icon, { name: 'chevron', size: 14, className: 'enw-chevron' }),
+        ),
+        open
+          ? h(
+            'div',
+            { className: 'enw-exp-body' },
+            expansion.meaning ? h('p', { className: 'enw-exp-meaning' }, expansion.meaning) : null,
+            expansion.phonetic ? h('p', { className: 'enw-exp-phonetic' }, expansion.phonetic) : null,
+            hasStructured
+              ? null
+              : h('p', { className: 'enw-exp-text' }, expansion.text || t('expansion.empty')),
+            asArray(expansion.wordForms).length
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t('expansion.wordForms')),
+                h('div', { className: 'enw-forms' }, expansion.wordForms.map((form, index) => h('div', { key: index, className: 'enw-form' },
+                  h('span', { className: 'enw-form-kind' }, t(`expansion.form.${form.kind}`)),
+                  h('span', { className: 'enw-form-word' }, form.word),
+                  form.note ? h('span', { className: 'enw-form-note' }, form.note) : null))))
+              : null,
+            expansion.discrimination
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t('expansion.discrimination')),
+                h('p', { className: 'enw-exp-text' }, expansion.discrimination))
+              : null,
+            asArray(expansion.collocations).length
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t('expansion.collocations')),
+                h('ul', { className: 'enw-exp-list' }, expansion.collocations.map((item, index) => h('li', { key: index }, item))))
+              : null,
+            asArray(expansion.synonyms).length
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t('expansion.synonyms')),
+                h('div', { className: 'enw-exp-chips' }, expansion.synonyms.map((item, index) => h('span', { key: index, className: 'enw-exp-chip' }, item))))
+              : null,
+            asArray(expansion.examples).length
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t(longAnalysis ? 'expansion.longSentences' : 'expansion.examples')),
+                asArray(expansion.examples).map((example, index) => h('div', { key: index, className: 'enw-example' },
+                  h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
+                  example.zh ? h('p', { className: 'enw-example-zh' }, highlightTranslation(example.zh, entryTranslation)) : null,
+                  example.structure
+                    ? h('p', { className: 'enw-example-structure' },
+                      h('span', { className: 'enw-example-tag' }, t('expansion.structure')),
+                      h('span', null, example.structure))
+                    : null,
+                  example.grammar
+                    ? h('p', { className: 'enw-example-grammar' },
+                      h('span', { className: 'enw-example-tag' }, t('expansion.grammar')),
+                      h('span', null, example.grammar))
+                    : null,
+                  example.chunk
+                    ? h('p', { className: 'enw-example-chunk' },
+                      h('span', { className: 'enw-example-tag' }, t('expansion.chunk')),
+                      h('strong', null, example.chunk),
+                      example.chunkNote ? h('span', { className: 'enw-example-note' }, ` · ${example.chunkNote}`) : null)
+                    : null)))
+              : null,
+            asArray(expansion.moreExamples).length
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t(longAnalysis ? 'expansion.moreExamples' : 'expansion.moreShortExamples')),
+                asArray(expansion.moreExamples).map((example, index) => h('div', { key: index, className: 'enw-example' },
+                  h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
+                  example.zh ? h('p', { className: 'enw-example-zh' }, highlightTranslation(example.zh, entryTranslation)) : null)))
+              : null,
+            expansion.tips
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t('expansion.tips')),
+                h('p', { className: 'enw-exp-text' }, expansion.tips))
+              : null,
+            asArray(expansion.related).length
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t('expansion.related')),
+                h('div', { className: 'enw-exp-chips' }, expansion.related.map((item, index) => h('span', { key: index, className: 'enw-exp-chip' }, item))))
+              : null,
+            h('p', { className: 'enw-exp-meta' },
+              expansion.model ? `${expansion.model} · ` : '',
+              showUsage && expansion.usage?.total
+                ? `${Number(expansion.usage.total).toLocaleString(localeId)} ${t('usage.tokens')} · `
+                : '',
+              new Intl.DateTimeFormat(localeId, { month: 'short', day: 'numeric' }).format(new Date(expansion.generatedAt || Date.now()))),
+          )
+          : null,
+      )
+    }
+
+    function NoteCard({ note, t, localeId, busy, collapseSignal, onExpandAll, onExpandEntry, onUpdate, onDelete }) {
+      const entries = asArray(note.entries).length
+        ? note.entries
+        : note.text
+          ? [{ id: `${note.id}:legacy`, text: note.text, translation: note.translation || '', expansion: note.expansion }]
+          : []
+      const [confirming, setConfirming] = useState(false)
+      const [editing, setEditing] = useState(false)
+      const [draft, setDraft] = useState({ text: '', category: note.category, tags: '' })
+      const [editError, setEditError] = useState('')
+      const [collapsed, setCollapsed] = useState(true)
+      const deleting = busy === `delete:${note.id}`
+      const saving = busy === `update:${note.id}`
+      const allExpanded = entries.length > 0 && entries.every(entry => entry.expansion)
+
+      const startEdit = () => {
+        setDraft({
+          text: entries.map(entry => (entry.translation ? `${entry.text} | ${entry.translation}` : entry.text)).join('\n'),
+          category: note.category,
+          tags: asArray(note.tags).join(', '),
+        })
+        setEditError('')
+        setEditing(true)
+      }
+
+      const saveEdit = async () => {
+        const text = draft.text.trim()
+        if (!text) {
+          setEditError(t('note.editEmpty'))
+          return
+        }
+        const result = await onUpdate(note, {
+          text,
+          category: draft.category,
+          tags: parseTags(draft.tags),
+        })
+        if (result?.status === 'ok') {
+          setEditing(false)
+          setEditError('')
+        }
+      }
+
+      const expandLabel = allExpanded
+        ? t('action.expandAgain')
+        : entries.length > 1 ? t('action.expandAll') : t('action.expand')
+      const manyEntries = entries.length > 1
+      const toggleLabel = collapsed
+        ? t(manyEntries ? 'note.expandEntries' : 'note.expandEntry')
+        : t(manyEntries ? 'note.collapseEntries' : 'note.collapseEntry')
+      const summaryLabel = t(manyEntries ? 'note.expandEntries' : 'note.expandEntry')
+
+      return h(
+        'article',
+        { className: cx('enw-note', `enw-note--${note.category}`) },
+        h(
+          'div',
+          { className: 'enw-note-head' },
+          h('span', { className: 'enw-note-time' }, formatTime(note.createdAt, localeId)),
+          h('span', { className: cx('enw-cat', `enw-cat--${note.category}`) }, t(`category.${note.category}`)),
+          entries.length > 0 && (manyEntries || !collapsed)
+            ? h('button', {
+              type: 'button',
+              className: 'enw-note-flag enw-note-flag--toggle',
+              onClick: () => setCollapsed(value => !value),
+              disabled: editing,
+              title: toggleLabel,
+              'aria-label': toggleLabel,
+              'aria-expanded': !collapsed,
+            },
+            manyEntries ? h('span', null, `${entries.length} ${t('note.entries')}`) : null,
+            h(Icon, { name: collapsed ? 'chevronDown' : 'chevronUp', size: 12 }))
+            : null,
+          allExpanded ? h('span', { className: 'enw-note-flag' }, t('note.expanded')) : null,
+          editing
+            ? null
+            : h('div', { className: 'enw-note-actions' },
+              h(
+                Btn,
+                {
+                  variant: 'quiet',
+                  onClick: () => {
+                    setCollapsed(false)
+                    onExpandAll(note, allExpanded)
+                  },
+                  disabled: Boolean(busy),
+                  title: expandLabel,
+                  label: expandLabel,
+                },
+                h(Icon, { name: 'sparkles', size: 15 }),
+                h('span', { className: 'enw-btn-text' }, expandLabel),
+              ),
+              h(
+                Btn,
+                {
+                  variant: 'quiet',
+                  onClick: startEdit,
+                  disabled: Boolean(busy),
+                  title: t('action.edit'),
+                  label: t('action.edit'),
+                },
+                h(Icon, { name: 'edit', size: 15 }),
+              ),
+              h(
+                Btn,
+                {
+                  variant: 'quiet',
+                  onClick: () => setConfirming(true),
+                  disabled: Boolean(busy),
+                  title: t('action.delete'),
+                  label: t('action.delete'),
+                },
+                h(Icon, { name: 'trash', size: 15 }),
+              ),
+            ),
+        ),
+        editing
+          ? h(
+            'div',
+            { className: 'enw-note-editor' },
+            h('textarea', {
+              className: 'enw-textarea',
+              rows: Math.min(10, Math.max(3, entries.length + 1)),
+              value: draft.text,
+              onChange: event => setDraft(current => ({ ...current, text: event.target.value })),
+            }),
+            h('p', { className: 'enw-setting-hint' }, t('note.editHint')),
+            h('div', { className: 'enw-cat-row', role: 'group', 'aria-label': t('form.category') },
+              CATEGORIES.map(category => h(Chip, {
+                key: category,
+                active: draft.category === category,
+                onClick: () => setDraft(current => ({ ...current, category })),
+              }, t(`category.${category}`)))),
+            h('input', {
+              className: 'enw-input',
+              value: draft.tags,
+              placeholder: t('form.tags'),
+              onChange: event => setDraft(current => ({ ...current, tags: event.target.value })),
+            }),
+            editError ? h('p', { className: 'enw-setting-error' }, editError) : null,
+            h('div', { className: 'enw-confirm-actions enw-editor-actions' },
+              h(Btn, { variant: 'primary', onClick: () => { void saveEdit() }, disabled: saving },
+                saving ? h('span', { className: 'enw-spinner enw-spinner--light' }) : null,
+                h('span', null, t('action.save'))),
+              h(Btn, { variant: 'quiet', onClick: () => setEditing(false) }, t('action.cancel'))))
+          : h(
+            React.Fragment,
+            null,
+            entries.length > 0 && collapsed
+              ? h('button', {
+                type: 'button',
+                className: 'enw-note-summary',
+                onClick: () => setCollapsed(false),
+                title: summaryLabel,
+                'aria-label': summaryLabel,
+                'aria-expanded': false,
+              },
+              h('span', { className: 'enw-note-summary-text' }, entries.map(entry => entry.text).join(' · ')),
+              h(Icon, { name: 'chevronDown', size: 14 }))
+              : h(
+                React.Fragment,
+                null,
+                h('div', { className: 'enw-entries' },
+                  entries.map(entry => h(
+                    'div',
+                    { key: entry.id, className: 'enw-entry' },
+                    h('div', { className: 'enw-entry-head' },
+                      h('p', { className: 'enw-entry-text' }, entry.text),
+                      h(Btn, {
+                        variant: 'quiet',
+                        className: 'enw-entry-btn',
+                        onClick: () => onExpandEntry(note, entry),
+                        disabled: Boolean(busy),
+                        title: t(entry.expansion ? 'action.expandAgain' : 'action.expand'),
+                        label: t(entry.expansion ? 'action.expandAgain' : 'action.expand'),
+                      }, h(Icon, { name: 'sparkles', size: 14 }))),
+                    entry.translation ? h('p', { className: 'enw-entry-translation' }, entry.translation) : null,
+                    entry.expansion
+                      ? h(ExpansionView, {
+                        expansion: entry.expansion,
+                        t,
+                        localeId,
+                        showUsage: entries.length === 1,
+                        collapseSignal,
+                        entryText: entry.text,
+                        entryTranslation: entry.translation,
+                        category: note.category,
+                      })
+                      : null,
+                    busy === `expand:${note.id}:${entry.id}`
+                      ? h('div', { className: 'enw-note-busy' }, h('span', { className: 'enw-spinner' }), t('action.expand'))
+                      : null,
+                  ))),
+                note.tags?.length
+                  ? h('div', { className: 'enw-tags' }, note.tags.map(tag => h('span', { key: tag, className: 'enw-tag' }, `#${tag}`)))
+                  : null,
+              ),
+            confirming
+              ? h(
+                'div',
+                { className: 'enw-confirm' },
+                h('span', { className: 'enw-confirm-text' }, t('action.confirmDelete')),
+                h(
+                  'div',
+                  { className: 'enw-confirm-actions' },
+                  h(Btn, { variant: 'danger', onClick: () => { setConfirming(false); onDelete(note) }, disabled: deleting }, t('action.confirm')),
+                  h(Btn, { variant: 'quiet', onClick: () => setConfirming(false) }, t('action.cancel')),
+                ),
+              )
+              : null,
+          ),
+      )
+    }
+
+    // -- quiz card ----------------------------------------------------------
+
+    function formatCountdown(ms) {
+      const total = Math.max(0, Math.ceil(ms / 1000))
+      const hours = Math.floor(total / 3600)
+      const minutes = Math.floor((total % 3600) / 60)
+      const seconds = total % 60
+      return [hours, minutes, seconds].map(value => String(value).padStart(2, '0')).join(':')
+    }
+
+    function scheduleDayLabel(target, now, t, localeId) {
+      const targetDate = new Date(target)
+      const nowDate = new Date(now)
+      const dayStart = date => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
+      const days = Math.round((dayStart(targetDate) - dayStart(nowDate)) / 86400000)
+      if (days === 0) return t('quiz.today')
+      if (days === 1) return t('quiz.tomorrow')
+      return new Intl.DateTimeFormat(localeId, { month: 'short', day: 'numeric' }).format(targetDate)
+    }
+
+    function QuizCountdown({ nextAt, pending, enabled, t, localeId, onRefresh }) {
+      const [now, setNow] = useState(() => Date.now())
+      const [poll, setPoll] = useState(0)
+      const refreshRef = useRef(onRefresh)
+
+      useEffect(() => {
+        refreshRef.current = onRefresh
+      }, [onRefresh])
+
+      useEffect(() => {
+        if (!enabled || pending || !nextAt) return undefined
+        setNow(Date.now())
+        const timer = setInterval(() => setNow(Date.now()), 1000)
+        return () => clearInterval(timer)
+      }, [enabled, pending, nextAt])
+
+      // Refresh once the target passes; the quiz may need a few seconds to build.
+      useEffect(() => {
+        if (!enabled || pending || !nextAt) return undefined
+        const wait = Math.max(0, nextAt - Date.now()) + 2500
+        const timer = setTimeout(() => refreshRef.current?.(), wait)
+        return () => clearTimeout(timer)
+      }, [enabled, pending, nextAt])
+
+      // While the Host reports the quiz as due, poll briefly for the new one.
+      useEffect(() => {
+        if (!pending) {
+          setPoll(0)
+          return undefined
+        }
+        if (poll >= 15) return undefined
+        const timer = setTimeout(() => {
+          setPoll(value => value + 1)
+          refreshRef.current?.()
+        }, 8000)
+        return () => clearTimeout(timer)
+      }, [pending, poll])
+
+      if (!enabled) {
+        return h('div', { className: 'enw-quiz-timer enw-quiz-timer--muted' },
+          h(Icon, { name: 'clock', size: 14 }),
+          h('span', { className: 'enw-quiz-timer-label' }, t('quiz.paused')))
+      }
+
+      if (pending) {
+        return h('div', { className: 'enw-quiz-timer enw-quiz-timer--wait' },
+          h(Icon, { name: 'clock', size: 14 }),
+          h('span', { className: 'enw-quiz-timer-label' }, t('quiz.soon')),
+          h('button', {
+            type: 'button',
+            className: 'enw-quiz-refresh',
+            onClick: () => refreshRef.current?.(),
+          }, t('action.refresh')))
+      }
+
+      if (!nextAt) return null
+
+      const remaining = nextAt - now
+      const clock = new Intl.DateTimeFormat(localeId, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      }).format(new Date(nextAt))
+      return h('div', { className: cx('enw-quiz-timer', remaining <= 0 && 'enw-quiz-timer--wait') },
+        h(Icon, { name: 'clock', size: 14 }),
+        h('span', { className: 'enw-quiz-timer-label' }, `${t('quiz.next')} · ${scheduleDayLabel(nextAt, now, t, localeId)} ${clock}`),
+        h('span', { className: 'enw-quiz-countdown' }, remaining > 0 ? formatCountdown(remaining) : t('quiz.soon')))
+    }
+
+    function QuizCard({ quiz, history, t, localeId, busy, modelAvailable, settings, nextQuizAt, quizPending, onRefresh, onGenerate, onGrade, onModelGrade }) {
+      const attempt = quiz?.attempt && typeof quiz.attempt === 'object' ? quiz.attempt : null
+      const items = asArray(quiz?.items)
+      const [answers, setAnswers] = useState({})
+      const [reveal, setReveal] = useState(false)
+      const [confirming, setConfirming] = useState(false)
+      const [collapsed, setCollapsed] = useState(() => {
+        try {
+          const stored = window.localStorage.getItem(QUIZ_COLLAPSED_KEY)
+          if (stored === '1') return true
+          if (stored === '0') return false
+        } catch {
+          /* storage may be unavailable */
+        }
+        return items.length > 4
+      })
+      const generating = busy === 'quiz'
+      const grading = busy === 'grade'
+      const gradingModel = busy === 'grade-model'
+
+      useEffect(() => {
+        setAnswers(attempt?.answers && typeof attempt.answers === 'object' ? attempt.answers : {})
+        setReveal(Boolean(attempt))
+        setConfirming(false)
+      }, [quiz?.date, attempt?.submittedAt])
+
+      const answeredCount = items.filter(item => String(answers[item.id] ?? '').trim()).length
+
+      const toggleCollapsed = () => {
+        setCollapsed(current => {
+          const next = !current
+          try {
+            window.localStorage.setItem(QUIZ_COLLAPSED_KEY, next ? '1' : '0')
+          } catch {
+            /* storage may be unavailable */
+          }
+          return next
+        })
+      }
+
+      const formatScore = value => {
+        const numeric = Number(value)
+        if (!Number.isFinite(numeric)) return '0'
+        return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(1)
+      }
+
+      const verdictOf = item => {
+        if (!attempt) return ''
+        if (attempt.mode === 'model') {
+          return attempt.feedback?.[item.id]?.verdict || 'incorrect'
+        }
+        if (attempt.correct?.[item.id]) return 'correct'
+        return item.open ? 'review' : 'incorrect'
+      }
+
+      const verdictLabel = verdict => {
+        if (verdict === 'correct') return t('quiz.correct')
+        if (verdict === 'partial') return t('quiz.partial')
+        if (verdict === 'review') return t('quiz.openReview')
+        return t('quiz.wrong')
+      }
+
+      const schedule = h(QuizCountdown, {
+        nextAt: nextQuizAt ?? null,
+        pending: Boolean(quizPending),
+        enabled: settings?.enabled !== false,
+        t,
+        localeId,
+        onRefresh,
+      })
+
+      if (!quiz) {
+        return h(
+          'section',
+          { className: 'enw-card enw-aside-card' },
+          h('div', { className: 'enw-aside-head' },
+            h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'target', size: 16 }), t('quiz.title')),
+            h('span', { className: 'enw-aside-date' }, t('quiz.today'))),
+          schedule,
+          h('p', { className: 'enw-aside-empty-title' }, t('quiz.empty')),
+          h('p', { className: 'enw-aside-hint' }, t('quiz.emptyHint')),
+          h(Btn, { variant: 'primary', onClick: () => onGenerate(false), disabled: generating, className: 'enw-block' },
+            generating ? h('span', { className: 'enw-spinner enw-spinner--light' }) : h(Icon, { name: 'sparkles', size: 15 }),
+            h('span', null, t(generating ? 'quiz.generating' : 'quiz.generate'))),
+        )
+      }
+
+      return h(
+        'section',
+        { className: 'enw-card enw-aside-card' },
+        h('div', { className: 'enw-aside-head' },
+          h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'target', size: 16 }), t('quiz.title')),
+          h('div', { className: 'enw-quiz-head-actions' },
+            h('span', { className: 'enw-aside-date' }, formatQuizDate(quiz.date, localeId)),
+            h('button', {
+              type: 'button',
+              className: 'enw-icon-btn',
+              onClick: () => { setConfirming(true); setCollapsed(false) },
+              title: t('action.regenerate'),
+              'aria-label': t('action.regenerate'),
+            }, h(Icon, { name: 'refresh', size: 14 })),
+            h('button', {
+              type: 'button',
+              className: 'enw-icon-btn',
+              onClick: toggleCollapsed,
+              title: t(collapsed ? 'quiz.expand' : 'quiz.collapse'),
+              'aria-label': t(collapsed ? 'quiz.expand' : 'quiz.collapse'),
+              'aria-expanded': !collapsed,
+            }, h(Icon, { name: collapsed ? 'chevronDown' : 'chevronUp', size: 16 })))),
+        schedule,
+        h('div', { className: 'enw-quiz-meta' },
+          h('span', { className: cx('enw-pill', attempt ? 'enw-pill--ok' : 'enw-pill--wait') }, attempt ? t('quiz.done') : t('quiz.pending')),
+          h('span', { className: cx('enw-pill', quiz.source === 'local' ? 'enw-pill--muted' : 'enw-pill--brand') }, t(quiz.source === 'local' ? 'quiz.source.local' : 'quiz.source.model')),
+          attempt ? h('span', { className: 'enw-quiz-score' }, `${formatScore(attempt.score)}/${attempt.total}`) : null),
+        collapsed
+          ? h('p', { className: 'enw-quiz-collapsed' }, t('quiz.expand'))
+          : h(
+            React.Fragment,
+            null,
+            quiz.source === 'local' && !modelAvailable ? h('p', { className: 'enw-aside-hint' }, t('quiz.localNote')) : null,
+            h('ol', { className: 'enw-quiz-list' },
+              items.map((item, index) => {
+                const value = String(answers[item.id] ?? '')
+                const verdict = verdictOf(item)
+                const feedback = attempt?.mode === 'model' ? attempt.feedback?.[item.id] : null
+                const openHint = item.open && (!attempt || attempt.mode === 'exact')
+                  ? h('p', { className: 'enw-quiz-open-hint' }, t('quiz.openHint'))
+                  : null
+                return h(
+                  'li',
+                  { key: item.id, className: 'enw-quiz-item' },
+                  h('div', { className: 'enw-quiz-item-head' },
+                    h('span', { className: 'enw-quiz-type' }, t(`quiz.type.${item.type}`)),
+                    h('span', { className: 'enw-quiz-index' }, String(index + 1))),
+                  h('p', { className: 'enw-quiz-prompt' }, item.prompt),
+                  openHint,
+                  item.hint && !attempt && reveal ? h('p', { className: 'enw-quiz-hint' }, `${t('quiz.hint')}: ${item.hint}`) : null,
+                  attempt
+                    ? h('div', { className: 'enw-quiz-result' },
+                      h('div', { className: cx('enw-quiz-verdict', `enw-quiz-verdict--${verdict === 'review' ? 'open' : verdict === 'partial' ? 'warn' : verdict === 'correct' ? 'ok' : 'bad'}`) },
+                        h(Icon, { name: verdict === 'correct' ? 'check' : verdict === 'incorrect' ? 'refresh' : 'sparkles', size: 13 }),
+                        h('span', null, verdictLabel(verdict))),
+                      h('p', { className: 'enw-quiz-your' },
+                        h('span', { className: 'enw-quiz-label' }, t('quiz.yourAnswer')),
+                        h('span', null, value.trim() ? value : t('quiz.noAnswer'))),
+                      h('p', { className: 'enw-quiz-answer' },
+                        h('span', { className: 'enw-quiz-label' }, t('quiz.answer')),
+                        h('strong', null, item.answer)),
+                      feedback?.feedback
+                        ? h('p', { className: 'enw-quiz-feedback' },
+                          h('span', { className: 'enw-quiz-label' }, t('quiz.feedback')),
+                          h('span', null, feedback.feedback))
+                        : null,
+                      feedback?.better
+                        ? h('p', { className: 'enw-quiz-better' },
+                          h('span', { className: 'enw-quiz-label' }, t('quiz.better')),
+                          h('span', null, feedback.better))
+                        : null,
+                      asArray(feedback?.related).length
+                        ? h('div', { className: 'enw-quiz-related' },
+                          h('span', { className: 'enw-quiz-label' }, t('quiz.related')),
+                          h('div', { className: 'enw-exp-chips' }, feedback.related.map((entry, entryIndex) => h('span', { key: entryIndex, className: 'enw-exp-chip' }, entry))))
+                        : null,
+                      item.explanation ? h('p', { className: 'enw-quiz-explanation' }, item.explanation) : null)
+                    : h(
+                      item.type === 'cn2en' || item.type === 'usage'
+                        ? 'textarea'
+                        : 'input',
+                      {
+                        className: 'enw-quiz-input',
+                        value,
+                        rows: item.type === 'cn2en' || item.type === 'usage' ? 2 : undefined,
+                        placeholder: t('quiz.blank'),
+                        onChange: event => setAnswers(current => ({ ...current, [item.id]: event.target.value })),
+                      },
+                    ),
+                  !attempt && reveal
+                    ? h('p', { className: 'enw-quiz-answer' },
+                      h('span', { className: 'enw-quiz-label' }, t('quiz.answer')),
+                      h('strong', null, item.answer),
+                      item.explanation ? h('span', { className: 'enw-quiz-explanation' }, item.explanation) : null)
+                    : null,
+                )
+              })),
+            attempt?.mode === 'model' && attempt.summary
+              ? h('div', { className: 'enw-quiz-summary-block' },
+                h(SectionLabel, null, t('quiz.summary')),
+                h('p', { className: 'enw-quiz-feedback' }, attempt.summary))
+              : null,
+            h('div', { className: 'enw-quiz-footer' },
+              h('span', { className: 'enw-quiz-progress' }, attempt
+                ? `${formatScore(attempt.score)}/${attempt.total}`
+                : `${answeredCount}/${items.length}`),
+              h('div', { className: 'enw-quiz-footer-actions' },
+                !attempt
+                  ? h(Btn, { variant: 'quiet', onClick: () => setReveal(current => !current) }, t(reveal ? 'action.hideAnswers' : 'action.viewAnswer'))
+                  : null,
+                h(Btn, {
+                  variant: 'ghost',
+                  onClick: () => onGrade(answers),
+                  disabled: grading || gradingModel || (!attempt && answeredCount === 0),
+                }, grading ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'check', size: 14 }),
+                h('span', null, t(attempt || modelAvailable ? 'quiz.gradeExact' : 'action.submit'))),
+                modelAvailable
+                  ? h(Btn, {
+                    variant: 'primary',
+                    onClick: () => onModelGrade(answers),
+                    disabled: gradingModel || grading || (!attempt && answeredCount === 0),
+                  }, gradingModel ? h('span', { className: 'enw-spinner enw-spinner--light' }) : h(Icon, { name: 'sparkles', size: 14 }),
+                  h('span', null, t(gradingModel ? 'quiz.gradingModel' : 'quiz.gradeModel')))
+                  : null)),
+            !modelAvailable ? h('p', { className: 'enw-aside-hint' }, t('quiz.noModel')) : null,
+            confirming
+              ? h('div', { className: 'enw-confirm enw-confirm--card' },
+                h('span', { className: 'enw-confirm-text' }, t('quiz.confirmRegenerate')),
+                h('div', { className: 'enw-confirm-actions' },
+                  h(Btn, { variant: 'danger', onClick: () => { setConfirming(false); onGenerate(true) }, disabled: generating }, t('quiz.replace')),
+                  h(Btn, { variant: 'quiet', onClick: () => setConfirming(false) }, t('action.cancel'))))
+              : null,
+            h('div', { className: 'enw-quiz-history' },
+              h(SectionLabel, null, t('quiz.history')),
+              h('div', { className: 'enw-history-row' },
+                history.length
+                  ? history.slice(0, 7).reverse().map(entry => h('span', {
+                    key: entry.date,
+                    className: cx('enw-history-dot', entry.attempted && 'enw-history-dot--done', entry.date === quiz.date && 'enw-history-dot--today'),
+                    title: `${entry.date} · ${entry.attempted ? `${entry.score}/${entry.total}` : t('quiz.pending')}`,
+                  }, entry.attempted ? String(entry.score) : '·'))
+                  : h('span', { className: 'enw-history-empty' }, '—'))),
+          ),
+      )
+    }
+
+    // -- settings card ------------------------------------------------------
+
+    function SettingsCard({ settings, model, promptDefaults, t, busy, api, onSave, onClose }) {
+      const initialLlm = settings.llm && typeof settings.llm === 'object'
+        ? settings.llm
+        : { provider: '', model: '', reasoningEffort: '' }
+      const initialPrompts = settings.prompts && typeof settings.prompts === 'object' ? settings.prompts : {}
+      const [draft, setDraft] = useState({ ...settings, llm: { ...initialLlm }, prompts: { ...initialPrompts } })
+      const [dirty, setDirty] = useState(false)
+      const [catalog, setCatalog] = useState(null)
+      const [catalogBusy, setCatalogBusy] = useState(true)
+      const [catalogError, setCatalogError] = useState('')
+      const [promptsOpen, setPromptsOpen] = useState(false)
+      const [promptKey, setPromptKey] = useState('expansion')
+      const saving = busy === 'settings'
+      const llm = draft.llm || { provider: '', model: '', reasoningEffort: '' }
+      const prompts = draft.prompts || {}
+      const followingDefault = !llm.provider
+
+      const update = patch => {
+        setDraft(current => ({ ...current, ...patch }))
+        setDirty(true)
+      }
+
+      const setPrompt = value => {
+        setDraft(current => ({
+          ...current,
+          prompts: { ...(current.prompts || {}), [promptKey]: value },
+        }))
+        setDirty(true)
+      }
+
+      const loadCatalog = async (provider, modelId) => {
+        setCatalogBusy(true)
+        setCatalogError('')
+        try {
+          const data = await api.llmCatalog(provider || '', modelId || '')
+          setCatalog(data)
+          return data
+        } catch (error) {
+          setCatalogError(errorText(error))
+          return null
+        } finally {
+          setCatalogBusy(false)
+        }
+      }
+
+      useEffect(() => {
+        void loadCatalog(llm.provider, llm.model)
+      }, [])
+
+      const onProvider = async value => {
+        if (!value) {
+          update({ llm: { provider: '', model: '', reasoningEffort: '' } })
+          void loadCatalog('', '')
+          return
+        }
+        update({ llm: { provider: value, model: '', reasoningEffort: '' } })
+        const data = await loadCatalog(value, '')
+        const suggested = data?.suggested?.model || ''
+        if (suggested) update({ llm: { provider: value, model: suggested, reasoningEffort: '' } })
+      }
+
+      const onModel = async value => {
+        update({ llm: { ...llm, model: value, reasoningEffort: '' } })
+        await loadCatalog(llm.provider, value)
+      }
+
+      const onEffort = value => update({ llm: { ...llm, reasoningEffort: value } })
+
+      const providers = asArray(catalog?.providers)
+      const models = asArray(catalog?.models)
+      const efforts = asArray(catalog?.efforts)
+
+      return h(
+        'section',
+        { className: 'enw-card enw-aside-card' },
+        h('div', { className: 'enw-aside-head' },
+          h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'settings', size: 16 }), t('settings.title')),
+          h('button', { type: 'button', className: 'enw-icon-btn', onClick: onClose, 'aria-label': t('action.close') }, h(Icon, { name: 'close', size: 15 }))),
+        h('div', { className: 'enw-setting-row' },
+          h('div', { className: 'enw-setting-text' },
+            h('span', { className: 'enw-setting-label' }, t('settings.enabled')),
+            h('span', { className: 'enw-setting-hint' }, t('settings.quizHint'))),
+          h(Toggle, { checked: Boolean(draft.enabled), onChange: value => update({ enabled: value }), label: t('settings.enabled') })),
+        h('div', { className: 'enw-setting-row' },
+          h('label', { className: 'enw-setting-label', htmlFor: 'enw-quiz-time' }, t('settings.time')),
+          h('input', {
+            id: 'enw-quiz-time',
+            className: 'enw-input enw-input--time',
+            type: 'time',
+            value: draft.quizTime,
+            onChange: event => update({ quizTime: event.target.value }),
+          })),
+        h('div', { className: 'enw-setting-row' },
+          h('label', { className: 'enw-setting-label', htmlFor: 'enw-quiz-count' }, t('settings.count')),
+          h('input', {
+            id: 'enw-quiz-count',
+            className: 'enw-input enw-input--count',
+            type: 'number',
+            min: 1,
+            max: 10,
+            value: draft.dailyCount,
+            onChange: event => update({ dailyCount: Number(event.target.value) }),
+          })),
+        h('div', { className: 'enw-settings-group' },
+          h('div', { className: 'enw-settings-group-head' }, t('settings.expansionTitle')),
+          h('p', { className: 'enw-setting-hint', style: { marginTop: 0, marginBottom: 2 } }, t('settings.modelHint')),
+          h('label', { className: 'enw-field' },
+            h('span', { className: 'enw-field-label' }, t('settings.provider')),
+            h('select', {
+              className: 'enw-select',
+              value: llm.provider,
+              disabled: catalogBusy && !providers.length,
+              onChange: event => { void onProvider(event.target.value) },
+            },
+            h('option', { value: '' }, t('settings.followDefault')),
+            !providers.some(provider => provider.id === llm.provider) && llm.provider
+              ? h('option', { value: llm.provider }, llm.provider)
+              : null,
+            providers.map(provider => h('option', { key: provider.id, value: provider.id }, provider.name ? `${provider.name} (${provider.id})` : provider.id)))),
+          followingDefault
+            ? h('p', { className: 'enw-setting-hint' }, model.available
+              ? `${t('settings.followDefault')} · ${model.label}`
+              : t('settings.modelNone'))
+            : h(
+              'label',
+              { className: 'enw-field' },
+              h('span', { className: 'enw-field-label' }, t('settings.model')),
+              h('select', {
+                className: 'enw-select',
+                value: llm.model,
+                disabled: catalogBusy || !models.length,
+                onChange: event => { void onModel(event.target.value) },
+              },
+              !models.some(candidate => candidate.id === llm.model)
+                ? h('option', { value: '' }, t('settings.modelNone'))
+                : null,
+              models.map(candidate => h('option', { key: candidate.id, value: candidate.id }, candidate.name ? `${candidate.name} (${candidate.id})` : candidate.id))),
+            ),
+          !followingDefault
+            ? h(
+              'label',
+              { className: 'enw-field' },
+              h('span', { className: 'enw-field-label' }, t('settings.reasoning')),
+              h('select', {
+                className: 'enw-select',
+                value: llm.reasoningEffort,
+                disabled: catalogBusy || !efforts.length,
+                onChange: event => onEffort(event.target.value),
+              },
+              h('option', { value: '' }, t('settings.modelDefault')),
+              efforts.map(effort => h('option', { key: effort.id, value: effort.id }, effort.name ? `${effort.name} (${effort.id})` : effort.id))),
+            )
+            : null,
+          catalogBusy ? h('p', { className: 'enw-setting-hint' }, t('settings.catalogLoading')) : null,
+          catalogError ? h('p', { className: 'enw-setting-error' }, `${t('settings.catalogError')} ${catalogError}`) : null,
+          !followingDefault && !catalogBusy && !efforts.length
+            ? h('p', { className: 'enw-setting-hint' }, t('settings.reasoningNone'))
+            : null),
+        h('div', { className: 'enw-settings-group' },
+          h('div', { className: 'enw-settings-group-head' }, t('settings.priceTitle')),
+          h('p', { className: 'enw-setting-hint', style: { marginTop: 0, marginBottom: 4 } }, t('settings.priceHint')),
+          h('div', { className: 'enw-price-grid' },
+            h('label', { className: 'enw-field' },
+              h('span', { className: 'enw-field-label' }, t('settings.priceInput')),
+              h('input', {
+                className: 'enw-input',
+                type: 'number',
+                min: 0,
+                step: '0.001',
+                value: draft.priceInput ?? 0,
+                onChange: event => update({ priceInput: Number(event.target.value) }),
+              })),
+            h('label', { className: 'enw-field' },
+              h('span', { className: 'enw-field-label' }, t('settings.priceOutput')),
+              h('input', {
+                className: 'enw-input',
+                type: 'number',
+                min: 0,
+                step: '0.001',
+                value: draft.priceOutput ?? 0,
+                onChange: event => update({ priceOutput: Number(event.target.value) }),
+              })),
+            h('label', { className: 'enw-field enw-price-currency' },
+              h('span', { className: 'enw-field-label' }, t('settings.currency')),
+              h('input', {
+                className: 'enw-input',
+                type: 'text',
+                maxLength: 8,
+                value: draft.currency ?? '$',
+                onChange: event => update({ currency: event.target.value }),
+              })))),
+        h('div', { className: 'enw-settings-group' },
+          h('div', { className: 'enw-settings-group-head enw-prompt-head' },
+            h('span', null, t('settings.prompts')),
+            h('button', {
+              type: 'button',
+              className: 'enw-link-btn',
+              onClick: () => setPromptsOpen(value => !value),
+              'aria-expanded': promptsOpen,
+            }, t(promptsOpen ? 'action.hide' : 'settings.promptsToggle'))),
+          promptsOpen
+            ? h('div', { className: 'enw-prompts' },
+              h('div', { className: 'enw-cat-row' },
+                PROMPT_TASKS.map(key => h(Chip, {
+                  key,
+                  active: promptKey === key,
+                  onClick: () => setPromptKey(key),
+                }, t(`settings.prompt.${key}`)))),
+              h('p', { className: 'enw-setting-hint' }, t('settings.promptsHint')),
+              h('p', { className: 'enw-prompt-placeholders' },
+                t('settings.prompt.placeholders'),
+                ' ',
+                asArray(PROMPT_PLACEHOLDERS[promptKey]).join('  ')),
+              h('textarea', {
+                className: 'enw-prompt-input',
+                rows: 9,
+                value: prompts[promptKey] || '',
+                placeholder: promptDefaults?.[promptKey] || '',
+                onChange: event => setPrompt(event.target.value),
+              }),
+              promptKey === 'organize'
+                ? h('p', { className: 'enw-setting-hint' }, t('settings.prompt.organizeHint'))
+                : null,
+              h('div', { className: 'enw-prompt-actions' },
+                h(Btn, { variant: 'quiet', onClick: () => setPrompt(promptDefaults?.[promptKey] || '') }, t('settings.prompt.loadDefault')),
+                h(Btn, { variant: 'quiet', onClick: () => setPrompt('') }, t('settings.prompt.reset'))),
+            )
+            : null),
+        h('div', { className: 'enw-settings-actions' },
+          h(Btn, { variant: 'quiet', onClick: onClose }, t('action.cancel')),
+          h(Btn, { variant: 'primary', onClick: () => onSave(draft), disabled: !dirty || saving },
+            saving ? h('span', { className: 'enw-spinner enw-spinner--light' }) : null,
+            h('span', null, t('action.save')))),
+      )
+    }
+
+    // -- usage card ---------------------------------------------------------
+
+    function UsageCard({ usage, settings, t, localeId }) {
+      const [showBreakdown, setShowBreakdown] = useState(false)
+      const total = usage?.total || { input: 0, output: 0, total: 0, calls: 0 }
+      const last = usage?.last || null
+      const format = value => Number(value || 0).toLocaleString(localeId)
+      const priceInput = Math.max(0, Number(settings?.priceInput) || 0)
+      const priceOutput = Math.max(0, Number(settings?.priceOutput) || 0)
+      const currency = String(settings?.currency || '$').trim() || '$'
+      const priced = priceInput > 0 || priceOutput > 0
+      const costOf = record => {
+        if (!record) return 0
+        return (Number(record.input || 0) / 1_000_000) * priceInput
+          + (Number(record.output || 0) / 1_000_000) * priceOutput
+      }
+      const formatCost = value => {
+        if (!Number.isFinite(value) || value <= 0) return `${currency}0`
+        if (value < 0.0001) return `<${currency}0.0001`
+        return `${currency}${value.toFixed(value >= 1 ? 2 : 4)}`
+      }
+      const purposeLabel = last?.purpose && USAGE_PURPOSE_KEYS.includes(last.purpose)
+        ? t(`usage.purpose.${last.purpose}`)
+        : ''
+      const purposes = usage?.purposes || {}
+      const purposeRows = USAGE_PURPOSE_KEYS
+        .map(key => ({ key, bucket: purposes[key] }))
+        .filter(row => row.bucket && (row.bucket.calls > 0 || row.bucket.total > 0))
+      const breakdownCalls = purposeRows.reduce((sum, row) => sum + (row.bucket.calls || 0), 0)
+      const partialBreakdown = breakdownCalls < total.calls
+
+      return h(
+        'section',
+        { className: 'enw-card enw-aside-card' },
+        h('div', { className: 'enw-aside-head' },
+          h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'target', size: 16 }), t('usage.title'))),
+        last
+          ? h(
+            'div',
+            { className: 'enw-usage' },
+            h('div', { className: 'enw-usage-head' },
+              purposeLabel ? h('span', { className: 'enw-usage-purpose' }, purposeLabel) : null,
+              h('span', { className: 'enw-usage-model' }, last.model || '—'),
+              last.reasoningEffort ? h('span', { className: 'enw-usage-effort' }, last.reasoningEffort) : null,
+              last.at ? h('span', { className: 'enw-usage-time' }, formatTime(last.at, localeId)) : null),
+            h('div', { className: 'enw-usage-grid' },
+              h('div', { className: 'enw-usage-cell' }, h('span', null, t('usage.input')), h('strong', null, format(last.input))),
+              h('div', { className: 'enw-usage-cell' }, h('span', null, t('usage.output')), h('strong', null, format(last.output))),
+              h('div', { className: 'enw-usage-cell' }, h('span', null, t('usage.total')), h('strong', null, format(last.total)))),
+            !last.reported ? h('p', { className: 'enw-setting-hint' }, t('usage.unreported')) : null,
+            h('div', { className: 'enw-usage-total' },
+              h('span', { className: 'enw-setting-hint' }, t('usage.total')),
+              h('strong', null, `${format(total.total)} ${t('usage.tokens')} · ${total.calls} ${t('usage.calls')}`)),
+            priced
+              ? h('div', { className: 'enw-usage-cost' },
+                h('span', { className: 'enw-setting-hint' }, t('usage.cost')),
+                h('strong', null, formatCost(costOf(total))))
+              : h('p', { className: 'enw-setting-hint' }, t('usage.costHint')),
+            purposeRows.length
+              ? h('div', { className: 'enw-usage-breakdown' },
+                h('button', {
+                  type: 'button',
+                  className: 'enw-link-btn',
+                  onClick: () => setShowBreakdown(value => !value),
+                  'aria-expanded': showBreakdown,
+                }, t('usage.breakdown')),
+                showBreakdown
+                  ? h(React.Fragment, null,
+                    h('div', { className: 'enw-usage-purposes' },
+                      purposeRows.map(row => h('div', { key: row.key, className: 'enw-usage-purpose-row' },
+                        h('span', { className: 'enw-usage-purpose-name' }, t(`usage.purpose.${row.key}`)),
+                        h('span', { className: 'enw-usage-purpose-meta' }, `${format(row.bucket.total)} ${t('usage.tokens')} · ${row.bucket.calls} ${t('usage.calls')}`),
+                        priced ? h('span', { className: 'enw-usage-purpose-cost' }, formatCost(costOf(row.bucket))) : null))),
+                    partialBreakdown ? h('p', { className: 'enw-setting-hint' }, t('usage.breakdownHint')) : null)
+                  : null)
+              : null,
+          )
+          : h('p', { className: 'enw-aside-hint' }, t('usage.empty')),
+      )
+    }
+
+
+    // -- organize panel -----------------------------------------------------
+
+    function OrganizePanel({ plan, notes, t, localeId, busy, onApply, onClose }) {
+      const byId = useMemo(() => new Map(asArray(notes).map(note => [note.id, note])), [notes])
+      const applying = busy === 'organize-apply'
+      const groups = asArray(plan?.groups)
+      const categories = asArray(plan?.categories).filter(item => byId.has(item.noteId))
+      const relations = asArray(plan?.relations)
+
+      const labelOf = note => {
+        const entry = asArray(note?.entries)[0]
+        if (!entry) return note?.text || ''
+        return entry.translation ? `${entry.text} · ${entry.translation}` : entry.text
+      }
+
+      return h('section', { className: 'enw-card enw-organize' },
+        h('div', { className: 'enw-organize-head' },
+          h('div', { className: 'enw-organize-head-main' },
+            h('h2', { className: 'enw-organize-title' },
+              h(Icon, { name: 'sparkles', size: 16 }),
+              h('span', null, t('organize.title'))),
+            plan?.summary ? h('p', { className: 'enw-organize-summary' }, plan.summary) : null,
+            h('p', { className: 'enw-organize-hint' }, t('organize.planHint'))),
+          h('button', {
+            type: 'button',
+            className: 'enw-icon-btn',
+            onClick: onClose,
+            disabled: applying,
+            title: t('action.cancel'),
+            'aria-label': t('action.cancel'),
+          }, h(Icon, { name: 'close', size: 15 }))),
+
+        groups.length
+          ? h(React.Fragment, null,
+            h('div', { className: 'enw-organize-label' }, t('organize.groups')),
+              h('div', { className: 'enw-organize-groups' },
+                groups.map((group, index) => h('div', { key: `${group.title}-${index}`, className: 'enw-organize-group' },
+                  h('div', { className: 'enw-organize-group-head' },
+                    h('span', { className: 'enw-organize-group-title' }, group.title),
+                    h('span', { className: 'enw-organize-count' }, `${asArray(group.noteIds).length} ${t('organize.notesUnit')}`)),
+                  group.summary ? h('p', { className: 'enw-organize-group-summary' }, group.summary) : null,
+                  asArray(group.tags).length
+                    ? h('div', { className: 'enw-tags' }, asArray(group.tags).map(tag => h('span', { key: tag, className: 'enw-tag' }, `#${tag}`)))
+                    : null,
+                  h('div', { className: 'enw-organize-notes' },
+                    asArray(group.noteIds).map(noteId => {
+                      const note = byId.get(noteId)
+                      if (!note) return null
+                      return h('div', { key: noteId, className: 'enw-organize-note' },
+                        h('span', { className: 'enw-organize-note-text' }, labelOf(note)),
+                        h('span', { className: 'enw-organize-note-cat' }, t(`category.${note.category}`)))
+                    }))))))
+          : h('p', { className: 'enw-aside-hint' }, t('organize.emptyPlan')),
+
+        categories.length
+          ? h('div', { className: 'enw-organize-section' },
+            h(SectionLabel, null, t('organize.categories')),
+            categories.map(item => {
+              const note = byId.get(item.noteId)
+              return h('div', { key: item.noteId, className: 'enw-organize-change' },
+                h('span', { className: 'enw-organize-change-text' }, labelOf(note)),
+                h('span', { className: 'enw-organize-note-cat' }, t(`category.${note.category}`)),
+                h('span', { className: 'enw-organize-arrow' }, '→'),
+                h('span', { className: 'enw-organize-cat' }, t(`category.${item.category}`)))
+            }))
+          : null,
+
+        relations.length
+          ? h('div', { className: 'enw-organize-section' },
+            h(SectionLabel, null, t('organize.relations')),
+            relations.map((relation, index) => h('div', { key: index, className: 'enw-organize-relation' },
+              h('span', { className: 'enw-organize-kind' }, t(`organize.relation.${relation.kind}`)),
+              h('span', { className: 'enw-organize-relation-notes' },
+                asArray(relation.noteIds).map(noteId => byId.get(noteId)).filter(Boolean).map(labelOf).join(' ↔ ')),
+              relation.note ? h('span', { className: 'enw-organize-relation-note' }, relation.note) : null)))
+          : null,
+
+        h('div', { className: 'enw-organize-actions' },
+          h(Btn, { variant: 'quiet', onClick: onClose, disabled: applying }, t('action.cancel')),
+          h(Btn, { variant: 'primary', onClick: onApply, disabled: applying || !groups.length },
+            applying ? h('span', { className: 'enw-spinner enw-spinner--light' }) : h(Icon, { name: 'check', size: 15 }),
+            h('span', null, t('organize.apply')))))
+    }
+
+    // -- page ---------------------------------------------------------------
+
+    function NotesPage({ t, api, ctx, mountError }) {
+      const active = useActiveLocale(ctx)
+      const localeId = /^zh/i.test(active || '') ? 'zh-CN' : 'en-US'
+      const [snap, setSnap] = useState(null)
+      const [phase, setPhase] = useState(api ? 'loading' : 'error')
+      const [loadError, setLoadError] = useState(mountError || '')
+      const [actionError, setActionError] = useState('')
+      const [notice, setNotice] = useState('')
+      const [busy, setBusy] = useState('')
+      const [filter, setFilter] = useState('all')
+      const [query, setQuery] = useState('')
+      const [settingsOpen, setSettingsOpen] = useState(false)
+      const [draft, setDraft] = useState({ text: '', tags: '', category: 'word' })
+      const [collapseSignal, setCollapseSignal] = useState(0)
+      const [composerOpen, setComposerOpen] = useState(() => {
+        try {
+          return window.localStorage.getItem(COMPOSER_COLLAPSED_KEY) !== '1'
+        } catch {
+          return true
+        }
+      })
+      const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+        try {
+          return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
+        } catch {
+          return false
+        }
+      })
+      const [viewMode, setViewMode] = useState(() => {
+        try {
+          return window.localStorage.getItem(VIEW_MODE_KEY) === 'grid' ? 'grid' : 'list'
+        } catch {
+          return 'list'
+        }
+      })
+      const [groupMode, setGroupMode] = useState(() => {
+        try {
+          return window.localStorage.getItem(GROUP_MODE_KEY) === 'organized' ? 'organized' : 'time'
+        } catch {
+          return 'time'
+        }
+      })
+      const [organizePlan, setOrganizePlan] = useState(null)
+      const [expandProgress, setExpandProgress] = useState(null)
+      const organizedActive = groupMode === 'organized' && Boolean(snap?.organization)
+      const scheme = useThemeScheme(ctx)
+      const noticeTimer = useRef(null)
+      const alive = useRef(true)
+
+      useEffect(() => () => {
+        alive.current = false
+        if (noticeTimer.current) clearTimeout(noticeTimer.current)
+      }, [])
+
+      const toast = message => {
+        setNotice(message)
+        if (noticeTimer.current) clearTimeout(noticeTimer.current)
+        noticeTimer.current = setTimeout(() => setNotice(''), 3600)
+      }
+
+      const toggleComposer = () => {
+        setComposerOpen(current => {
+          const next = !current
+          try {
+            window.localStorage.setItem(COMPOSER_COLLAPSED_KEY, next ? '0' : '1')
+          } catch {
+            /* storage may be unavailable */
+          }
+          return next
+        })
+      }
+
+      const collapseExpansions = () => {
+        setCollapseSignal(value => value + 1)
+      }
+
+      const chooseView = mode => {
+        setViewMode(mode)
+        try {
+          window.localStorage.setItem(VIEW_MODE_KEY, mode)
+        } catch {
+          /* storage may be unavailable */
+        }
+      }
+
+      const setSidebarState = collapsed => {
+        setSidebarCollapsed(collapsed)
+        try {
+          window.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0')
+        } catch {
+          /* storage may be unavailable */
+        }
+      }
+
+      const toggleSidebar = () => setSidebarState(!sidebarCollapsed)
+
+      const toggleSettings = () => {
+        if (sidebarCollapsed) {
+          setSidebarState(false)
+          setSettingsOpen(true)
+        } else {
+          setSettingsOpen(value => !value)
+        }
+      }
+
+      const refresh = async () => {
+        if (!api) return
+        try {
+          const next = await api.snapshot()
+          if (!alive.current) return
+          setSnap(next)
+          setPhase('ready')
+          setLoadError('')
+          badge.set(Boolean(next.today && !next.today.attempt))
+        } catch (error) {
+          if (!alive.current) return
+          setLoadError(errorText(error))
+          setPhase(current => (current === 'ready' ? 'ready' : 'error'))
+        }
+      }
+
+      useEffect(() => {
+        void refresh()
+      }, [api])
+
+      const act = async (key, operation, onOk) => {
+        if (!api) return undefined
+        if (busy) return undefined
+        setBusy(key)
+        setActionError('')
+        try {
+          const result = await operation()
+          if (!alive.current) return undefined
+          const status = result?.status
+          if (status && status !== 'ok' && status !== 'exists') {
+            if (status === 'unavailable') setActionError(t('error.expandUnavailable'))
+            else if (status === 'empty') setActionError(t('error.quizUnavailable'))
+            else setActionError(result.message || t('error.action'))
+            if (onOk) onOk(result)
+          } else if (onOk) {
+            onOk(result)
+          }
+          await refresh()
+          return result
+        } catch (error) {
+          if (alive.current) setActionError(errorText(error) || t('error.action'))
+          return undefined
+        } finally {
+          if (alive.current) setBusy('')
+        }
+      }
+
+      const chooseGroupMode = mode => {
+        setGroupMode(mode)
+        try {
+          window.localStorage.setItem(GROUP_MODE_KEY, mode)
+        } catch {
+          /* storage may be unavailable */
+        }
+      }
+
+      const runOrganize = async () => {
+        if (!api || busy) return
+        setBusy('organize')
+        setActionError('')
+        setOrganizePlan(null)
+        try {
+          const result = await api.organizeWall()
+          if (!alive.current) return
+          if (result?.status === 'ok') {
+            setOrganizePlan(result.plan)
+          } else if (result?.status === 'empty') {
+            setActionError(t('organize.empty'))
+          } else if (result?.status === 'unavailable') {
+            setActionError(t('organize.unavailable'))
+          } else {
+            setActionError(result?.message || t('organize.failed'))
+          }
+          await refresh()
+        } catch (error) {
+          if (alive.current) setActionError(errorText(error) || t('organize.failed'))
+        } finally {
+          if (alive.current) setBusy('')
+        }
+      }
+
+      const applyOrganize = async () => {
+        if (!api || busy || !organizePlan) return
+        setBusy('organize-apply')
+        setActionError('')
+        try {
+          const result = await api.applyOrganization(organizePlan)
+          if (!alive.current) return
+          if (result?.status === 'ok') {
+            setOrganizePlan(null)
+            chooseGroupMode('organized')
+            setFilter('all')
+            setQuery('')
+            toast(t('organize.applied'))
+            await refresh()
+          } else if (result?.status === 'invalid') {
+            setActionError(t('organize.invalid'))
+          } else {
+            setActionError(result?.message || t('organize.failed'))
+          }
+        } catch (error) {
+          if (alive.current) setActionError(errorText(error) || t('organize.failed'))
+        } finally {
+          if (alive.current) setBusy('')
+        }
+      }
+
+      const expandMissing = async () => {
+        if (!api || busy) return
+        const targets = asArray(snap?.notes)
+          .filter(note => asArray(note.entries).some(entry => !entry.expansion))
+          .map(note => note.id)
+        if (!targets.length) {
+          toast(t('notice.noMissingExpansions'))
+          return
+        }
+        setBusy('expand-missing')
+        setActionError('')
+        setExpandProgress({ done: 0, total: targets.length })
+        let completed = 0
+        let failure = ''
+        try {
+          for (const noteId of targets) {
+            if (!alive.current) return
+            const result = await api.expandNote(noteId, false)
+            if (result?.status === 'ok' || result?.status === 'exists') {
+              completed += 1
+              if (alive.current) setExpandProgress({ done: completed, total: targets.length })
+              continue
+            }
+            failure = result?.status === 'unavailable'
+              ? t('error.expandUnavailable')
+              : (result?.message || t('error.action'))
+            break
+          }
+          if (!alive.current) return
+          await refresh()
+          if (!alive.current) return
+          if (failure) setActionError(failure)
+          else toast(t('notice.missingExpanded'))
+        } catch (error) {
+          if (alive.current) setActionError(errorText(error) || t('error.action'))
+        } finally {
+          if (alive.current) {
+            setBusy('')
+            setExpandProgress(null)
+          }
+        }
+      }
+
+      const addNote = () => {
+        const text = draft.text.trim()
+        if (!text) {
+          setActionError(t('form.required'))
+          return
+        }
+        void act('add', () => api.addNote({
+          text,
+          tags: parseTags(draft.tags),
+          category: draft.category,
+        }), () => {
+          setDraft(current => ({ text: '', tags: '', category: current.category }))
+          toast(t('notice.added'))
+        })
+      }
+
+      const expandEntry = (note, entry) => {
+        void act(`expand:${note.id}:${entry.id}`, () => api.expandNote(note.id, Boolean(entry.expansion), entry.id), result => {
+          if (result?.status === 'ok') {
+            toast(t('notice.expanded'))
+          } else if (result?.status === 'unavailable') {
+            setActionError(t('error.expandUnavailable'))
+          }
+        })
+      }
+
+      const expandAll = (note, force) => {
+        void act(`expand:${note.id}`, () => api.expandNote(note.id, Boolean(force), ''), result => {
+          if (result?.status === 'ok') {
+            toast(t('notice.expanded'))
+          } else if (result?.status === 'unavailable') {
+            setActionError(t('error.expandUnavailable'))
+          }
+        })
+      }
+
+      const updateNote = (note, patch) => act(`update:${note.id}`, () => api.updateNote({ id: note.id, ...patch }), result => {
+        if (result?.status === 'ok') toast(t('notice.updated'))
+      })
+
+      const deleteNote = note => {
+        void act(`delete:${note.id}`, () => api.deleteNote(note.id), result => {
+          if (result?.status === 'ok') toast(t('notice.deleted'))
+        })
+      }
+
+      const generateQuiz = force => {
+        void act('quiz', () => api.generateQuiz(force), result => {
+          if (result?.status === 'ok') toast(t('notice.quiz'))
+          else if (result?.status === 'empty') setActionError(result.message || t('error.quizUnavailable'))
+        })
+      }
+
+      const gradeQuiz = answers => {
+        if (!snap?.today) return
+        void act('grade', () => api.gradeQuiz(snap.today.date, answers), result => {
+          if (result?.status === 'ok') toast(t('notice.graded'))
+        })
+      }
+
+      const gradeWithModel = answers => {
+        if (!snap?.today) return
+        if (!snap?.model?.available) {
+          setActionError(t('quiz.noModel'))
+          return
+        }
+        void act('grade-model', () => api.gradeWithModel(snap.today.date, answers), result => {
+          if (result?.status === 'ok') toast(t('notice.graded'))
+          else if (result?.status === 'unavailable') setActionError(t('quiz.noModel'))
+        })
+      }
+
+      const saveSettings = settings => {
+        void act('settings', () => api.saveSettings(settings), result => {
+          if (result?.status === 'ok') {
+            toast(t('settings.saved'))
+            setSettingsOpen(false)
+          } else if (result?.status === 'invalid') {
+            setActionError(result.message || t('settings.invalid'))
+          }
+        })
+      }
+
+      const filtered = useMemo(() => {
+        const notes = asArray(snap?.notes)
+        const needle = query.trim().toLowerCase()
+        return notes.filter(note => {
+          if (filter !== 'all' && note.category !== filter) return false
+          if (!needle) return true
+          const haystack = `${note.text} ${asArray(note.entries).map(entry => entry.translation).join(' ')} ${asArray(note.tags).join(' ')}`.toLowerCase()
+          return haystack.includes(needle)
+        })
+      }, [snap, filter, query])
+
+      const groups = useMemo(() => {
+        if (organizedActive) {
+          const order = new Map()
+          asArray(snap?.organization?.groups).forEach((group, index) => order.set(group.title, index))
+          const map = new Map()
+          for (const note of filtered) {
+            const key = note.topic || ''
+            if (!map.has(key)) map.set(key, [])
+            map.get(key).push(note)
+          }
+          const rank = key => {
+            if (!key) return Number.MAX_SAFE_INTEGER
+            return order.has(key) ? order.get(key) : order.size
+          }
+          const list = [...map.entries()]
+          list.sort(([left], [right]) => rank(left) - rank(right) || left.localeCompare(right))
+          for (const [, entries] of list) {
+            entries.sort((left, right) => {
+              const leftPosition = Number.isFinite(left.position) ? left.position : Number.MAX_SAFE_INTEGER
+              const rightPosition = Number.isFinite(right.position) ? right.position : Number.MAX_SAFE_INTEGER
+              return leftPosition - rightPosition || left.createdAt - right.createdAt
+            })
+          }
+          return list
+        }
+        const map = new Map()
+        for (const note of filtered) {
+          const key = dayKey(note.createdAt)
+          if (!map.has(key)) map.set(key, [])
+          map.get(key).push(note)
+        }
+        return [...map.entries()]
+      }, [filtered, organizedActive, snap])
+
+      const dayLabel = key => {
+        const today = dayKey(Date.now())
+        const yesterday = dayKey(Date.now() - 86400000)
+        if (key === today) return t('time.today')
+        if (key === yesterday) return t('time.yesterday')
+        const [year, month, day] = key.split('-').map(Number)
+        try {
+          return new Intl.DateTimeFormat(localeId, { month: 'short', day: 'numeric' }).format(new Date(year, month - 1, day))
+        } catch {
+          return key
+        }
+      }
+
+      if (!api) {
+        return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
+          h('div', { className: 'enw-inner' },
+            h('div', { className: 'enw-card enw-state-card' },
+              h('div', { className: 'enw-state-title' }, t('error.load')),
+              h('p', { className: 'enw-state-text' }, t('error.api')),
+              loadError ? h('p', { className: 'enw-state-detail' }, loadError) : null)))
+      }
+
+      if (phase === 'loading') {
+        return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
+          h('div', { className: 'enw-inner' },
+            h('div', { className: 'enw-card enw-state-card' },
+              h('span', { className: 'enw-spinner' }),
+              h('span', { className: 'enw-state-text' }, t('common.loading')))))
+      }
+
+      if (phase === 'error' && !snap) {
+        return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
+          h('div', { className: 'enw-inner' },
+            h('div', { className: 'enw-card enw-state-card' },
+              h('div', { className: 'enw-state-title' }, t('error.load')),
+              h('p', { className: 'enw-state-detail' }, loadError),
+              h(Btn, { variant: 'primary', onClick: () => { setPhase('loading'); void refresh() } }, t('common.retry')))))
+      }
+
+      const notes = asArray(snap?.notes)
+      const counts = snap?.stats?.counts || {}
+      const model = snap?.model || { available: false, label: '' }
+      const categories = CATEGORIES
+      const hasExpansions = notes.some(note => asArray(note.entries).some(entry => entry.expansion))
+      const pendingExpansions = notes.filter(note => asArray(note.entries).some(entry => !entry.expansion))
+      const expandMissingLabel = busy === 'expand-missing'
+        ? `${t('action.expandingMissing')} ${expandProgress?.done ?? 0}/${expandProgress?.total ?? pendingExpansions.length}`
+        : `${t('action.expandMissing')} (${pendingExpansions.length})`
+
+      return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
+        h('div', { className: 'enw-inner' },
+          h('header', { className: 'enw-head' },
+            h('div', { className: 'enw-head-main' },
+              h('h1', { className: 'enw-title' }, t('panel.title')),
+              h('p', { className: 'enw-sub' }, t('panel.subtitle'))),
+            h('div', { className: 'enw-head-actions' },
+              h('span', { className: 'enw-count' }, `${notes.length}`),
+              h(Btn, { variant: 'quiet', onClick: () => void refresh(), title: t('action.refresh'), label: t('action.refresh') }, h(Icon, { name: 'refresh', size: 15 })),
+              h(Btn, {
+                variant: 'quiet',
+                onClick: toggleSidebar,
+                title: t(sidebarCollapsed ? 'sidebar.expand' : 'sidebar.collapse'),
+                label: t(sidebarCollapsed ? 'sidebar.expand' : 'sidebar.collapse'),
+                className: sidebarCollapsed ? 'enw-btn--on' : '',
+              }, h(Icon, { name: 'panel', size: 15 })),
+              h(Btn, {
+                variant: 'quiet',
+                onClick: toggleSettings,
+                title: t('action.settings'),
+                label: t('action.settings'),
+                className: settingsOpen && !sidebarCollapsed ? 'enw-btn--on' : '',
+              }, h(Icon, { name: 'settings', size: 15 })))),
+
+          actionError ? h(Banner, { tone: 'error', onClose: () => setActionError('') }, actionError) : null,
+          notice ? h(Banner, { tone: 'ok' }, notice) : null,
+          loadError ? h(Banner, { tone: 'warn', onClose: () => setLoadError('') }, `${t('error.load')} ${loadError}`) : null,
+
+          h('div', { className: cx('enw-layout', sidebarCollapsed && 'enw-layout--collapsed') },
+            h('div', { className: 'enw-main' },
+              h('section', { className: cx('enw-card', 'enw-composer', !composerOpen && 'enw-composer--collapsed') },
+                h('div', { className: 'enw-composer-head' },
+                  h('span', { className: 'enw-composer-title' }, h(Icon, { name: 'plus', size: 15 }), t('form.heading')),
+                  h('div', { className: 'enw-composer-head-actions' },
+                    h('span', { className: 'enw-composer-hint' }, t(composerOpen ? 'form.hint' : 'form.expandHint')),
+                    h('button', {
+                      type: 'button',
+                      className: 'enw-icon-btn',
+                      onClick: toggleComposer,
+                      title: t(composerOpen ? 'form.collapse' : 'form.expand'),
+                      'aria-label': t(composerOpen ? 'form.collapse' : 'form.expand'),
+                      'aria-expanded': composerOpen,
+                    }, h(Icon, { name: composerOpen ? 'chevronUp' : 'chevronDown', size: 15 })))),
+                composerOpen
+                  ? h(
+                    React.Fragment,
+                    null,
+                    h('textarea', {
+                      className: 'enw-textarea',
+                      value: draft.text,
+                      rows: 5,
+                      placeholder: t('form.placeholder'),
+                      onChange: event => setDraft(current => ({ ...current, text: event.target.value })),
+                      onKeyDown: event => {
+                        if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+                          event.preventDefault()
+                          addNote()
+                        }
+                      },
+                    }),
+                    h('p', { className: 'enw-composer-hint enw-composer-hint--block' }, t('form.entriesHint')),
+                    h('input', {
+                      className: 'enw-input',
+                      value: draft.tags,
+                      placeholder: t('form.tags'),
+                      onChange: event => setDraft(current => ({ ...current, tags: event.target.value })),
+                    }),
+                    h('div', { className: 'enw-composer-foot' },
+                      h('div', { className: 'enw-cat-row', role: 'group', 'aria-label': t('form.category') },
+                        categories.map(category => h(Chip, {
+                          key: category,
+                          active: draft.category === category,
+                          onClick: () => setDraft(current => ({ ...current, category })),
+                        }, t(`category.${category}`)))),
+                      h(Btn, { variant: 'primary', onClick: addNote, disabled: Boolean(busy) },
+                        busy === 'add' ? h('span', { className: 'enw-spinner enw-spinner--light' }) : h(Icon, { name: 'plus', size: 15 }),
+                        h('span', null, t('action.add')))))
+                  : null),
+
+              h('div', { className: 'enw-toolbar' },
+                h('div', { className: 'enw-filters' },
+                  h(Chip, { active: filter === 'all', onClick: () => setFilter('all'), count: notes.length }, t('filter.all')),
+                  categories.map(category => h(Chip, {
+                    key: category,
+                    active: filter === category,
+                    onClick: () => setFilter(category),
+                    count: counts[category] ?? 0,
+                  }, t(`category.${category}`)))),
+                h('div', { className: 'enw-toolbar-actions' },
+                  pendingExpansions.length
+                    ? h(Btn, {
+                      variant: 'quiet',
+                      onClick: expandMissing,
+                      disabled: Boolean(busy),
+                      title: expandMissingLabel,
+                      label: expandMissingLabel,
+                    },
+                    busy === 'expand-missing' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'sparkles', size: 15 }),
+                    h('span', { className: 'enw-btn-text' }, expandMissingLabel))
+                    : null,
+                  h(Btn, {
+                    variant: 'quiet',
+                    onClick: runOrganize,
+                    disabled: Boolean(busy),
+                    title: t('organize.action'),
+                    label: t('organize.action'),
+                  },
+                  busy === 'organize' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'sparkles', size: 15 }),
+                  h('span', { className: 'enw-btn-text' }, t('organize.action'))),
+                  snap?.organization
+                    ? h(Btn, {
+                      variant: 'quiet',
+                      onClick: () => chooseGroupMode(organizedActive ? 'time' : 'organized'),
+                      title: t(organizedActive ? 'organize.byTime' : 'organize.byTopic'),
+                      label: t(organizedActive ? 'organize.byTime' : 'organize.byTopic'),
+                    },
+                    h(Icon, { name: organizedActive ? 'clock' : 'book', size: 15 }),
+                    h('span', { className: 'enw-btn-text' }, t(organizedActive ? 'organize.byTime' : 'organize.byTopic')))
+                    : null,
+                  h('div', { className: 'enw-view-toggle', role: 'group', 'aria-label': t('view.label') },
+                    h('button', {
+                      type: 'button',
+                      className: cx('enw-view-btn', viewMode === 'list' && 'enw-view-btn--on'),
+                      onClick: () => chooseView('list'),
+                      title: t('view.list'),
+                      'aria-label': t('view.list'),
+                      'aria-pressed': viewMode === 'list',
+                    }, h(Icon, { name: 'list', size: 15 })),
+                    h('button', {
+                      type: 'button',
+                      className: cx('enw-view-btn', viewMode === 'grid' && 'enw-view-btn--on'),
+                      onClick: () => chooseView('grid'),
+                      title: t('view.grid'),
+                      'aria-label': t('view.grid'),
+                      'aria-pressed': viewMode === 'grid',
+                    }, h(Icon, { name: 'grid', size: 15 }))),
+                  hasExpansions
+                    ? h(Btn, {
+                      variant: 'quiet',
+                      onClick: collapseExpansions,
+                      title: t('action.collapseExpansions'),
+                      label: t('action.collapseExpansions'),
+                    }, h(Icon, { name: 'chevronUp', size: 14 }), h('span', { className: 'enw-btn-text' }, t('action.collapseExpansions')))
+                    : null,
+                  h('label', { className: 'enw-search' },
+                    h(Icon, { name: 'search', size: 15 }),
+                    h('input', {
+                      className: 'enw-search-input',
+                      value: query,
+                      placeholder: t('filter.search'),
+                      onChange: event => setQuery(event.target.value),
+                    })))),
+
+              organizePlan && notes.length > 0
+                ? h(OrganizePanel, {
+                  plan: organizePlan,
+                  notes,
+                  t,
+                  localeId,
+                  busy,
+                  onApply: applyOrganize,
+                  onClose: () => setOrganizePlan(null),
+                })
+                : null,
+
+              notes.length === 0
+                ? h('div', { className: 'enw-card enw-empty' },
+                  h('div', { className: 'enw-empty-icon' }, h(Glyph, { size: 34 })),
+                  h('h2', { className: 'enw-empty-title' }, t('empty.title')),
+                  h('p', { className: 'enw-empty-text' }, t('empty.body')))
+                : groups.length === 0
+                  ? h('div', { className: 'enw-card enw-empty' },
+                    h('h2', { className: 'enw-empty-title' }, t('filter.empty')),
+                    h('p', { className: 'enw-empty-text' }, t('filter.emptyHint')))
+                  : h('div', { className: cx('enw-groups', viewMode === 'grid' && 'enw-groups--grid') },
+                    groups.map(([key, entries]) => {
+                      const groupMeta = organizedActive
+                        ? asArray(snap?.organization?.groups).find(group => group.title === key)
+                        : null
+                      return h('div', { key: organizedActive ? `topic:${key || 'ungrouped'}` : key, className: 'enw-group' },
+                        h('div', { className: 'enw-group-head' },
+                          h('span', { className: 'enw-group-label' }, organizedActive ? (key || t('organize.ungrouped')) : dayLabel(key)),
+                          h('span', { className: 'enw-group-line' }),
+                          h('span', { className: 'enw-group-count' }, `${entries.length}`)),
+                        organizedActive && groupMeta?.summary ? h('p', { className: 'enw-group-summary' }, groupMeta.summary) : null,
+                        h('div', { className: 'enw-group-notes' },
+                          entries.map(note => h(NoteCard, {
+                            key: note.id,
+                            note,
+                            t,
+                            localeId,
+                            busy,
+                            collapseSignal,
+                            onExpandAll: expandAll,
+                            onExpandEntry: expandEntry,
+                            onUpdate: updateNote,
+                            onDelete: deleteNote,
+                          }))))
+                    }))),
+
+            h('aside', { className: 'enw-aside' },
+              settingsOpen
+                ? h(SettingsCard, {
+                  settings: snap?.settings || { quizTime: '08:00', dailyCount: 5, enabled: true, llm: { provider: '', model: '', reasoningEffort: '' }, prompts: {} },
+                  model,
+                  promptDefaults: snap?.promptDefaults || {},
+                  t,
+                  busy,
+                  api,
+                  onSave: saveSettings,
+                  onClose: () => setSettingsOpen(false),
+                })
+                : null,
+              h(QuizCard, {
+                quiz: snap?.today || null,
+                history: asArray(snap?.history),
+                t,
+                localeId,
+                busy,
+                modelAvailable: model.available,
+                settings: snap?.settings || null,
+                nextQuizAt: snap?.nextQuizAt ?? null,
+                quizPending: Boolean(snap?.quizPending),
+                onRefresh: refresh,
+                onGenerate: generateQuiz,
+                onGrade: gradeQuiz,
+                onModelGrade: gradeWithModel,
+              }),
+              h(UsageCard, { usage: snap?.usage, settings: snap?.settings || null, t, localeId }),
+              h('section', { className: 'enw-card enw-aside-card' },
+                h('div', { className: 'enw-aside-head' },
+                  h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'book', size: 16 }), t('stats.title'))),
+                h('dl', { className: 'enw-stats' },
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.total')), h('dd', null, String(notes.length))),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.pending')), h('dd', null, snap?.stats?.pending ? t('stats.yes') : t('stats.no'))),
+                  h('div', { className: 'enw-stat' }, h('dt', null, t('stats.streak')), h('dd', null, `${snap?.stats?.streak ?? 0}`))))),
+          ),
+        ),
+      )
+    }
+
+    // -- sidebar icon -------------------------------------------------------
+
+    function SidebarIcon({ size = 20 }) {
+      const pending = useSyncExternalStore(badge.subscribe, badge.get, badge.get)
+      return h('span', { className: 'enw-rail', 'aria-hidden': true },
+        h(Glyph, { size: Math.max(16, Math.min(size, 24)) }),
+        pending ? h('span', { className: 'enw-rail-dot' }) : null)
+    }
+
+    // -- module -------------------------------------------------------------
+
+    const STYLES = `
+      .enw-page {
+        height: 100%;
+        min-height: 100%;
+        overflow-y: auto;
+        box-sizing: border-box;
+        background: var(--dsw-alias-bg-base);
+        color: var(--dsw-alias-label-primary);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .enw-inner { max-width: 1120px; margin: 0 auto; padding: 28px 28px 64px; }
+      .enw-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+      .enw-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.015em; }
+      .enw-title::before { content: ''; display: block; width: 4px; height: 22px; border-radius: 2px; background: var(--dsw-alias-brand-primary); flex: none; }
+      .enw-sub { margin: 8px 0 0; max-width: 680px; color: var(--dsw-alias-label-secondary); font-size: 13px; }
+      .enw-head-actions { display: flex; align-items: center; gap: 6px; padding-top: 2px; }
+      .enw-count { min-width: 26px; text-align: center; font-variant-numeric: tabular-nums; color: var(--dsw-alias-label-secondary); font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); }
+      .enw-layout { display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 20px; align-items: start; }
+      .enw-layout--collapsed { grid-template-columns: minmax(0, 1fr); }
+      .enw-layout--collapsed .enw-aside { display: none; }
+      .enw-main { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+      .enw-aside { min-width: 0; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 12px; }
+      .enw-card { background: var(--dsw-alias-bg-layer-1); border: 1px solid var(--dsw-alias-border-l1); border-radius: 12px; }
+      .enw-composer { padding: 16px 16px 14px; }
+      .enw-composer--collapsed .enw-composer-head { margin-bottom: 0; }
+      .enw-composer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+      .enw-composer-head-actions { display: inline-flex; align-items: center; gap: 8px; }
+      .enw-composer-title { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 13px; }
+      .enw-composer-hint { color: var(--dsw-alias-label-secondary); font-size: 11.5px; }
+      .enw-composer-hint--block { margin: 6px 0 8px; }
+      .enw-textarea { display: block; width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; line-height: 1.6; }
+      .enw-textarea::placeholder, .enw-input::placeholder, .enw-search-input::placeholder { color: var(--dsw-alias-label-secondary); opacity: 0.85; }
+      .enw-textarea:focus, .enw-input:focus, .enw-search-input:focus, .enw-quiz-input:focus { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; border-color: transparent; }
+      .enw-composer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+      .enw-input { width: 100%; box-sizing: border-box; padding: 8px 11px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; }
+      .enw-input--time { width: 132px; }
+      .enw-input--count { width: 84px; }
+      .enw-select { width: 100%; box-sizing: border-box; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12px; }
+      .enw-select:focus { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
+      .enw-select:disabled { opacity: 0.55; cursor: default; }
+      .enw-settings-group { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--dsw-alias-border-l1); display: flex; flex-direction: column; }
+      .enw-settings-group-head { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+      .enw-field { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+      .enw-field-label { font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-prompt-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .enw-link-btn { border: 0; background: transparent; color: var(--dsw-alias-brand-primary); font: inherit; font-size: 11.5px; cursor: pointer; padding: 0; }
+      .enw-link-btn:hover { text-decoration: underline; }
+      .enw-prompts { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+      .enw-prompt-placeholders { margin: 0; font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+      .enw-prompt-input { width: 100%; box-sizing: border-box; resize: vertical; min-height: 140px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; font-size: 11.5px; line-height: 1.5; }
+      .enw-prompt-input:focus { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
+      .enw-prompt-actions { display: flex; justify-content: flex-end; }
+      .enw-setting-error { margin: 6px 0 0; font-size: 11px; color: var(--dsw-alias-state-error-primary); overflow-wrap: anywhere; }
+      .enw-usage { display: flex; flex-direction: column; gap: 8px; }
+      .enw-usage-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .enw-usage-model { font-size: 11.5px; overflow-wrap: anywhere; }
+      .enw-usage-purpose { font-size: 10px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--dsw-alias-brand-primary); color: var(--dsw-alias-brand-primary); }
+      .enw-usage-effort { font-size: 10px; padding: 1px 6px; border-radius: 999px; background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-secondary); }
+      .enw-usage-time { margin-left: auto; font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-usage-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+      .enw-usage-cell { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border-radius: 8px; background: var(--dsw-alias-bg-layer-2); min-width: 0; }
+      .enw-usage-cell span { font-size: 10px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-usage-cell strong { font-size: 14px; font-variant-numeric: tabular-nums; }
+      .enw-usage-total { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; border-top: 1px solid var(--dsw-alias-border-l1); padding-top: 8px; }
+      .enw-usage-total strong { font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
+      .enw-usage-cost { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+      .enw-usage-cost strong { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--dsw-alias-brand-primary); }
+      .enw-usage-breakdown { border-top: 1px dashed var(--dsw-alias-border-l1); padding-top: 7px; }
+      .enw-usage-purposes { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+      .enw-usage-purpose-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 8px; font-size: 11px; }
+      .enw-usage-purpose-name { font-weight: 600; }
+      .enw-usage-purpose-meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; color: var(--dsw-alias-label-secondary); }
+      .enw-usage-purpose-cost { font-variant-numeric: tabular-nums; color: var(--dsw-alias-label-primary); }
+      .enw-price-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+      .enw-price-currency { grid-column: 1 / -1; }
+      .enw-composer-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+      .enw-cat-row, .enw-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+      .enw-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; cursor: pointer; }
+      .enw-chip:hover { background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
+      .enw-chip--on { background: var(--dsw-alias-bg-layer-2); border-color: var(--dsw-alias-border-l2); color: var(--dsw-alias-label-primary); font-weight: 550; }
+      .enw-chip-count { font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      .enw-toolbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .enw-view-toggle { display: inline-flex; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; overflow: hidden; background: var(--dsw-alias-bg-layer-1); }
+      .enw-view-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 26px; border: 0; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+      .enw-view-btn + .enw-view-btn { border-left: 1px solid var(--dsw-alias-border-l1); }
+      .enw-view-btn:hover { color: var(--dsw-alias-label-primary); }
+      .enw-view-btn--on { background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-brand-primary); }
+      .enw-search { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-secondary); }
+      .enw-search-input { border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 12.5px; width: 170px; }
+      .enw-search-input:focus { outline: none; }
+      .enw-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font: inherit; font-size: 12.5px; font-weight: 550; border: 1px solid transparent; background: transparent; color: var(--dsw-alias-label-primary); cursor: pointer; white-space: nowrap; }
+      .enw-btn:disabled { opacity: 0.55; cursor: default; }
+      .enw-btn--primary { background: var(--dsw-alias-brand-primary); color: var(--dsw-alias-bg-base); }
+      .enw-btn--primary:hover:not(:disabled) { opacity: 0.92; }
+      .enw-btn--ghost { border-color: var(--dsw-alias-border-l1); }
+      .enw-btn--ghost:hover:not(:disabled), .enw-btn--quiet:hover:not(:disabled) { background: var(--dsw-alias-bg-layer-2); }
+      .enw-btn--quiet { color: var(--dsw-alias-label-secondary); }
+      .enw-btn--quiet:hover:not(:disabled) { color: var(--dsw-alias-label-primary); }
+      .enw-btn--on { background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
+      .enw-btn--danger { background: transparent; border-color: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-state-error-primary); }
+      .enw-btn--danger:hover:not(:disabled) { background: var(--dsw-alias-bg-layer-2); }
+      .enw-block { width: 100%; margin-top: 10px; }
+      .enw-icon { flex: none; }
+      .enw-banner { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); margin-bottom: 12px; font-size: 12.5px; }
+      .enw-banner--error { border-color: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-state-error-primary); }
+      .enw-banner--warn { border-color: var(--dsw-alias-state-warn-primary); color: var(--dsw-alias-state-warn-primary); }
+      .enw-banner--ok { border-color: var(--dsw-alias-border-l1); color: var(--dsw-alias-label-secondary); }
+      .enw-banner-text { flex: 1; min-width: 0; }
+      .enw-banner-close { border: 0; background: transparent; color: inherit; cursor: pointer; padding: 2px; display: inline-flex; }
+      .enw-organize { padding: 16px; border-top: 3px solid var(--dsw-alias-brand-primary); }
+      .enw-organize-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .enw-organize-head-main { min-width: 0; }
+      .enw-organize-title { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 650; }
+      .enw-organize-summary { margin: 6px 0 0; max-width: 780px; color: var(--dsw-alias-label-primary); font-size: 12.5px; }
+      .enw-organize-hint { margin: 4px 0 0; color: var(--dsw-alias-label-secondary); font-size: 11.5px; }
+      .enw-organize-label { margin-top: 14px; color: var(--dsw-alias-label-secondary); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+      .enw-organize-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; max-height: 360px; overflow: auto; margin-top: 6px; padding-right: 4px; }
+      .enw-organize-group { min-width: 0; padding: 10px 12px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; background: var(--dsw-alias-bg-layer-2); }
+      .enw-organize-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+      .enw-organize-group-title { font-size: 13px; font-weight: 650; }
+      .enw-organize-count { flex: none; color: var(--dsw-alias-label-secondary); font-size: 11px; }
+      .enw-organize-group-summary { margin: 4px 0 6px; color: var(--dsw-alias-label-secondary); font-size: 11.5px; }
+      .enw-organize-notes { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+      .enw-organize-note { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 12px; }
+      .enw-organize-note-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .enw-organize-note-cat { flex: none; color: var(--dsw-alias-label-secondary); font-size: 10.5px; }
+      .enw-organize-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--dsw-alias-border-l1); }
+      .enw-organize-change, .enw-organize-relation { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 5px 0; font-size: 12px; }
+      .enw-organize-change-text { max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .enw-organize-arrow { color: var(--dsw-alias-label-secondary); }
+      .enw-organize-cat { font-weight: 600; }
+      .enw-organize-kind { flex: none; padding: 1px 7px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 999px; color: var(--dsw-alias-label-secondary); font-size: 10.5px; }
+      .enw-organize-relation-notes { font-weight: 550; }
+      .enw-organize-relation-note { flex-basis: 100%; color: var(--dsw-alias-label-secondary); }
+      .enw-organize-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 16px; }
+      .enw-group-summary { margin: -2px 2px 0; color: var(--dsw-alias-label-secondary); font-size: 12px; }
+      .enw-groups { display: flex; flex-direction: column; gap: 16px; }
+      .enw-group { display: flex; flex-direction: column; gap: 8px; }
+      .enw-group-notes { display: flex; flex-direction: column; gap: 8px; }
+      .enw-groups--grid .enw-group-notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; align-items: start; }
+      .enw-groups--grid .enw-note { min-height: 0; }
+      .enw-groups--grid .enw-note-actions .enw-btn-text { display: none; }
+      .enw-groups--grid .enw-note-head { flex-wrap: wrap; row-gap: 4px; }
+      .enw-group-head { display: flex; align-items: center; gap: 10px; padding: 0 2px; }
+      .enw-group-label { max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-group-line { flex: 1; height: 1px; background: var(--dsw-alias-border-l1); }
+      .enw-group-count { font-size: 11px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-note { --enw-accent: var(--dsw-alias-state-idle-primary); position: relative; padding: 12px 14px 12px 16px; border-radius: 11px; border: 1px solid var(--dsw-alias-border-l1); border-left: 3px solid var(--enw-accent); background: var(--dsw-alias-bg-layer-1); background: color-mix(in srgb, var(--enw-accent) 6%, var(--dsw-alias-bg-layer-1)); }
+      .enw-note--word { --enw-accent: var(--dsw-alias-state-success-primary); }
+      .enw-note--phrase { --enw-accent: color-mix(in srgb, var(--dsw-alias-brand-primary) 45%, var(--dsw-alias-state-success-primary)); }
+      .enw-note--collocation { --enw-accent: var(--dsw-alias-state-warn-primary); }
+      .enw-note--pattern { --enw-accent: var(--dsw-alias-brand-primary); }
+      .enw-note--sentence { --enw-accent: color-mix(in srgb, var(--dsw-alias-brand-primary) 55%, var(--dsw-alias-state-error-primary)); }
+      .enw-note--other { --enw-accent: var(--dsw-alias-state-idle-primary); }
+      .enw-note-head { display: flex; align-items: center; gap: 8px; }
+      .enw-note-time { font-size: 11.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-cat { font-size: 10.5px; padding: 1px 7px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--enw-accent) 42%, transparent); color: var(--enw-accent); background: color-mix(in srgb, var(--enw-accent) 10%, transparent); }
+      .enw-note-flag { font-size: 10.5px; color: var(--dsw-alias-label-secondary); padding: 1px 7px; border-radius: 999px; background: var(--dsw-alias-bg-layer-2); }
+      .enw-note-flag--toggle { display: inline-flex; align-items: center; gap: 3px; border: 0; font: inherit; font-size: 10.5px; cursor: pointer; }
+      .enw-note-flag--toggle:hover { color: var(--dsw-alias-label-primary); }
+      .enw-note-flag--toggle:disabled { cursor: default; opacity: 0.6; }
+      .enw-note-flag--toggle .enw-icon { flex: none; }
+      .enw-note-summary { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 8px; padding: 2px 0; border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 14.5px; font-weight: 550; line-height: 1.5; text-align: left; cursor: pointer; }
+      .enw-note-summary-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .enw-note-summary .enw-icon { flex: none; color: var(--dsw-alias-label-secondary); }
+      .enw-note-summary:hover .enw-note-summary-text { color: var(--dsw-alias-brand-primary); }
+      .enw-note-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; opacity: 0.7; }
+      .enw-note:hover .enw-note-actions { opacity: 1; }
+      .enw-note-text { margin: 8px 0 0; font-size: 15px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .enw-entries { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+      .enw-entry { display: flex; flex-direction: column; gap: 4px; padding-left: 10px; border-left: 2px solid var(--dsw-alias-border-l1); }
+      .enw-entry-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+      .enw-entry-text { margin: 0; font-size: 15.5px; font-weight: 550; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .enw-entry-translation { margin: 0; color: var(--dsw-alias-label-secondary); font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .enw-entry-btn { padding: 2px 6px; opacity: 0.6; }
+      .enw-entry:hover .enw-entry-btn { opacity: 1; }
+      .enw-note-editor { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+      .enw-editor-actions { justify-content: flex-end; }
+      .enw-note-translation { margin: 6px 0 0; color: var(--dsw-alias-label-secondary); font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .enw-note-translation-label { display: inline-block; margin-right: 6px; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.8; }
+      .enw-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .enw-tag { font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-btn-text { display: inline; }
+      .enw-exp { margin-top: 10px; border-radius: 9px; background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l1); overflow: hidden; }
+      .enw-exp-toggle { width: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 12px; cursor: pointer; text-align: left; }
+      .enw-exp-toggle-main { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+      .enw-exp-toggle-hint { flex: 1; min-width: 0; color: var(--dsw-alias-label-secondary); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .enw-exp-toggle-hint--meaning { color: var(--dsw-alias-label-primary); font-weight: 600; }
+      .enw-chevron { transition: transform 140ms ease; }
+      .enw-exp-toggle[aria-expanded="true"] .enw-chevron { transform: rotate(90deg); }
+      .enw-exp-body { padding: 2px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+      .enw-exp-meaning { margin: 0; font-size: 13.5px; font-weight: 650; color: var(--dsw-alias-label-primary); white-space: pre-wrap; }
+      .enw-exp-phonetic { margin: -4px 0 0; color: var(--dsw-alias-label-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+      .enw-exp-text { margin: 0; color: var(--dsw-alias-label-secondary); white-space: pre-wrap; font-size: 12.5px; }
+      .enw-exp-sec { display: flex; flex-direction: column; gap: 5px; }
+      .enw-section-label { font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-exp-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+      .enw-exp-list li { font-size: 12.5px; }
+      .enw-exp-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+      .enw-exp-chip { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); }
+      .enw-example { padding-left: 9px; border-left: 2px solid var(--dsw-alias-border-l2); }
+      .enw-example-en { margin: 0; font-size: 12.5px; }
+      .enw-hl { background: var(--dsw-alias-bg-layer-2); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 18%, transparent); color: inherit; border-bottom: 2px solid var(--dsw-alias-brand-primary); border-radius: 3px; padding: 0 2px; font-weight: 600; }
+      .enw-example-zh { margin: 2px 0 0; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+      .enw-example-chunk, .enw-example-structure, .enw-example-grammar { margin: 3px 0 0; font-size: 11.5px; line-height: 1.55; color: var(--dsw-alias-label-secondary); }
+      .enw-example-chunk strong { color: var(--dsw-alias-label-primary); font-weight: 600; }
+      .enw-example-tag { display: inline-block; margin-right: 6px; padding: 0 5px; border-radius: 999px; background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-secondary); font-size: 9.5px; }
+      .enw-example-note { color: var(--dsw-alias-label-secondary); }
+      .enw-forms { display: flex; flex-direction: column; gap: 5px; }
+      .enw-form { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 12.5px; }
+      .enw-form-kind { flex: none; padding: 0 6px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); color: var(--dsw-alias-label-secondary); font-size: 10px; }
+      .enw-form-word { font-weight: 600; }
+      .enw-form-note { color: var(--dsw-alias-label-secondary); font-size: 12px; }
+      .enw-exp-meta { margin: 0; font-size: 10.5px; color: var(--dsw-alias-label-secondary); }
+      .enw-note-busy { margin-top: 8px; display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
+      .enw-confirm { margin-top: 10px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-state-error-primary); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+      .enw-confirm--card { margin: 8px 0 0; }
+      .enw-confirm-text { font-size: 12px; }
+      .enw-confirm-actions { display: flex; gap: 6px; }
+      .enw-empty { padding: 38px 22px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+      .enw-empty-icon { color: var(--dsw-alias-label-secondary); opacity: 0.7; }
+      .enw-empty-title { margin: 4px 0 0; font-size: 15px; font-weight: 600; }
+      .enw-empty-text { margin: 0; max-width: 420px; color: var(--dsw-alias-label-secondary); font-size: 12.5px; }
+      .enw-aside-card { padding: 14px; }
+      .enw-aside-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
+      .enw-aside-title { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; }
+      .enw-aside-title::before { content: ''; display: block; width: 3px; height: 12px; border-radius: 2px; background: var(--dsw-alias-brand-primary); flex: none; }
+      .enw-aside-date { font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-aside-empty-title { margin: 4px 0 4px; font-size: 13px; font-weight: 550; }
+      .enw-aside-hint { margin: 0 0 4px; color: var(--dsw-alias-label-secondary); font-size: 12px; }
+      .enw-quiz-timer { display: flex; align-items: center; gap: 7px; margin: 0 0 10px; padding: 6px 9px; border-radius: 8px; background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-secondary); font-size: 11.5px; min-width: 0; }
+      .enw-quiz-timer .enw-icon { flex: none; opacity: 0.85; }
+      .enw-quiz-timer-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .enw-quiz-countdown { flex: none; color: var(--dsw-alias-label-primary); font-size: 12.5px; font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+      .enw-quiz-timer--muted { opacity: 0.75; }
+      .enw-quiz-timer--wait { background: var(--dsw-alias-bg-layer-2); background: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 10%, var(--dsw-alias-bg-layer-2)); }
+      .enw-quiz-refresh { flex: none; border: 0; background: transparent; color: var(--dsw-alias-brand-primary); font: inherit; cursor: pointer; padding: 0; }
+      .enw-quiz-refresh:hover { text-decoration: underline; }
+      .enw-quiz-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+      .enw-quiz-head-actions { display: inline-flex; align-items: center; gap: 2px; }
+      .enw-quiz-collapsed { margin: 0; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-open-hint { margin: 0; font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-summary-block { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--dsw-alias-border-l1); display: flex; flex-direction: column; gap: 4px; }
+      .enw-pill { font-size: 10.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); color: var(--dsw-alias-label-secondary); }
+      .enw-pill--ok { color: var(--dsw-alias-state-success-primary); border-color: var(--dsw-alias-state-success-primary); }
+      .enw-pill--wait { color: var(--dsw-alias-state-warn-primary); border-color: var(--dsw-alias-state-warn-primary); }
+      .enw-pill--brand { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
+      .enw-pill--muted { color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-score { margin-left: auto; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+      .enw-quiz-item { padding-top: 10px; border-top: 1px solid var(--dsw-alias-border-l1); display: flex; flex-direction: column; gap: 6px; }
+      .enw-quiz-item:first-child { border-top: 0; padding-top: 0; }
+      .enw-quiz-item-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .enw-quiz-type { font-size: 10.5px; color: var(--dsw-alias-label-secondary); letter-spacing: 0.03em; }
+      .enw-quiz-index { font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-quiz-prompt { margin: 0; font-size: 13px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .enw-quiz-hint { margin: 0; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-input { width: 100%; box-sizing: border-box; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12.5px; resize: vertical; }
+      .enw-quiz-answer { margin: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
+      .enw-quiz-answer strong { color: var(--dsw-alias-label-primary); font-weight: 600; }
+      .enw-quiz-label { font-size: 10.5px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-explanation { flex-basis: 100%; color: var(--dsw-alias-label-secondary); font-size: 11.5px; }
+      .enw-quiz-result { display: flex; flex-direction: column; gap: 5px; padding: 8px 9px; border-radius: 8px; background: var(--dsw-alias-bg-layer-2); }
+      .enw-quiz-verdict { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+      .enw-quiz-verdict--ok { color: var(--dsw-alias-state-success-primary); }
+      .enw-quiz-verdict--bad { color: var(--dsw-alias-state-error-primary); }
+      .enw-quiz-verdict--warn { color: var(--dsw-alias-state-warn-primary); }
+      .enw-quiz-verdict--open { color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-feedback, .enw-quiz-better { margin: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
+      .enw-quiz-feedback span:last-child, .enw-quiz-better span:last-child { color: var(--dsw-alias-label-primary); }
+      .enw-quiz-related { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+      .enw-quiz-related .enw-exp-chips { flex: 1 1 100%; }
+      .enw-quiz-your { margin: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
+      .enw-quiz-your span:last-child { color: var(--dsw-alias-label-primary); }
+      .enw-quiz-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--dsw-alias-border-l1); }
+      .enw-quiz-footer-actions { display: flex; align-items: center; gap: 6px; }
+      .enw-quiz-progress { font-size: 11px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-quiz-history { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--dsw-alias-border-l1); display: flex; flex-direction: column; gap: 6px; }
+      .enw-history-row { display: flex; flex-wrap: wrap; gap: 4px; }
+      .enw-history-dot { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid var(--dsw-alias-border-l1); font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-history-dot--done { color: var(--dsw-alias-state-success-primary); border-color: var(--dsw-alias-state-success-primary); }
+      .enw-history-dot--today { border-color: var(--dsw-alias-brand-primary); color: var(--dsw-alias-brand-primary); }
+      .enw-history-empty { color: var(--dsw-alias-label-secondary); font-size: 11px; }
+      .enw-setting-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--dsw-alias-border-l1); }
+      .enw-setting-row:first-of-type { border-top: 0; }
+      .enw-setting-row--column { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .enw-setting-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+      .enw-setting-label { font-size: 12.5px; }
+      .enw-setting-hint { font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-toggle { width: 36px; height: 20px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); padding: 2px; cursor: pointer; display: inline-flex; align-items: center; }
+      .enw-toggle-knob { width: 14px; height: 14px; border-radius: 999px; background: var(--dsw-alias-label-secondary); transition: transform 140ms ease, background 140ms ease; }
+      .enw-toggle--on { background: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
+      .enw-toggle--on .enw-toggle-knob { transform: translateX(16px); background: var(--dsw-alias-bg-base); }
+      .enw-model { font-size: 12px; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; }
+      .enw-model--none { color: var(--dsw-alias-state-warn-primary); }
+      .enw-settings-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+      .enw-icon-btn { border: 0; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; padding: 3px; display: inline-flex; border-radius: 6px; }
+      .enw-icon-btn:hover { background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
+      .enw-stats { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+      .enw-stat { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+      .enw-stat dt { margin: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+      .enw-stat dd { margin: 0; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+      .enw-state-card { padding: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+      .enw-state-title { font-size: 15px; font-weight: 600; }
+      .enw-state-text { margin: 0; color: var(--dsw-alias-label-secondary); }
+      .enw-state-detail { margin: 0; color: var(--dsw-alias-state-error-primary); font-size: 12px; overflow-wrap: anywhere; }
+      .enw-spinner { width: 13px; height: 13px; border-radius: 999px; border: 2px solid var(--dsw-alias-border-l2); border-top-color: var(--dsw-alias-label-primary); display: inline-block; animation: enw-spin 700ms linear infinite; flex: none; }
+      .enw-spinner--light { border-color: transparent; border-top-color: var(--dsw-alias-bg-base); }
+      @keyframes enw-spin { to { transform: rotate(360deg); } }
+      .enw-rail { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+      .enw-rail-dot { position: absolute; top: -2px; right: -3px; width: 7px; height: 7px; border-radius: 999px; background: var(--dsw-alias-brand-primary); border: 1px solid var(--dsw-alias-bg-base); }
+      .enw-scheme-light .enw-card,
+      .enw-scheme-light .enw-search,
+      .enw-scheme-light .enw-input,
+      .enw-scheme-light .enw-textarea,
+      .enw-scheme-light .enw-quiz-input { border-color: var(--dsw-alias-border-l2); }
+      .enw-scheme-light .enw-note { border-top-color: var(--dsw-alias-border-l2); border-right-color: var(--dsw-alias-border-l2); border-bottom-color: var(--dsw-alias-border-l2); }
+      .enw-scheme-light .enw-organize { border-top-color: var(--dsw-alias-brand-primary); }
+      .enw-scheme-light .enw-composer { border-top: 3px solid var(--dsw-alias-brand-primary); }
+      .enw-scheme-light .enw-chip--on { border-color: var(--dsw-alias-brand-primary); color: var(--dsw-alias-brand-primary); }
+      .enw-scheme-light .enw-entry-text { font-weight: 600; }
+      .enw-scheme-light .enw-aside-head { border-bottom-color: var(--dsw-alias-border-l2); }
+      .enw-scheme-light .enw-toolbar { border-top: 1px solid var(--dsw-alias-border-l1); padding-top: 10px; }
+      @media (max-width: 1020px) {
+        .enw-layout { grid-template-columns: minmax(0, 1fr); }
+        .enw-aside { position: static; }
+      }
+      @media (max-width: 640px) {
+        .enw-inner { padding: 18px 16px 48px; }
+        .enw-composer-grid { grid-template-columns: 1fr; }
+        .enw-btn-text { display: none; }
+      }
+    `
+
+    return {
+      inject: ['slots', 'locale', 'connection'],
+      ...(globalThis.__ENW_TEST__ ? {
+        __highlightRanges: highlightRanges,
+        __formatCountdown: formatCountdown,
+        __scheduleDayLabel: scheduleDayLabel,
+        __QuizCountdown: QuizCountdown,
+        __OrganizePanel: OrganizePanel,
+        __NoteCard: NoteCard,
+        __UsageCard: UsageCard,
+      } : {}),
+      async apply(ctx) {
+        try {
+          ctx.effect(() => ctx.locale.register(LOCALE_NS, { en, zh }), 'english-notes-wall: dictionaries')
+        } catch (error) {
+          console.error('english-notes-wall: dictionary registration failed', error)
+        }
+
+        ctx.effect(() => {
+          const style = document.createElement('style')
+          style.dataset.englishNotesWall = 'true'
+          style.textContent = STYLES
+          document.head.append(style)
+          return () => style.remove()
+        }, 'english-notes-wall: styles')
+
+        const connection = ctx.get('connection')
+        const rpc = connection?.rpc
+        let api = null
+        let mountError = ''
+        if (!rpc || typeof rpc.call !== 'function') {
+          mountError = 'The authenticated client connection is unavailable.'
+        } else {
+          const call = async (method, args = {}, signal) => {
+            const envelope = await rpc.call('/api', `${SERVICE}/${method}`, { args }, signal)
+            if (envelope && typeof envelope === 'object' && 'ok' in envelope) {
+              if (envelope.ok) return envelope.value
+              const error = envelope.error || {}
+              const failure = new Error(error.message || `Remote call ${method} failed`)
+              failure.code = error.code
+              throw failure
+            }
+            return envelope
+          }
+          api = {
+            snapshot: () => call('snapshot'),
+            addNote: input => call('addNote', { input }),
+            updateNote: input => call('updateNote', { input }),
+            deleteNote: id => call('deleteNote', { id }),
+            expandNote: (id, force, entryId) => call('expandNote', { id, force: Boolean(force), entryId: entryId || '' }),
+            organizeWall: () => call('organizeWall'),
+            applyOrganization: plan => call('applyOrganization', { plan }),
+            generateQuiz: force => call('generateQuiz', { force: Boolean(force) }),
+            gradeQuiz: (date, answers) => call('gradeQuiz', { date, answers }),
+            gradeWithModel: (date, answers) => call('gradeWithModel', { date, answers }),
+            saveSettings: patch => call('saveSettings', { patch }),
+            llmCatalog: (provider, model) => call('llmCatalog', { provider, model }),
+          }
+        }
+
+        const boundT = ctx.locale.bind(LOCALE_NS)
+        const tr = props => (typeof props.t === 'function' ? props.t : boundT)
+
+        ctx.slots.inject('main', () => ctx.slots.register({
+          name: 'main',
+          key: PANEL_KEY,
+          locale: LOCALE_NS,
+        }, props => h(NotesPage, { t: tr(props), api, ctx, mountError })))
+
+        ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+          name: 'sidebar.panellist',
+          id: PANEL_KEY,
+          order: 20,
+          label: () => boundT('panel.title'),
+        }, props => h(SidebarIcon, props)))
+
+        if (api) {
+          void api.snapshot()
+            .then(snapshot => badge.set(Boolean(snapshot?.today && !snapshot.today.attempt)))
+            .catch(() => {})
+        }
+      },
+    }
+  },
+})
