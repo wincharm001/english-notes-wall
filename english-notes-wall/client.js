@@ -274,6 +274,7 @@ window.__ModuleLoader__.load({
       'action.undo': 'Undo',
       'action.stop': 'Stop',
       'action.retryFailed': 'Retry failed',
+      'action.more': 'More actions',
       'filter.status': 'Study status',
       'filter.allNotes': 'All notes',
       'filter.due': 'Due for review',
@@ -545,6 +546,7 @@ window.__ModuleLoader__.load({
       'action.undo': '撤销',
       'action.stop': '停止',
       'action.retryFailed': '重试失败项',
+      'action.more': '更多操作',
       'filter.status': '学习状态',
       'filter.allNotes': '全部便利贴',
       'filter.due': '待复习',
@@ -876,6 +878,7 @@ window.__ModuleLoader__.load({
       eye: 'M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6zM12 15a3 3 0 100-6 3 3 0 000 6z',
       eyeOff: 'M3 3l18 18M10.6 6.2A9.8 9.8 0 0112 6c6 0 9.5 6 9.5 6a15 15 0 01-3.1 3.6M6.3 8.4A15 15 0 002.5 12s3.5 6 9.5 6a9.6 9.6 0 004.1-.9M9.9 9.9a3 3 0 004.2 4.2',
       grip: 'M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01',
+      more: 'M5 12h.01M12 12h.01M19 12h.01',
     }
 
     function Icon({ name, size = 16, className }) {
@@ -3002,25 +3005,48 @@ window.__ModuleLoader__.load({
                     h(Icon, { name: 'refresh', size: 14 }),
                     h('span', { className: 'enw-btn-text' }, `${t('action.retryFailed')} (${expandFailed.length})`))
                     : null,
-                  h(Btn, {
-                    variant: 'quiet',
-                    onClick: runOrganize,
-                    disabled: Boolean(busy),
-                    title: t('organize.action'),
-                    label: t('organize.action'),
-                  },
-                  busy === 'organize' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'sparkles', size: 15 }),
-                  h('span', { className: 'enw-btn-text' }, t('organize.action'))),
-                  snap?.organization
-                    ? h(Btn, {
-                      variant: 'quiet',
-                      onClick: () => chooseGroupMode(organizedActive ? 'time' : 'organized'),
-                      title: t(organizedActive ? 'organize.byTime' : 'organize.byTopic'),
-                      label: t(organizedActive ? 'organize.byTime' : 'organize.byTopic'),
-                    },
-                    h(Icon, { name: organizedActive ? 'clock' : 'book', size: 15 }),
-                    h('span', { className: 'enw-btn-text' }, t(organizedActive ? 'organize.byTime' : 'organize.byTopic')))
-                    : null,
+                  h('details', { className: 'enw-more' },
+                    h('summary', { className: 'enw-more-summary', title: t('action.more'), 'aria-label': t('action.more') },
+                      h(Icon, { name: 'more', size: 16 })),
+                    h('div', { className: 'enw-more-menu' },
+                      h(Btn, {
+                        variant: 'quiet',
+                        onClick: event => {
+                          event.currentTarget.closest('details')?.removeAttribute('open')
+                          void runOrganize()
+                        },
+                        disabled: Boolean(busy),
+                        title: t('organize.action'),
+                        label: t('organize.action'),
+                      },
+                      busy === 'organize' ? h('span', { className: 'enw-spinner' }) : h(Icon, { name: 'sparkles', size: 15 }),
+                      h('span', { className: 'enw-btn-text' }, t('organize.action'))),
+                      snap?.organization
+                        ? h(Btn, {
+                          variant: 'quiet',
+                          onClick: event => {
+                            event.currentTarget.closest('details')?.removeAttribute('open')
+                            chooseGroupMode(organizedActive ? 'time' : 'organized')
+                          },
+                          title: t(organizedActive ? 'organize.byTime' : 'organize.byTopic'),
+                          label: t(organizedActive ? 'organize.byTime' : 'organize.byTopic'),
+                        },
+                        h(Icon, { name: organizedActive ? 'clock' : 'book', size: 15 }),
+                        h('span', { className: 'enw-btn-text' }, t(organizedActive ? 'organize.byTime' : 'organize.byTopic')))
+                        : null,
+                      hasExpansions
+                        ? h(Btn, {
+                          variant: 'quiet',
+                          onClick: event => {
+                            event.currentTarget.closest('details')?.removeAttribute('open')
+                            collapseExpansions()
+                          },
+                          title: t('action.collapseExpansions'),
+                          label: t('action.collapseExpansions'),
+                        },
+                        h(Icon, { name: 'chevronUp', size: 14 }),
+                        h('span', { className: 'enw-btn-text' }, t('action.collapseExpansions')))
+                        : null)),
                   h('div', { className: 'enw-view-toggle', role: 'group', 'aria-label': t('view.label') },
                     h('button', {
                       type: 'button',
@@ -3038,14 +3064,6 @@ window.__ModuleLoader__.load({
                       'aria-label': t('view.grid'),
                       'aria-pressed': viewMode === 'grid',
                     }, h(Icon, { name: 'grid', size: 15 }))),
-                  hasExpansions
-                    ? h(Btn, {
-                      variant: 'quiet',
-                      onClick: collapseExpansions,
-                      title: t('action.collapseExpansions'),
-                      label: t('action.collapseExpansions'),
-                    }, h(Icon, { name: 'chevronUp', size: 14 }), h('span', { className: 'enw-btn-text' }, t('action.collapseExpansions')))
-                    : null,
                   h('label', { className: 'enw-search' },
                     h(Icon, { name: 'search', size: 15 }),
                     h('input', {
@@ -3262,6 +3280,12 @@ window.__ModuleLoader__.load({
       .enw-chip-count { font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
       .enw-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
       .enw-toolbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .enw-more { position: relative; }
+      .enw-more-summary { list-style: none; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+      .enw-more-summary::-webkit-details-marker { display: none; }
+      .enw-more-summary:hover, .enw-more[open] .enw-more-summary { background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
+      .enw-more-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 190px; display: flex; flex-direction: column; gap: 2px; padding: 6px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; background: var(--dsw-alias-bg-layer-1); box-shadow: 0 10px 28px color-mix(in srgb, var(--dsw-alias-label-primary) 14%, transparent); }
+      .enw-more-menu .enw-btn { width: 100%; justify-content: flex-start; }
       .enw-view-toggle { display: inline-flex; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; overflow: hidden; background: var(--dsw-alias-bg-layer-1); }
       .enw-view-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 26px; border: 0; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
       .enw-view-btn + .enw-view-btn { border-left: 1px solid var(--dsw-alias-border-l1); }
