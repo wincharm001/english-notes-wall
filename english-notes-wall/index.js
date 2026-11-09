@@ -964,6 +964,7 @@ function buildCsvExport(notes) {
     'text', 'translation', 'category', 'tags', 'meaning', 'phonetic',
     'collocations', 'synonyms', 'example_en', 'example_zh', 'structure',
     'grammar', 'chunk', 'tips', 'level', 'due_at',
+    'analysis_zh', 'analysis_structure', 'analysis_grammar', 'analysis_chunk', 'analysis_chunk_note',
   ]
   const lines = [header.map(csvCell).join(',')]
   for (const note of Array.isArray(notes) ? notes : []) {
@@ -972,6 +973,7 @@ function buildCsvExport(notes) {
       const examples = Array.isArray(expansion.examples) ? expansion.examples : []
       const first = examples[0] ?? {}
       const review = normalizeReview(entry.review)
+      const analysis = expansion.analysis ?? {}
       lines.push([
         entry.text,
         entry.translation,
@@ -989,6 +991,11 @@ function buildCsvExport(notes) {
         expansion.tips ?? '',
         review?.level ?? 0,
         review?.dueAt ?? 0,
+        analysis.zh ?? '',
+        analysis.structure ?? '',
+        analysis.grammar ?? '',
+        analysis.chunk ?? '',
+        analysis.chunkNote ?? '',
       ].map(csvCell).join(','))
     }
   }
