@@ -23,6 +23,7 @@ const sandbox = {
 vm.createContext(sandbox)
 vm.runInContext(source, sandbox)
 assert.equal(typeof factory, 'function', 'module loader factory registered')
+assert.match(source, /\.enw-aside \{[^}]*max-height: calc\(100vh - 24px\)[^}]*overflow-y: auto/, 'the sidebar has its own scroll container')
 
 const React = {
   createElement: (...args) => ({ type: args[0], props: args[1] }),

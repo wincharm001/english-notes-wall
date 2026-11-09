@@ -1239,6 +1239,7 @@ window.__ModuleLoader__.load({
           tags: asArray(note.tags).join(', '),
         })
         setEditError('')
+        setConfirming(false)
         setEditing(true)
       }
 
@@ -1255,6 +1256,7 @@ window.__ModuleLoader__.load({
         })
         if (result?.status === 'ok') {
           setEditing(false)
+          setConfirming(false)
           setEditError('')
         }
       }
@@ -1354,17 +1356,6 @@ window.__ModuleLoader__.load({
                 },
                 h(Icon, { name: 'edit', size: 15 }),
               ),
-              h(
-                Btn,
-                {
-                  variant: 'quiet',
-                  onClick: () => setConfirming(true),
-                  disabled: Boolean(busy),
-                  title: t('action.delete'),
-                  label: t('action.delete'),
-                },
-                h(Icon, { name: 'trash', size: 15 }),
-              ),
             ),
         ),
         editing
@@ -1391,11 +1382,39 @@ window.__ModuleLoader__.load({
               onChange: event => setDraft(current => ({ ...current, tags: event.target.value })),
             }),
             editError ? h('p', { className: 'enw-setting-error' }, editError) : null,
-            h('div', { className: 'enw-confirm-actions enw-editor-actions' },
-              h(Btn, { variant: 'primary', onClick: () => { void saveEdit() }, disabled: saving },
-                saving ? h('span', { className: 'enw-spinner enw-spinner--light' }) : null,
-                h('span', null, t('action.save'))),
-              h(Btn, { variant: 'quiet', onClick: () => setEditing(false) }, t('action.cancel'))))
+            confirming
+              ? h('div', { className: 'enw-confirm enw-confirm--editor' },
+                h('span', { className: 'enw-confirm-text' }, t('action.confirmDelete')),
+                h('div', { className: 'enw-confirm-actions' },
+                  h(Btn, {
+                    variant: 'danger',
+                    onClick: () => {
+                      setConfirming(false)
+                      onDelete(note)
+                    },
+                    disabled: deleting,
+                  }, deleting ? h('span', { className: 'enw-spinner enw-spinner--light' }) : h(Icon, { name: 'trash', size: 14 }), t('action.confirm')),
+                  h(Btn, { variant: 'quiet', onClick: () => setConfirming(false) }, t('action.cancel'))))
+              : h('div', { className: 'enw-editor-actions' },
+                h(Btn, {
+                  variant: 'danger',
+                  className: 'enw-editor-delete',
+                  onClick: () => setConfirming(true),
+                  disabled: deleting || saving,
+                  title: t('action.delete'),
+                  label: t('action.delete'),
+                }, h(Icon, { name: 'trash', size: 14 }), t('action.delete')),
+                h('div', { className: 'enw-editor-save' },
+                  h(Btn, { variant: 'primary', onClick: () => { void saveEdit() }, disabled: saving },
+                    saving ? h('span', { className: 'enw-spinner enw-spinner--light' }) : null,
+                    h('span', null, t('action.save'))),
+                  h(Btn, {
+                    variant: 'quiet',
+                    onClick: () => {
+                      setEditing(false)
+                      setConfirming(false)
+                    },
+                  }, t('action.cancel')))))
           : h(
             React.Fragment,
             null,
@@ -1458,19 +1477,6 @@ window.__ModuleLoader__.load({
                     : h('span', { key: tag, className: 'enw-tag' }, `#${tag}`))))
                   : null,
               ),
-            confirming
-              ? h(
-                'div',
-                { className: 'enw-confirm' },
-                h('span', { className: 'enw-confirm-text' }, t('action.confirmDelete')),
-                h(
-                  'div',
-                  { className: 'enw-confirm-actions' },
-                  h(Btn, { variant: 'danger', onClick: () => { setConfirming(false); onDelete(note) }, disabled: deleting }, t('action.confirm')),
-                  h(Btn, { variant: 'quiet', onClick: () => setConfirming(false) }, t('action.cancel')),
-                ),
-              )
-              : null,
           ),
       )
     }
@@ -3260,7 +3266,11 @@ window.__ModuleLoader__.load({
       .enw-layout--collapsed { grid-template-columns: minmax(0, 1fr); }
       .enw-layout--collapsed .enw-aside { display: none; }
       .enw-main { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
-      .enw-aside { min-width: 0; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 12px; }
+      .enw-aside { min-width: 0; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dsw-alias-label-secondary) 38%, transparent) transparent; }
+      .enw-aside::-webkit-scrollbar { width: 8px; }
+      .enw-aside::-webkit-scrollbar-track { background: transparent; }
+      .enw-aside::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--dsw-alias-label-secondary) 34%, transparent); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+      .enw-aside::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--dsw-alias-label-secondary) 55%, transparent); border: 2px solid transparent; background-clip: content-box; }
       .enw-card { background: var(--dsw-alias-bg-layer-1); border: 1px solid var(--dsw-alias-border-l1); border-radius: 12px; }
       .enw-composer { padding: 16px 16px 14px; }
       .enw-composer--collapsed .enw-composer-head { margin-bottom: 0; }
@@ -3429,7 +3439,11 @@ window.__ModuleLoader__.load({
       .enw-entry-btn { padding: 2px 6px; opacity: 0.6; }
       .enw-entry:hover .enw-entry-btn { opacity: 1; }
       .enw-note-editor { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-      .enw-editor-actions { justify-content: flex-end; }
+      .enw-editor-actions { justify-content: space-between; gap: 8px; }
+      .enw-editor-save { display: flex; gap: 6px; margin-left: auto; }
+      .enw-editor-delete { color: var(--dsw-alias-state-error-primary); }
+      .enw-editor-delete:hover { background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 10%, transparent); }
+      .enw-confirm--editor { margin: 8px 0 0; }
       .enw-note-translation { margin: 6px 0 0; color: var(--dsw-alias-label-secondary); font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
       .enw-note-translation-label { display: inline-block; margin-right: 6px; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.8; }
       .enw-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -3599,7 +3613,7 @@ window.__ModuleLoader__.load({
       .enw-scheme-light .enw-toolbar { border-top: 1px solid var(--dsw-alias-border-l1); padding-top: 10px; }
       @media (max-width: 1020px) {
         .enw-layout { grid-template-columns: minmax(0, 1fr); }
-        .enw-aside { position: static; }
+        .enw-aside { position: static; max-height: none; overflow: visible; padding-right: 0; }
       }
       @media (max-width: 640px) {
         .enw-inner { padding: 18px 16px 48px; }

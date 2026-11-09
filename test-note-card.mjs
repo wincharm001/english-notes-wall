@@ -294,6 +294,28 @@ findByTitle(tree, 'action.pin')[0].props.onClick()
 assert.equal(pinned?.id, rich.id)
 collect(tree, 'enw-tag--button')[0].props.onClick()
 assert.equal(tagged, 'tag-one')
+
+// Delete lives inside the editor, not in the card header.
+let deletedNote = null
+const editable = baseProps({ ...multi, tags: ['tag-one'] })
+editable.onDelete = note => { deletedNote = note }
+slots = []
+cursor = 0
+tree = renderTree(exports.__NoteCard(editable))
+collect(tree, 'enw-note-summary')[0].props.onClick()
+cursor = 0
+tree = renderTree(exports.__NoteCard(editable))
+assert.equal(findByTitle(tree, 'action.delete').length, 0, 'no delete button in the header')
+findByTitle(tree, 'action.edit')[0].props.onClick()
+cursor = 0
+tree = renderTree(exports.__NoteCard(editable))
+assert.equal(findByTitle(tree, 'action.delete').length, 1, 'the editor contains the delete button')
+findByTitle(tree, 'action.delete')[0].props.onClick()
+cursor = 0
+tree = renderTree(exports.__NoteCard(editable))
+assert.match(flatten(tree), /action\.confirmDelete/, 'deleting from the editor asks for confirmation')
+assert.equal(collect(tree, 'enw-confirm--editor').length, 1)
+
 // The drag handle only appears when reordering is allowed.
 assert.equal(collect(tree, 'enw-drag-handle').length, 0)
 cursor = 0
