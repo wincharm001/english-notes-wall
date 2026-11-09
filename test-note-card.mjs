@@ -189,7 +189,8 @@ tree = renderTree(exports.__NoteCard(baseProps(rich)))
 assert.equal(collect(tree, 'enw-exp-body').length, 1, 'the expansion body is open after the first click')
 const richText = flatten(tree)
 assert.match(richText, /expansion\.wordForms/)
-assert.match(richText, /expansion\.longSentences/)
+assert.match(richText, /expansion\.examples/)
+assert.doesNotMatch(richText, /expansion\.longSentences/)
 assert.match(richText, /expansion\.form\.derivative/)
 assert.match(richText, /expansion\.discrimination/)
 assert.match(richText, /expansion\.structure/)
@@ -197,8 +198,24 @@ assert.match(richText, /主句：She is meticulous/)
 assert.match(richText, /expansion\.chunk/)
 assert.match(richText, /be meticulous about/)
 assert.match(richText, /expansion\.grammar/)
-assert.match(richText, /expansion\.moreExamples/)
+assert.match(richText, /expansion\.moreShortExamples/)
 assert.match(richText, /His\s+meticulous\s+notes helped\./)
+
+// The long-sentence heading belongs to the category, not to the example data.
+const sentenceNote = {
+  ...rich,
+  id: 'note-sentence',
+  category: 'sentence',
+}
+slots = []
+cursor = 0
+tree = renderTree(exports.__NoteCard(baseProps(sentenceNote)))
+collect(tree, 'enw-note-summary')[0].props.onClick()
+cursor = 0
+tree = renderTree(exports.__NoteCard(baseProps(sentenceNote)))
+const sentenceText = flatten(tree)
+assert.match(sentenceText, /expansion\.longSentences/)
+assert.doesNotMatch(sentenceText, /expansion\.examples/)
 
 // Speech buttons are available for the entry and each sentence.
 assert.ok(collect(tree, 'enw-speak').length >= 2, 'entry and example offer read-aloud buttons')

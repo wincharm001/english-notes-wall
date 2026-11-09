@@ -36,7 +36,7 @@ window.__ModuleLoader__.load({
 
     const en = {
       'panel.title': 'English Notes Wall',
-      'panel.subtitle': 'Collect words, phrases, collocations, and sentence patterns. Expand them with a model and practise a fresh quiz every day.',
+      'panel.subtitle': 'Collect words, phrases, collocations, sentence patterns, and long sentences to analyze. Expand them with a model and practise a fresh quiz every day.',
       'action.add': 'Add note',
       'action.refresh': 'Refresh',
       'action.settings': 'Settings',
@@ -67,7 +67,7 @@ window.__ModuleLoader__.load({
       'action.submit': 'Submit answers',
       'action.close': 'Dismiss',
       'form.heading': 'New sticky note',
-      'form.placeholder': 'One entry per line: a word, phrase, collocation, sentence pattern, or sentence. Add a Chinese meaning after |.',
+      'form.placeholder': 'One entry per line: a word, phrase, collocation, sentence pattern, or long sentence to analyze. Add a Chinese meaning after |.',
       'form.entriesHint': 'One entry per line. Use "text | 中文" to add a meaning, e.g. "give up | 放弃".',
       'form.tags': 'Tags, comma separated (optional)',
       'form.category': 'Category',
@@ -84,7 +84,7 @@ window.__ModuleLoader__.load({
       'category.phrase': 'Phrase',
       'category.collocation': 'Collocation',
       'category.pattern': 'Sentence pattern',
-      'category.sentence': 'Sentence',
+      'category.sentence': 'Long-sentence analysis',
       'category.other': 'Other',
       'note.expanded': 'Expanded',
       'note.expandEntries': 'Show all entries',
@@ -309,7 +309,7 @@ window.__ModuleLoader__.load({
 
     const zh = {
       'panel.title': '英语便利贴墙',
-      'panel.subtitle': '记录单词、词组、固定搭配和常用句式，用大模型拓展用法，每天自动生成一套小测验。',
+      'panel.subtitle': '记录单词、词组、固定搭配、常用句式，以及需要分析的长难句，用大模型拓展用法，每天自动生成一套小测验。',
       'action.add': '添加便利贴',
       'action.refresh': '刷新',
       'action.settings': '设置',
@@ -340,7 +340,7 @@ window.__ModuleLoader__.load({
       'action.submit': '提交答案',
       'action.close': '关闭',
       'form.heading': '新建便利贴',
-      'form.placeholder': '每行一个词条：单词、词组、固定搭配或句式。可用 | 附中文释义。',
+      'form.placeholder': '每行一个词条：单词、词组、固定搭配、句式或需要分析的长难句。可用 | 附中文释义。',
       'form.entriesHint': '每行一个词条；可用「词条 | 中文」补充释义，例如「give up | 放弃」。',
       'form.tags': '标签，用逗号分隔（可选）',
       'form.category': '分类',
@@ -357,7 +357,7 @@ window.__ModuleLoader__.load({
       'category.phrase': '词组',
       'category.collocation': '固定搭配',
       'category.pattern': '常用句式',
-      'category.sentence': '例句',
+      'category.sentence': '长难句分析',
       'category.other': '其他',
       'note.expanded': '已拓展',
       'note.expandEntries': '展开全部词条',
@@ -1046,8 +1046,7 @@ window.__ModuleLoader__.load({
         || asArray(expansion.synonyms).length || asArray(expansion.examples).length
         || asArray(expansion.moreExamples).length || expansion.tips || asArray(expansion.related).length
       )
-      const longAnalysis = asArray(expansion?.examples).some(example =>
-        example.structure || String(example.en ?? '').trim().split(/\s+/).filter(Boolean).length >= 22)
+      const sentenceCategory = category === 'sentence'
       const [practice, setPractice] = useState(false)
       const [revealed, setRevealed] = useState(false)
       const hideAnalysis = practice && !revealed
@@ -1121,7 +1120,7 @@ window.__ModuleLoader__.load({
               : null,
             asArray(expansion.examples).length
               ? h('div', { className: 'enw-exp-sec' },
-                h(SectionLabel, null, t(longAnalysis ? 'expansion.longSentences' : 'expansion.examples')),
+                h(SectionLabel, null, t(sentenceCategory ? 'expansion.longSentences' : 'expansion.examples')),
                 asArray(expansion.examples).map((example, index) => h('div', { key: index, className: 'enw-example' },
                   h('div', { className: 'enw-example-en-row' },
                     h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
@@ -1146,7 +1145,7 @@ window.__ModuleLoader__.load({
               : null,
             asArray(expansion.moreExamples).length
               ? h('div', { className: 'enw-exp-sec' },
-                h(SectionLabel, null, t(longAnalysis ? 'expansion.moreExamples' : 'expansion.moreShortExamples')),
+                h(SectionLabel, null, t(sentenceCategory ? 'expansion.moreExamples' : 'expansion.moreShortExamples')),
                 asArray(expansion.moreExamples).map((example, index) => h('div', { key: index, className: 'enw-example' },
                   h('div', { className: 'enw-example-en-row' },
                     h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
