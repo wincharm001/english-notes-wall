@@ -341,13 +341,22 @@ services3.llm = {
         items: entries.map((entry, index) => ({
           index,
           meaning: `释义${index}`,
+          analysis: entry.category === 'sentence'
+            ? {
+              zh: `长难句翻译${index}`,
+              structure: `长难句结构${index}`,
+              grammar: `长难句语法${index}`,
+              chunk: `sentence-chunk-${index}`,
+              chunkNote: `地道表达${index}`,
+            }
+            : undefined,
           wordForms: [
             { kind: 'derivative', word: `form-${index}`, note: `派生${index}` },
             { kind: 'same-root', word: 'shared-form', note: '共同词根' },
           ],
           discrimination: `辨析${index}`,
           collocations: ['shared phrase', `unique-${index}`],
-          examples: [{
+          examples: entry.category === 'sentence' ? [] : [{
             en: `Example ${index}.`,
             zh: `例句${index}`,
             structure: `结构${index}`,
@@ -534,6 +543,24 @@ assert.equal(streamCalls.length, beforeFiveCalls + 3, 'five entries use three ch
 const fiveSnapshot = await services3.englishNotes.snapshot()
 assert.equal(fiveSnapshot.stats.entries >= 5, true)
 assert.ok(fiveSnapshot.stats.learned >= 0)
+
+// A sentence-category note is analyzed directly; the analysis is stored on the entry.
+const longSentence = await tool3.execute({
+  action: 'add',
+  text: 'Although the storm had passed, the harbor remained closed.',
+  translation: '尽管风暴已经过去，港口仍然关闭。',
+  category: 'sentence',
+}, {})
+assert.equal(longSentence.status, 'ok')
+const analyzed = await tool3.execute({ action: 'expand', id: longSentence.note.id }, {})
+assert.equal(analyzed.status, 'ok')
+const analysis = analyzed.note.entries[0].expansion.analysis
+assert.equal(analysis.zh, '长难句翻译0')
+assert.equal(analysis.structure, '长难句结构0')
+assert.equal(analysis.grammar, '长难句语法0')
+assert.equal(analysis.chunk, 'sentence-chunk-0')
+assert.equal(analysis.chunkNote, '地道表达0')
+assert.equal(analyzed.note.entries[0].expansion.examples, undefined, 'the saved sentence is not duplicated as an example')
 
 // Whole-wall organization: the model plan is validated, then applied to notes.
 const beforeOrganize = await services3.englishNotes.snapshot()

@@ -121,19 +121,19 @@ const DEFAULT_PROMPTS = Object.freeze({
     '"collocations":["3-6 natural collocations, each with a short Chinese gloss"],',
     '"synonyms":["2-5 synonyms or near-synonyms, or an empty array"],',
     '"discrimination":"short Chinese comparison with near-synonyms or confusable words",',
-    '"examples":[{"en":"a long, complex sentence (about 25-45 words)","zh":"中文翻译","structure":"Chinese breakdown of the sentence skeleton and modifiers","grammar":"Chinese grammar analysis","chunk":"the most useful authentic expression in the sentence","chunkNote":"short Chinese gloss of the chunk"}],',
-    '"moreExamples":[{"en":"one extra long sentence without analysis","zh":"中文翻译"}],',
+    '"analysis":{"zh":"中文翻译","structure":"Chinese breakdown of the sentence skeleton and modifiers","grammar":"Chinese grammar analysis","chunk":"the most useful authentic expression in the sentence","chunkNote":"short Chinese gloss of the chunk"},',
+    '"examples":[{"en":"a natural example sentence","zh":"中文翻译","structure":"optional Chinese structure note","grammar":"optional Chinese grammar note","chunk":"optional authentic expression","chunkNote":"short Chinese gloss"}],',
+    '"moreExamples":[{"en":"one extra example sentence","zh":"中文翻译"}],',
     '"tips":"one or two sentences of usage tips in Chinese",',
     '"related":["2-4 related words or patterns"]}]}',
     'Include exactly one item for every entry, using that entry\'s index. Do not skip entries.',
+    'Choose the mode from the entry category:',
+    '- "sentence": the entry is a long sentence the learner wants analyzed. Put its Chinese translation and analysis in "analysis" (zh, structure, grammar, chunk, chunkNote). Do not copy that same sentence into "examples"; optionally add 1-2 different long sentences to "moreExamples". Leave wordForms, collocations, synonyms, and discrimination empty.',
+    '- Every other category: give 2-3 natural, useful example sentences (about 8-20 words) that use the entry; each needs en and zh. Include structure/grammar only when the sentence is genuinely complex, and chunk only when there is a useful authentic expression. Omit "analysis" or use an empty object.',
     'Do not repeat the same meaning, collocation, example, or synonym across entries; every item must stay specific to its own entry.',
     'For a word, add wordForms when common and useful: derivatives (派生词), same-root words (同根词), and confusable look-alike words (形近词). Use an empty array when there is nothing common or useful.',
-    'This is a long-sentence analysis card, not a set of short textbook examples.',
-    'For every entry, give 2-3 long, complex English sentences (about 25-45 words) that use the entry naturally and vary in structure and register.',
-    'For each long sentence, provide a Chinese translation, a Chinese structure breakdown (main clause, subordinate clauses, non-finite phrases, insertions), a Chinese grammar analysis (tense, voice, clause type, inversion, subjunctive, etc.), and one useful authentic chunk with a Chinese gloss.',
-    'Optionally add 1-2 moreExamples (extra long sentences without analysis) when useful; otherwise use an empty array.',
     'Use discrimination only when a near-synonym or confusable word is worth comparing; otherwise use an empty string.',
-    'For a sentence pattern, embed the frame in long sentences, explain how the frame is used, and keep wordForms only when genuinely helpful.',
+    'For a sentence pattern, embed the frame in natural examples, explain how the frame is used, and keep wordForms only when genuinely helpful.',
     'Entries (JSON): {{note}}',
   ].join('\n'),
   quiz: [
@@ -395,6 +395,29 @@ function recordUsage(state, usage, meta = {}) {
   return bucket
 }
 
+function normalizeAnalysis(raw) {
+  if (!isObject(raw)) return null
+  const analysis = {
+    zh: asString(raw.zh ?? raw.translation, 800),
+    structure: asString(raw.structure, 2000),
+    grammar: asString(raw.grammar, 1000),
+    chunk: asString(raw.chunk, 240),
+    chunkNote: asString(raw.chunkNote, 240),
+  }
+  return analysis.zh || analysis.structure || analysis.grammar || analysis.chunk ? analysis : null
+}
+
+function analysisFromExample(raw) {
+  if (!isObject(raw)) return null
+  return normalizeAnalysis({
+    zh: raw.zh,
+    structure: raw.structure,
+    grammar: raw.grammar,
+    chunk: raw.chunk,
+    chunkNote: raw.chunkNote,
+  })
+}
+
 function normalizeExpansion(raw) {
   if (!isObject(raw)) return null
   const expansion = {
@@ -405,6 +428,15 @@ function normalizeExpansion(raw) {
   if (meaning) expansion.meaning = meaning
   const phonetic = asString(raw.phonetic, 120)
   if (phonetic) expansion.phonetic = phonetic
+  const analysisSource = isObject(raw.analysis) ? raw.analysis : raw
+  const analysis = normalizeAnalysis({
+    zh: analysisSource.zh ?? analysisSource.translation,
+    structure: analysisSource.structure,
+    grammar: analysisSource.grammar,
+    chunk: analysisSource.chunk,
+    chunkNote: analysisSource.chunkNote,
+  })
+  if (analysis) expansion.analysis = analysis
   const formKinds = {
     derivative: 'derivative',
     derivatives: 'derivative',
@@ -1028,7 +1060,11 @@ function quizCandidates(notes, now = Date.now()) {
     for (const entry of Array.isArray(note.entries) ? note.entries : []) {
       const review = normalizeReview(entry.review)
       const examples = Array.isArray(entry.expansion?.examples) ? entry.expansion.examples : []
-      const longExample = examples.find(value => value?.structure || String(value?.en ?? '').split(/\s+/).length >= 22)
+      const analysis = entry.expansion?.analysis
+      const sentenceZh = note.category === 'sentence' ? (analysis?.zh || entry.translation) : ''
+      const longExample = sentenceZh
+        ? { en: entry.text, zh: sentenceZh }
+        : examples.find(value => value?.structure || String(value?.en ?? '').split(/\s+/).length >= 22)
       list.push({
         noteId: note.id,
         entryId: entry.id,
@@ -1781,6 +1817,7 @@ class EnglishNotesWall {
               meaning: item.meaning,
               phonetic: item.phonetic,
               wordForms: item.wordForms,
+              analysis: item.analysis,
               discrimination: item.discrimination,
               collocations: item.collocations,
               synonyms: item.synonyms,
@@ -1791,8 +1828,17 @@ class EnglishNotesWall {
               ...meta,
             })
             if (!expansion) continue
+            if (note.category === 'sentence' && !expansion.analysis) {
+              const source = (Array.isArray(expansion.examples) ? expansion.examples : [])
+                .find(value => normalizeAnswer(value.en) === normalizeAnswer(chunk[index].text))
+              const derived = analysisFromExample(source)
+              if (derived) {
+                expansion.analysis = derived
+                expansion.examples = expansion.examples.filter(value => value !== source)
+              }
+            }
             const hasContent = expansion.meaning || expansion.phonetic || expansion.wordForms
-              || expansion.discrimination || expansion.collocations || expansion.synonyms
+              || expansion.analysis || expansion.discrimination || expansion.collocations || expansion.synonyms
               || expansion.examples || expansion.moreExamples || expansion.tips || expansion.related
             if (hasContent) byIndex.set(index, expansion)
           }
