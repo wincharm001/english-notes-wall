@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.13.0 — 2026-11-09
+
+- Moved the daily quiz out of the right sidebar and into a dedicated modal, opened from a new header quiz button with an unread dot.
+- The modal keeps its draft answers when closed, starts expanded, pauses the countdown while hidden, traps keyboard focus, closes on Escape or a backdrop click, and locks page scrolling while open.
+- The quiz header keeps the regenerate, collapse, and close controls; the sidebar now holds only settings, usage, and wall overview.
+
 ## 1.12.1 — 2026-11-09
 
 - The right sidebar now has its own scroll container and scrollbar, so settings, quiz, usage, and overview stay usable without scrolling the whole page.

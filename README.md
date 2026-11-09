@@ -26,4 +26,4 @@ The plugin is installed into the `desktop` profile with a local `link:` while it
 
 ## Status
 
-Version 1.12.1 gives the sidebar its own scrollbar and moves delete into the note editor. 1.12.0 positions long-sentence analysis at the category layer: a “长难句分析” note analyzes its saved sentence, while word, phrase, collocation, and pattern notes keep ordinary examples. It builds on 1.11.0's spaced-repetition review, practice mode, read-aloud and dictation, resilient chunked expansion, JSON/CSV/Anki export, automatic backups, undo, pinning/reordering, study-status and tag filters, and keyboard shortcuts.
+Version 1.13.0 moves the daily quiz into a header-opened dialog with focus handling and preserved draft answers. 1.12.1 gives the sidebar its own scrollbar and moves delete into the note editor. 1.12.0 positions long-sentence analysis at the category layer: a “长难句分析” note analyzes its saved sentence, while word, phrase, collocation, and pattern notes keep ordinary examples.
