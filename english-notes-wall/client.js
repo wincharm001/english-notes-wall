@@ -108,6 +108,7 @@ window.__ModuleLoader__.load({
       'expansion.synonyms': 'Synonyms',
       'expansion.examples': 'Examples',
       'expansion.longSentences': 'Long-sentence analysis',
+      'expansion.translation': 'Translation',
       'expansion.structure': 'Structure',
       'expansion.chunk': 'Natural chunk',
       'expansion.grammar': 'Grammar',
@@ -382,6 +383,7 @@ window.__ModuleLoader__.load({
       'expansion.synonyms': '近义词',
       'expansion.examples': '例句',
       'expansion.longSentences': '长难句分析',
+      'expansion.translation': '翻译',
       'expansion.structure': '句子结构',
       'expansion.chunk': '地道表达',
       'expansion.grammar': '语法',
@@ -1129,7 +1131,11 @@ window.__ModuleLoader__.load({
             analysis && !hideAnalysis
               ? h('div', { className: 'enw-exp-sec enw-analysis' },
                 h(SectionLabel, null, t('expansion.longSentences')),
-                analysis.zh ? h('p', { className: 'enw-analysis-zh' }, analysis.zh) : null,
+                analysis.zh
+                  ? h('p', { className: 'enw-analysis-zh' },
+                    h('span', { className: 'enw-example-tag' }, t('expansion.translation')),
+                    h('span', null, analysis.zh))
+                  : null,
                 analysis.structure
                   ? h('p', { className: 'enw-example-structure' },
                     h('span', { className: 'enw-example-tag' }, t('expansion.structure')),
