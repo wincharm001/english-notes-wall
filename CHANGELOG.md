@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.12.0 — 2026-11-09
+
+### Category-level long-sentence analysis
+
+- Renamed the `sentence` category from “例句” / “Sentence” to “长难句分析” / “Long-sentence analysis”. The stored category key stays `sentence`, so existing notes, colors, filters, and organization data need no migration.
+- Moved long-sentence positioning to the category layer: a note in “长难句分析” now expands into an analysis of its saved sentence — Chinese translation, structure, grammar, and an authentic chunk — instead of generating unrelated long sentences.
+- Word, phrase, collocation, and sentence-pattern entries go back to ordinary examples: 2–3 natural sentences with translations and optional structure/grammar notes.
+- Expansion headings follow the category: “例句” for word-like notes, “长难句分析” for sentence notes; optional extra sentences appear as “更多例句” or “更多长难句”.
+- Practice mode now shows a category-specific hint: main clause and subordinate clauses for sentence notes, self-translation for word examples.
+- Quiz material for a sentence note uses the analyzed saved sentence when available.
+
 ## 1.11.0 — 2026-11-08
 
 ### Learning loop

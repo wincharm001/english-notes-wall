@@ -26,4 +26,4 @@ The plugin is installed into the `desktop` profile with a local `link:` while it
 
 ## Status
 
-Version 1.11.0 adds spaced-repetition review, long-sentence practice, read-aloud and dictation, resilient chunked expansion, JSON/CSV/Anki export, automatic backups, undo, pinning/reordering, study-status and tag filters, and keyboard shortcuts.
+Version 1.12.0 positions long-sentence analysis at the category layer: a “长难句分析” note analyzes its saved sentence, while word, phrase, collocation, and pattern notes keep ordinary examples. It builds on 1.11.0's spaced-repetition review, practice mode, read-aloud and dictation, resilient chunked expansion, JSON/CSV/Anki export, automatic backups, undo, pinning/reordering, study-status and tag filters, and keyboard shortcuts.
