@@ -201,6 +201,9 @@ assert.match(richText, /expansion\.grammar/)
 assert.match(richText, /expansion\.moreShortExamples/)
 assert.match(richText, /His\s+meticulous\s+notes helped\./)
 
+// Speech buttons are available for the entry and each example.
+assert.ok(collect(tree, 'enw-speak').length >= 2, 'entry and example offer read-aloud buttons')
+
 // The long-sentence heading belongs to the category, not to the example data.
 const sentenceNote = {
   ...rich,
@@ -217,8 +220,41 @@ const sentenceText = flatten(tree)
 assert.match(sentenceText, /expansion\.longSentences/)
 assert.doesNotMatch(sentenceText, /expansion\.examples/)
 
-// Speech buttons are available for the entry and each sentence.
-assert.ok(collect(tree, 'enw-speak').length >= 2, 'entry and example offer read-aloud buttons')
+// A sentence-category expansion with a dedicated analysis renders the breakdown
+// instead of repeating the sentence as an example.
+const analysisNote = {
+  id: 'note-analysis',
+  category: 'sentence',
+  createdAt: Date.now(),
+  tags: [],
+  entries: [{
+    id: 'e5',
+    text: 'Although the storm had passed, the harbor remained closed.',
+    translation: '尽管风暴已经过去，港口仍然关闭。',
+    expansion: {
+      generatedAt: Date.now(),
+      analysis: {
+        zh: '尽管风暴已经过去，港口仍然关闭。',
+        structure: 'Although 引导让步状语从句，主句为 the harbor remained closed。',
+        grammar: '过去完成时表示先于过去的动作。',
+        chunk: 'remain closed',
+        chunkNote: '保持关闭',
+      },
+    },
+  }],
+}
+slots = []
+cursor = 0
+tree = renderTree(exports.__NoteCard(baseProps(analysisNote)))
+collect(tree, 'enw-note-summary')[0].props.onClick()
+cursor = 0
+tree = renderTree(exports.__NoteCard(baseProps(analysisNote)))
+const analysisText = flatten(tree)
+assert.match(analysisText, /expansion\.longSentences/)
+assert.match(analysisText, /Although 引导让步状语从句/)
+assert.match(analysisText, /过去完成时表示先于过去的动作/)
+assert.match(analysisText, /remain closed/)
+assert.doesNotMatch(analysisText, /expansion\.examples/)
 
 // Practice mode hides the translation and the structural analysis, then reveals them.
 collect(tree, 'enw-practice-btn')[0].props.onClick()

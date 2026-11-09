@@ -270,6 +270,7 @@ window.__ModuleLoader__.load({
       'action.practice': 'Practice mode',
       'action.practiceOn': 'Practice mode: analysis hidden',
       'practice.hint': 'Find the main clause and subordinate clauses first, then reveal the analysis.',
+      'practice.hintWord': 'Translate the example sentence yourself first, then reveal the reference.',
       'action.showAnalysis': 'Show translation and analysis',
       'action.hideAnalysis': 'Hide translation and analysis',
       'action.undo': 'Undo',
@@ -543,6 +544,7 @@ window.__ModuleLoader__.load({
       'action.practice': '练习模式',
       'action.practiceOn': '练习模式：已隐藏分析',
       'practice.hint': '先自己找主干和从句，再显示翻译与分析。',
+      'practice.hintWord': '先自己翻译例句，再显示参考翻译。',
       'action.showAnalysis': '显示翻译与分析',
       'action.hideAnalysis': '隐藏翻译与分析',
       'action.undo': '撤销',
@@ -1040,13 +1042,17 @@ window.__ModuleLoader__.load({
           setOpen(false)
         }
       }, [collapseSignal])
+      const sentenceCategory = category === 'sentence'
+      const analysis = sentenceCategory && expansion?.analysis ? expansion.analysis : null
+      const extraSentences = analysis
+        ? [...asArray(expansion.examples), ...asArray(expansion.moreExamples)]
+        : []
       const hasStructured = expansion && (
         expansion.meaning || expansion.phonetic || asArray(expansion.wordForms).length
-        || expansion.discrimination || asArray(expansion.collocations).length
+        || (sentenceCategory && expansion.analysis) || expansion.discrimination || asArray(expansion.collocations).length
         || asArray(expansion.synonyms).length || asArray(expansion.examples).length
         || asArray(expansion.moreExamples).length || expansion.tips || asArray(expansion.related).length
       )
-      const sentenceCategory = category === 'sentence'
       const [practice, setPractice] = useState(false)
       const [revealed, setRevealed] = useState(false)
       const hideAnalysis = practice && !revealed
@@ -1088,14 +1094,16 @@ window.__ModuleLoader__.load({
                 }, t(revealed ? 'action.hideAnalysis' : 'action.showAnalysis'))
                 : null,
               practice && !revealed
-                ? h('span', { className: 'enw-practice-hint' }, t('practice.hint'))
+                ? h('span', { className: 'enw-practice-hint' }, t(sentenceCategory ? 'practice.hint' : 'practice.hintWord'))
                 : null),
-            expansion.meaning && !hideAnalysis ? h('p', { className: 'enw-exp-meaning' }, expansion.meaning) : null,
-            expansion.phonetic ? h('p', { className: 'enw-exp-phonetic' }, expansion.phonetic) : null,
+            expansion.meaning && !hideAnalysis && (!analysis || !analysis.zh)
+              ? h('p', { className: 'enw-exp-meaning' }, expansion.meaning)
+              : null,
+            expansion.phonetic && !sentenceCategory ? h('p', { className: 'enw-exp-phonetic' }, expansion.phonetic) : null,
             hasStructured
               ? null
               : h('p', { className: 'enw-exp-text' }, expansion.text || t('expansion.empty')),
-            asArray(expansion.wordForms).length
+            !sentenceCategory && asArray(expansion.wordForms).length
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t('expansion.wordForms')),
                 h('div', { className: 'enw-forms' }, expansion.wordForms.map((form, index) => h('div', { key: index, className: 'enw-form' },
@@ -1103,22 +1111,43 @@ window.__ModuleLoader__.load({
                   h('span', { className: 'enw-form-word' }, form.word),
                   form.note ? h('span', { className: 'enw-form-note' }, form.note) : null))))
               : null,
-            expansion.discrimination
+            !sentenceCategory && expansion.discrimination
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t('expansion.discrimination')),
                 h('p', { className: 'enw-exp-text' }, expansion.discrimination))
               : null,
-            asArray(expansion.collocations).length
+            !sentenceCategory && asArray(expansion.collocations).length
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t('expansion.collocations')),
                 h('ul', { className: 'enw-exp-list' }, expansion.collocations.map((item, index) => h('li', { key: index }, item))))
               : null,
-            asArray(expansion.synonyms).length
+            !sentenceCategory && asArray(expansion.synonyms).length
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t('expansion.synonyms')),
                 h('div', { className: 'enw-exp-chips' }, expansion.synonyms.map((item, index) => h('span', { key: index, className: 'enw-exp-chip' }, item))))
               : null,
-            asArray(expansion.examples).length
+            analysis && !hideAnalysis
+              ? h('div', { className: 'enw-exp-sec enw-analysis' },
+                h(SectionLabel, null, t('expansion.longSentences')),
+                analysis.zh ? h('p', { className: 'enw-analysis-zh' }, analysis.zh) : null,
+                analysis.structure
+                  ? h('p', { className: 'enw-example-structure' },
+                    h('span', { className: 'enw-example-tag' }, t('expansion.structure')),
+                    h('span', null, analysis.structure))
+                  : null,
+                analysis.grammar
+                  ? h('p', { className: 'enw-example-grammar' },
+                    h('span', { className: 'enw-example-tag' }, t('expansion.grammar')),
+                    h('span', null, analysis.grammar))
+                  : null,
+                analysis.chunk
+                  ? h('p', { className: 'enw-example-chunk' },
+                    h('span', { className: 'enw-example-tag' }, t('expansion.chunk')),
+                    h('strong', null, analysis.chunk),
+                    analysis.chunkNote ? h('span', { className: 'enw-example-note' }, ` · ${analysis.chunkNote}`) : null)
+                  : null)
+              : null,
+            !analysis && asArray(expansion.examples).length
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t(sentenceCategory ? 'expansion.longSentences' : 'expansion.examples')),
                 asArray(expansion.examples).map((example, index) => h('div', { key: index, className: 'enw-example' },
@@ -1143,7 +1172,16 @@ window.__ModuleLoader__.load({
                       example.chunkNote ? h('span', { className: 'enw-example-note' }, ` · ${example.chunkNote}`) : null)
                     : null)))
               : null,
-            asArray(expansion.moreExamples).length
+            analysis && extraSentences.length
+              ? h('div', { className: 'enw-exp-sec' },
+                h(SectionLabel, null, t('expansion.moreExamples')),
+                extraSentences.map((example, index) => h('div', { key: index, className: 'enw-example' },
+                  h('div', { className: 'enw-example-en-row' },
+                    h('p', { className: 'enw-example-en' }, highlightExample(example.en, entryText, category)),
+                    h(SpeakButton, { text: example.en, t, size: 13 })),
+                  example.zh && !hideAnalysis ? h('p', { className: 'enw-example-zh' }, highlightTranslation(example.zh, entryTranslation)) : null)))
+              : null,
+            !analysis && asArray(expansion.moreExamples).length
               ? h('div', { className: 'enw-exp-sec' },
                 h(SectionLabel, null, t(sentenceCategory ? 'expansion.moreExamples' : 'expansion.moreShortExamples')),
                 asArray(expansion.moreExamples).map((example, index) => h('div', { key: index, className: 'enw-example' },
@@ -3430,6 +3468,7 @@ window.__ModuleLoader__.load({
       .enw-practice-hint { font-size: 10.5px; color: var(--dsw-alias-label-secondary); }
       .enw-hl { background: var(--dsw-alias-bg-layer-2); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 18%, transparent); color: inherit; border-bottom: 2px solid var(--dsw-alias-brand-primary); border-radius: 3px; padding: 0 2px; font-weight: 600; }
       .enw-example-zh { margin: 2px 0 0; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+      .enw-analysis-zh { margin: 0; font-size: 12.5px; color: var(--dsw-alias-label-primary); }
       .enw-example-chunk, .enw-example-structure, .enw-example-grammar { margin: 3px 0 0; font-size: 11.5px; line-height: 1.55; color: var(--dsw-alias-label-secondary); }
       .enw-example-chunk strong { color: var(--dsw-alias-label-primary); font-weight: 600; }
       .enw-example-tag { display: inline-block; margin-right: 6px; padding: 0 5px; border-radius: 999px; background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-secondary); font-size: 9.5px; }
