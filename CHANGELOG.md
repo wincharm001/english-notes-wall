@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.1 — 2026-11-09
+
+- The right sidebar now has its own scroll container and scrollbar, so settings, quiz, usage, and overview stay usable without scrolling the whole page.
+- Removed the delete button from the note card header. Delete now lives inside the inline editor and keeps the same confirmation step.
+
 ## 1.12.0 — 2026-11-09
 
 ### Category-level long-sentence analysis
