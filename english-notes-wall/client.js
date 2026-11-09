@@ -1570,13 +1570,14 @@ window.__ModuleLoader__.load({
         h('span', { className: 'enw-quiz-countdown' }, remaining > 0 ? formatCountdown(remaining) : t('quiz.soon')))
     }
 
-    function QuizCard({ quiz, history, t, localeId, busy, modelAvailable, settings, nextQuizAt, quizPending, dueCount = 0, onRefresh, onGenerate, onGrade, onModelGrade }) {
+    function QuizCard({ quiz, history, t, localeId, busy, modelAvailable, settings, nextQuizAt, quizPending, dueCount = 0, inModal = false, active = true, onClose, closeButtonRef, onRefresh, onGenerate, onGrade, onModelGrade }) {
       const attempt = quiz?.attempt && typeof quiz.attempt === 'object' ? quiz.attempt : null
       const items = asArray(quiz?.items)
       const [answers, setAnswers] = useState({})
       const [reveal, setReveal] = useState(false)
       const [confirming, setConfirming] = useState(false)
       const [collapsed, setCollapsed] = useState(() => {
+        if (inModal) return false
         try {
           const stored = window.localStorage.getItem(QUIZ_COLLAPSED_KEY)
           if (stored === '1') return true
@@ -1594,7 +1595,11 @@ window.__ModuleLoader__.load({
         setAnswers(attempt?.answers && typeof attempt.answers === 'object' ? attempt.answers : {})
         setReveal(Boolean(attempt))
         setConfirming(false)
-      }, [quiz?.date, attempt?.submittedAt])
+      }, [quiz?.date, quiz?.createdAt, attempt?.submittedAt])
+
+      useEffect(() => {
+        if (inModal && active) setCollapsed(false)
+      }, [active, inModal])
 
       const answeredCount = items.filter(item => String(answers[item.id] ?? '').trim()).length
 
@@ -1635,7 +1640,7 @@ window.__ModuleLoader__.load({
       const schedule = h(QuizCountdown, {
         nextAt: nextQuizAt ?? null,
         pending: Boolean(quizPending),
-        enabled: settings?.enabled !== false,
+        enabled: settings?.enabled !== false && active,
         t,
         localeId,
         onRefresh,
@@ -1644,10 +1649,21 @@ window.__ModuleLoader__.load({
       if (!quiz) {
         return h(
           'section',
-          { className: 'enw-card enw-aside-card' },
+          { className: cx('enw-card', 'enw-aside-card', inModal && 'enw-quiz-card--modal') },
           h('div', { className: 'enw-aside-head' },
             h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'target', size: 16 }), t('quiz.title')),
-            h('span', { className: 'enw-aside-date' }, t('quiz.today'))),
+            h('div', { className: 'enw-quiz-head-actions' },
+              h('span', { className: 'enw-aside-date' }, t('quiz.today')),
+              onClose
+                ? h('button', {
+                  type: 'button',
+                  ref: closeButtonRef,
+                  className: 'enw-icon-btn enw-modal-close',
+                  onClick: onClose,
+                  title: t('action.close'),
+                  'aria-label': t('action.close'),
+                }, h(Icon, { name: 'close', size: 16 }))
+                : null)),
           schedule,
           h('p', { className: 'enw-aside-empty-title' }, t('quiz.empty')),
           h('p', { className: 'enw-aside-hint' }, t('quiz.emptyHint')),
@@ -1660,7 +1676,7 @@ window.__ModuleLoader__.load({
 
       return h(
         'section',
-        { className: 'enw-card enw-aside-card' },
+        { className: cx('enw-card', 'enw-aside-card', inModal && 'enw-quiz-card--modal') },
         h('div', { className: 'enw-aside-head' },
           h('span', { className: 'enw-aside-title' }, h(Icon, { name: 'target', size: 16 }), t('quiz.title')),
           h('div', { className: 'enw-quiz-head-actions' },
@@ -1679,7 +1695,17 @@ window.__ModuleLoader__.load({
               title: t(collapsed ? 'quiz.expand' : 'quiz.collapse'),
               'aria-label': t(collapsed ? 'quiz.expand' : 'quiz.collapse'),
               'aria-expanded': !collapsed,
-            }, h(Icon, { name: collapsed ? 'chevronDown' : 'chevronUp', size: 16 })))),
+            }, h(Icon, { name: collapsed ? 'chevronDown' : 'chevronUp', size: 16 })),
+            onClose
+              ? h('button', {
+                type: 'button',
+                ref: closeButtonRef,
+                className: 'enw-icon-btn enw-modal-close',
+                onClick: onClose,
+                title: t('action.close'),
+                'aria-label': t('action.close'),
+              }, h(Icon, { name: 'close', size: 16 }))
+              : null)),
         schedule,
         h('div', { className: 'enw-quiz-meta' },
           h('span', { className: cx('enw-pill', attempt ? 'enw-pill--ok' : 'enw-pill--wait') }, attempt ? t('quiz.done') : t('quiz.pending')),
@@ -2320,6 +2346,87 @@ window.__ModuleLoader__.load({
             h('span', null, t('organize.apply')))))
     }
 
+    // -- quiz modal ---------------------------------------------------------
+
+    function QuizModal({ open, onClose, ...props }) {
+      const modalRef = useRef(null)
+      const closeRef = useRef(null)
+      const closeHandler = useRef(onClose)
+      const restoreRef = useRef(null)
+
+      useEffect(() => {
+        closeHandler.current = onClose
+      }, [onClose])
+
+      useEffect(() => {
+        if (!open) return undefined
+        restoreRef.current = document.activeElement
+        const previousOverflow = document.body.style.overflow
+        document.body.style.overflow = 'hidden'
+        const timer = setTimeout(() => closeRef.current?.focus(), 0)
+        const onKeyDown = event => {
+          if (event.key === 'Escape') {
+            event.preventDefault()
+            event.stopPropagation()
+            closeHandler.current?.()
+            return
+          }
+          if (event.key !== 'Tab') return
+          const root = modalRef.current
+          if (!root) return
+          const focusables = [...root.querySelectorAll(
+            'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          )].filter(element => element.offsetParent !== null)
+          if (!focusables.length) return
+          const first = focusables[0]
+          const last = focusables[focusables.length - 1]
+          if (!root.contains(document.activeElement)) {
+            event.preventDefault()
+            first.focus()
+          } else if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault()
+            last.focus()
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault()
+            first.focus()
+          }
+        }
+        document.addEventListener('keydown', onKeyDown, true)
+        return () => {
+          clearTimeout(timer)
+          document.removeEventListener('keydown', onKeyDown, true)
+          document.body.style.overflow = previousOverflow
+          const restore = restoreRef.current
+          if (restore && typeof restore.focus === 'function') {
+            setTimeout(() => restore.focus(), 0)
+          }
+        }
+      }, [open])
+
+      return h('div', {
+        className: cx('enw-modal-backdrop', !open && 'enw-modal-backdrop--closed'),
+        onMouseDown: event => {
+          if (open && event.target === event.currentTarget) closeHandler.current?.()
+        },
+      },
+      h('div', {
+        className: 'enw-modal',
+        ref: modalRef,
+        role: 'dialog',
+        'aria-modal': open ? 'true' : 'false',
+        'aria-hidden': !open,
+        'aria-label': props.t('quiz.title'),
+      },
+      props.error ? h('div', { className: 'enw-modal-error', role: 'alert' }, props.error) : null,
+      h(QuizCard, {
+        ...props,
+        inModal: true,
+        active: open,
+        onClose,
+        closeButtonRef: closeRef,
+      })))
+    }
+
     // -- page ---------------------------------------------------------------
 
     function NotesPage({ t, api, ctx, mountError }) {
@@ -2336,6 +2443,7 @@ window.__ModuleLoader__.load({
       const [tagFilter, setTagFilter] = useState('')
       const [query, setQuery] = useState('')
       const [settingsOpen, setSettingsOpen] = useState(false)
+      const [quizOpen, setQuizOpen] = useState(false)
       const [draft, setDraft] = useState({ text: '', tags: '', category: 'word' })
       const [collapseSignal, setCollapseSignal] = useState(0)
       const [deleted, setDeleted] = useState(null)
@@ -2830,6 +2938,7 @@ window.__ModuleLoader__.load({
       }
 
       useEffect(() => {
+        if (quizOpen) return undefined
         const onKey = event => {
           if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
           const target = event.target
@@ -2874,7 +2983,7 @@ window.__ModuleLoader__.load({
         }
         document.addEventListener('keydown', onKey)
         return () => document.removeEventListener('keydown', onKey)
-      }, [groups])
+      }, [groups, quizOpen])
 
       if (!api) {
         return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
@@ -2906,6 +3015,7 @@ window.__ModuleLoader__.load({
       const counts = snap?.stats?.counts || {}
       const stats = snap?.stats || {}
       const dueCount = stats.due ?? 0
+      const quizAttention = Boolean(snap?.today && !snap.today.attempt) || Boolean(snap?.quizPending)
       const model = snap?.model || { available: false, label: '' }
       const categories = CATEGORIES
       const hasExpansions = notes.some(note => asArray(note.entries).some(entry => entry.expansion))
@@ -2915,7 +3025,7 @@ window.__ModuleLoader__.load({
         ? `${t('action.expandingMissing')} ${expandProgress?.done ?? 0}/${expandProgress?.total ?? pendingExpansions.length}`
         : `${t('action.expandMissing')} (${pendingExpansions.length})`
 
-      return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
+      return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`, quizOpen && 'enw-page--modal') },
         h('div', { className: 'enw-inner' },
           h('header', { className: 'enw-head' },
             h('div', { className: 'enw-head-main' },
@@ -2923,6 +3033,20 @@ window.__ModuleLoader__.load({
               h('p', { className: 'enw-sub' }, t('panel.subtitle'))),
             h('div', { className: 'enw-head-actions' },
               h('span', { className: 'enw-count' }, `${notes.length}`),
+              h(Btn, {
+                variant: 'quiet',
+                className: quizOpen ? 'enw-btn--on' : '',
+                onClick: () => {
+                  setActionError('')
+                  setQuizOpen(true)
+                  void refresh()
+                },
+                title: t('quiz.title'),
+                label: t('quiz.title'),
+              },
+              h(Icon, { name: 'target', size: 15 }),
+              h('span', { className: 'enw-btn-text' }, t('quiz.title')),
+              quizAttention ? h('span', { className: 'enw-dot' }) : null),
               h(Btn, { variant: 'quiet', onClick: () => void refresh(), title: t('action.refresh'), label: t('action.refresh') }, h(Icon, { name: 'refresh', size: 15 })),
               h(Btn, {
                 variant: 'quiet',
@@ -3200,22 +3324,6 @@ window.__ModuleLoader__.load({
                   onClose: () => setSettingsOpen(false),
                 })
                 : null,
-              h(QuizCard, {
-                quiz: snap?.today || null,
-                history: asArray(snap?.history),
-                t,
-                localeId,
-                busy,
-                modelAvailable: model.available,
-                settings: snap?.settings || null,
-                nextQuizAt: snap?.nextQuizAt ?? null,
-                quizPending: Boolean(snap?.quizPending),
-                dueCount,
-                onRefresh: refresh,
-                onGenerate: generateQuiz,
-                onGrade: gradeQuiz,
-                onModelGrade: gradeWithModel,
-              }),
               h(UsageCard, { usage: snap?.usage, settings: snap?.settings || null, t, localeId }),
               h('section', { className: 'enw-card enw-aside-card' },
                 h('div', { className: 'enw-aside-head' },
@@ -3228,6 +3336,25 @@ window.__ModuleLoader__.load({
                   h('div', { className: 'enw-stat' }, h('dt', null, t('stats.reviewedToday')), h('dd', null, String(stats.reviewedToday ?? 0))),
                   h('div', { className: 'enw-stat' }, h('dt', null, t('stats.pending')), h('dd', null, stats.pending ? t('stats.yes') : t('stats.no'))),
                   h('div', { className: 'enw-stat' }, h('dt', null, t('stats.streak')), h('dd', null, `${stats.streak ?? 0}`))))),
+            h(QuizModal, {
+              open: quizOpen,
+              onClose: () => setQuizOpen(false),
+              quiz: snap?.today || null,
+              history: asArray(snap?.history),
+              t,
+              localeId,
+              busy,
+              modelAvailable: model.available,
+              settings: snap?.settings || null,
+              nextQuizAt: snap?.nextQuizAt ?? null,
+              quizPending: Boolean(snap?.quizPending),
+              dueCount,
+              error: actionError,
+              onRefresh: refresh,
+              onGenerate: generateQuiz,
+              onGrade: gradeQuiz,
+              onModelGrade: gradeWithModel,
+            }),
           ),
         ),
       )
@@ -3255,6 +3382,7 @@ window.__ModuleLoader__.load({
         font-size: 13px;
         line-height: 1.55;
       }
+      .enw-page--modal { overflow: hidden; }
       .enw-inner { max-width: 1120px; margin: 0 auto; padding: 28px 28px 64px; }
       .enw-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
       .enw-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.015em; }
@@ -3262,6 +3390,16 @@ window.__ModuleLoader__.load({
       .enw-sub { margin: 8px 0 0; max-width: 680px; color: var(--dsw-alias-label-secondary); font-size: 13px; }
       .enw-head-actions { display: flex; align-items: center; gap: 6px; padding-top: 2px; }
       .enw-count { min-width: 26px; text-align: center; font-variant-numeric: tabular-nums; color: var(--dsw-alias-label-secondary); font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); }
+      .enw-dot { display: inline-block; width: 6px; height: 6px; margin-left: 3px; border-radius: 50%; background: var(--dsw-alias-brand-primary); flex: none; }
+      .enw-modal-backdrop { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; background: color-mix(in srgb, var(--dsw-alias-bg-base) 64%, transparent); backdrop-filter: blur(3px); }
+      .enw-modal-backdrop--closed { display: none; }
+      .enw-modal { width: min(720px, 100%); max-height: min(88vh, 900px); overflow-y: auto; overscroll-behavior: contain; padding: 20px 22px 22px; border-radius: 16px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); box-shadow: 0 24px 80px color-mix(in srgb, var(--dsw-alias-label-primary) 22%, transparent); scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dsw-alias-label-secondary) 38%, transparent) transparent; }
+      .enw-modal::-webkit-scrollbar { width: 9px; }
+      .enw-modal::-webkit-scrollbar-track { background: transparent; }
+      .enw-modal::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--dsw-alias-label-secondary) 34%, transparent); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+      .enw-modal .enw-aside-card { padding: 0; border: 0; background: transparent; }
+      .enw-modal-close { flex: none; }
+      .enw-modal-error { margin: 0 0 12px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-state-error-primary); background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent); color: var(--dsw-alias-state-error-primary); font-size: 12px; }
       .enw-layout { display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 20px; align-items: start; }
       .enw-layout--collapsed { grid-template-columns: minmax(0, 1fr); }
       .enw-layout--collapsed .enw-aside { display: none; }
@@ -3619,6 +3757,8 @@ window.__ModuleLoader__.load({
         .enw-inner { padding: 18px 16px 48px; }
         .enw-composer-grid { grid-template-columns: 1fr; }
         .enw-btn-text { display: none; }
+        .enw-modal-backdrop { padding: 10px; }
+        .enw-modal { max-height: 92vh; padding: 16px; border-radius: 14px; }
       }
     `
 
@@ -3632,6 +3772,8 @@ window.__ModuleLoader__.load({
         __OrganizePanel: OrganizePanel,
         __NoteCard: NoteCard,
         __UsageCard: UsageCard,
+        __QuizCard: QuizCard,
+        __QuizModal: QuizModal,
       } : {}),
       async apply(ctx) {
         try {
