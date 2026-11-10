@@ -98,6 +98,8 @@ window.__ModuleLoader__.load({
       'note.tagsLabel': 'Tags',
       'note.pinnedGroup': 'Pinned',
       'note.fullView': 'Full content',
+      'note.prev': 'Previous note',
+      'note.next': 'Next note',
       'note.nextReview': 'Next review',
       'expansion.meaning': 'Meaning',
       'expansion.phonetic': 'Pronunciation',
@@ -376,6 +378,8 @@ window.__ModuleLoader__.load({
       'note.tagsLabel': '标签',
       'note.pinnedGroup': '置顶',
       'note.fullView': '完整内容',
+      'note.prev': '上一个便利贴',
+      'note.next': '下一个便利贴',
       'note.nextReview': '下次复习',
       'expansion.meaning': '释义',
       'expansion.phonetic': '发音',
@@ -620,6 +624,11 @@ window.__ModuleLoader__.load({
 
     function asArray(value) {
       return Array.isArray(value) ? value : []
+    }
+
+    function wrapIndex(index, delta, length) {
+      if (!Number.isInteger(index) || index < 0 || !Number.isInteger(length) || length < 1) return -1
+      return (index + delta + length) % length
     }
 
     function dayKey(ms) {
@@ -876,6 +885,8 @@ window.__ModuleLoader__.load({
       chevron: 'M9 6l6 6-6 6',
       chevronDown: 'M6 9l6 6 6-6',
       chevronUp: 'M6 15l6-6 6 6',
+      arrowLeft: 'M15 5l-7 7 7 7M8 12h12',
+      arrowRight: 'M9 5l7 7-7 7M4 12h12',
       list: 'M4 6h16M4 12h16M4 18h16',
       grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
       panel: 'M4 5h16v14H4zM15 5v14',
@@ -2457,10 +2468,36 @@ window.__ModuleLoader__.load({
 
     // -- note detail modal --------------------------------------------------
 
-    function NoteDetailModal({ note, t, localeId, onClose, onTag }) {
+    function NoteDetailModal({ note, t, localeId, position, total, onPrev, onNext, onClose, onTag }) {
       const modalRef = useRef(null)
+      const shellRef = useRef(null)
       const closeRef = useRef(null)
-      useModalBehavior(true, onClose, modalRef, closeRef)
+      useModalBehavior(true, onClose, shellRef, closeRef)
+      const canNavigate = Number.isFinite(position) && position >= 1 && total > 1
+
+      useEffect(() => {
+        if (modalRef.current) modalRef.current.scrollTop = 0
+      }, [note?.id])
+
+      useEffect(() => {
+        if (!canNavigate) return undefined
+        const onKey = event => {
+          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+          const target = event.target
+          const tag = target?.tagName
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return
+          if (event.key === 'ArrowLeft') {
+            event.preventDefault()
+            onPrev?.()
+          } else if (event.key === 'ArrowRight') {
+            event.preventDefault()
+            onNext?.()
+          }
+        }
+        document.addEventListener('keydown', onKey)
+        return () => document.removeEventListener('keydown', onKey)
+      }, [canNavigate, onPrev, onNext])
+
       if (!note) return null
 
       const entries = asArray(note.entries).length
@@ -2492,6 +2529,31 @@ window.__ModuleLoader__.load({
         }
       }
 
+      const navButton = where => h('button', {
+        type: 'button',
+        className: `enw-note-nav enw-note-nav--${where}`,
+        onClick: where === 'prev' ? onPrev : onNext,
+        title: `${t(where === 'prev' ? 'note.prev' : 'note.next')} (${where === 'prev' ? '←' : '→'})`,
+        'aria-label': t(where === 'prev' ? 'note.prev' : 'note.next'),
+      }, h(Icon, { name: where === 'prev' ? 'arrowLeft' : 'arrowRight', size: 18 }))
+
+      const footNav = canNavigate
+        ? h('div', { className: 'enw-note-modal-footnav' },
+          h('button', {
+            type: 'button',
+            className: 'enw-note-foot-btn',
+            onClick: onPrev,
+            title: t('note.prev'),
+          }, h(Icon, { name: 'arrowLeft', size: 15 }), h('span', null, t('note.prev'))),
+          h('span', { className: 'enw-note-foot-pos', 'aria-live': 'polite' }, `${position} / ${total}`),
+          h('button', {
+            type: 'button',
+            className: 'enw-note-foot-btn',
+            onClick: onNext,
+            title: t('note.next'),
+          }, h('span', null, t('note.next')), h(Icon, { name: 'arrowRight', size: 15 })))
+        : null
+
       return h('div', {
         className: 'enw-modal-backdrop',
         onMouseDown: event => {
@@ -2499,64 +2561,73 @@ window.__ModuleLoader__.load({
         },
       },
       h('div', {
-        className: 'enw-modal enw-note-modal',
-        ref: modalRef,
+        className: 'enw-note-modal-shell',
+        ref: shellRef,
         role: 'dialog',
         'aria-modal': 'true',
         'aria-label': t('note.fullView'),
       },
-      h('div', { className: 'enw-note-modal-head' },
-        h('div', { className: 'enw-note-modal-title' },
-          h('span', { className: 'enw-note-modal-kicker' }, t('note.fullView')),
-          h('span', { className: cx('enw-cat', `enw-cat--${note.category}`) }, t(`category.${note.category}`)),
-          h('span', { className: 'enw-note-modal-date' }, created),
-          h('span', { className: 'enw-note-modal-count' }, `${entries.length} ${t('note.entries')}`)),
-        h('button', {
-          type: 'button',
-          ref: closeRef,
-          className: 'enw-icon-btn enw-note-modal-close',
-          onClick: onClose,
-          title: t('action.close'),
-          'aria-label': t('action.close'),
-        }, h(Icon, { name: 'close', size: 16 }))),
-      note.pinned || asArray(note.tags).length
-        ? h('div', { className: 'enw-note-modal-meta' },
-          note.pinned
-            ? h('span', { className: 'enw-pill enw-pill--brand' }, h(Icon, { name: 'pin', size: 12 }), t('note.pinnedGroup'))
-            : null,
-          asArray(note.tags).map(tag => (onTag
-            ? h('button', {
-              key: tag,
+        canNavigate ? navButton('prev') : null,
+        h('div', {
+          className: 'enw-modal enw-note-modal',
+          ref: modalRef,
+        },
+        h('div', { className: 'enw-note-modal-head' },
+          h('div', { className: 'enw-note-modal-title' },
+            h('span', { className: 'enw-note-modal-kicker' }, t('note.fullView')),
+            h('span', { className: cx('enw-cat', `enw-cat--${note.category}`) }, t(`category.${note.category}`)),
+            h('span', { className: 'enw-note-modal-date' }, created),
+            h('span', { className: 'enw-note-modal-count' }, `${entries.length} ${t('note.entries')}`)),
+          h('div', { className: 'enw-note-modal-head-actions' },
+            canNavigate ? h('span', { className: 'enw-note-modal-pos', 'aria-live': 'polite' }, `${position} / ${total}`) : null,
+            h('button', {
               type: 'button',
-              className: 'enw-tag enw-tag--button',
-              onClick: () => {
-                onClose?.()
-                onTag(tag)
-              },
-            }, `#${tag}`)
-            : h('span', { key: tag, className: 'enw-tag' }, `#${tag}`))))
-        : null,
-      h('div', { className: 'enw-note-modal-body' },
-        entries.map((entry, index) => h('section', { key: entry.id || index, className: 'enw-note-modal-entry' },
-          h('div', { className: 'enw-entry-head' },
-            h('p', { className: 'enw-entry-text' }, entry.text),
-            h('div', { className: 'enw-entry-tools' },
-              h(SpeakButton, { text: entry.text, t, size: 14 }))),
-          entry.translation ? h('p', { className: 'enw-entry-translation' }, entry.translation) : null,
-          entry.expansion
-            ? h(ExpansionView, {
-              expansion: entry.expansion,
-              t,
-              localeId,
-              showUsage: true,
-              collapseSignal: 0,
-              entryText: entry.text,
-              entryTranslation: entry.translation,
-              category: note.category,
-            })
-            : h('p', { className: 'enw-note-modal-empty' }, t('expansion.empty')),
-          h('div', { className: 'enw-note-modal-review' },
-            h('span', { className: cx('enw-pill', entry.review?.dueAt > now ? 'enw-pill--ok' : 'enw-pill--wait') }, reviewLabel(entry))))))))
+              ref: closeRef,
+              className: 'enw-icon-btn enw-note-modal-close',
+              onClick: onClose,
+              title: t('action.close'),
+              'aria-label': t('action.close'),
+            }, h(Icon, { name: 'close', size: 16 })))),
+        footNav,
+        note.pinned || asArray(note.tags).length
+          ? h('div', { className: 'enw-note-modal-meta' },
+            note.pinned
+              ? h('span', { className: 'enw-pill enw-pill--brand' }, h(Icon, { name: 'pin', size: 12 }), t('note.pinnedGroup'))
+              : null,
+            asArray(note.tags).map(tag => (onTag
+              ? h('button', {
+                key: tag,
+                type: 'button',
+                className: 'enw-tag enw-tag--button',
+                onClick: () => {
+                  onClose?.()
+                  onTag(tag)
+                },
+              }, `#${tag}`)
+              : h('span', { key: tag, className: 'enw-tag' }, `#${tag}`))))
+          : null,
+        h('div', { className: 'enw-note-modal-body' },
+          entries.map((entry, index) => h('section', { key: entry.id || index, className: 'enw-note-modal-entry' },
+            h('div', { className: 'enw-entry-head' },
+              h('p', { className: 'enw-entry-text' }, entry.text),
+              h('div', { className: 'enw-entry-tools' },
+                h(SpeakButton, { text: entry.text, t, size: 14 }))),
+            entry.translation ? h('p', { className: 'enw-entry-translation' }, entry.translation) : null,
+            entry.expansion
+              ? h(ExpansionView, {
+                expansion: entry.expansion,
+                t,
+                localeId,
+                showUsage: true,
+                collapseSignal: 0,
+                entryText: entry.text,
+                entryTranslation: entry.translation,
+                category: note.category,
+              })
+              : h('p', { className: 'enw-note-modal-empty' }, t('expansion.empty')),
+            h('div', { className: 'enw-note-modal-review' },
+              h('span', { className: cx('enw-pill', entry.review?.dueAt > now ? 'enw-pill--ok' : 'enw-pill--wait') }, reviewLabel(entry))))))),
+        canNavigate ? navButton('next') : null))
     }
 
     // -- page ---------------------------------------------------------------
@@ -3056,6 +3127,8 @@ window.__ModuleLoader__.load({
         return pinned.length ? [['__pinned__', pinned], ...list] : list
       }, [filtered, organizedActive, snap])
 
+      const navNotes = useMemo(() => groups.flatMap(([, entries]) => entries), [groups])
+
       const dayLabel = key => {
         if (key === '__pinned__') return t('note.pinnedGroup')
         const today = dayKey(Date.now())
@@ -3155,6 +3228,13 @@ window.__ModuleLoader__.load({
       const dueCount = stats.due ?? 0
       const quizAttention = Boolean(snap?.today && !snap.today.attempt) || Boolean(snap?.quizPending)
       const detailNote = detailId ? notes.find(note => note.id === detailId) || null : null
+      const detailIndex = detailNote ? navNotes.findIndex(note => note.id === detailNote.id) : -1
+      const stepDetail = delta => {
+        if (detailIndex < 0 || navNotes.length < 2) return
+        const nextIndex = wrapIndex(detailIndex, delta, navNotes.length)
+        const next = navNotes[nextIndex]
+        if (next) setDetailId(next.id)
+      }
       const model = snap?.model || { available: false, label: '' }
       const categories = CATEGORIES
       const hasExpansions = notes.some(note => asArray(note.entries).some(entry => entry.expansion))
@@ -3500,6 +3580,10 @@ window.__ModuleLoader__.load({
                 note: detailNote,
                 t,
                 localeId,
+                position: detailIndex + 1,
+                total: navNotes.length,
+                onPrev: () => stepDetail(-1),
+                onNext: () => stepDetail(1),
                 onClose: () => setDetailId(''),
                 onTag: tag => {
                   setTagFilter(tag)
@@ -3552,7 +3636,18 @@ window.__ModuleLoader__.load({
       .enw-modal .enw-aside-card { padding: 0; border: 0; background: transparent; }
       .enw-modal-close { flex: none; }
       .enw-modal-error { margin: 0 0 12px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-state-error-primary); background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent); color: var(--dsw-alias-state-error-primary); font-size: 12px; }
+      .enw-note-modal-shell { display: flex; align-items: center; justify-content: center; gap: 12px; width: min(880px, 100%); }
       .enw-note-modal { width: min(780px, 100%); }
+      .enw-note-modal-head-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+      .enw-note-modal-pos { font-size: 11.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-note-nav { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-secondary); cursor: pointer; box-shadow: 0 8px 24px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent); transition: color 140ms ease, border-color 140ms ease, transform 140ms ease; }
+      .enw-note-nav:hover { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); transform: scale(1.04); }
+      .enw-note-nav:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
+      .enw-note-modal-footnav { display: none; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
+      .enw-note-foot-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 11px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12px; cursor: pointer; }
+      .enw-note-foot-btn:hover { border-color: var(--dsw-alias-brand-primary); color: var(--dsw-alias-brand-primary); }
+      .enw-note-foot-btn:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
+      .enw-note-foot-pos { font-size: 11.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
       .enw-note-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
       .enw-note-modal-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
       .enw-note-modal-kicker { font-size: 13px; font-weight: 650; }
@@ -3921,6 +4016,11 @@ window.__ModuleLoader__.load({
         .enw-layout { grid-template-columns: minmax(0, 1fr); }
         .enw-aside { position: static; max-height: none; overflow: visible; padding-right: 0; }
       }
+      @media (max-width: 900px) {
+        .enw-note-nav { display: none; }
+        .enw-note-modal-pos { display: none; }
+        .enw-note-modal-footnav { display: flex; }
+      }
       @media (max-width: 640px) {
         .enw-inner { padding: 18px 16px 48px; }
         .enw-composer-grid { grid-template-columns: 1fr; }
@@ -3943,6 +4043,7 @@ window.__ModuleLoader__.load({
         __QuizCard: QuizCard,
         __QuizModal: QuizModal,
         __NoteDetailModal: NoteDetailModal,
+        __wrapIndex: wrapIndex,
       } : {}),
       async apply(ctx) {
         try {
