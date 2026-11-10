@@ -97,6 +97,8 @@ window.__ModuleLoader__.load({
       'note.translationLabel': 'Meaning',
       'note.tagsLabel': 'Tags',
       'note.pinnedGroup': 'Pinned',
+      'note.fullView': 'Full content',
+      'note.nextReview': 'Next review',
       'expansion.meaning': 'Meaning',
       'expansion.phonetic': 'Pronunciation',
       'expansion.wordForms': 'Word forms and look-alikes',
@@ -373,6 +375,8 @@ window.__ModuleLoader__.load({
       'note.translationLabel': '释义',
       'note.tagsLabel': '标签',
       'note.pinnedGroup': '置顶',
+      'note.fullView': '完整内容',
+      'note.nextReview': '下次复习',
       'expansion.meaning': '释义',
       'expansion.phonetic': '发音',
       'expansion.wordForms': '词形与形近词',
@@ -887,6 +891,7 @@ window.__ModuleLoader__.load({
       eyeOff: 'M3 3l18 18M10.6 6.2A9.8 9.8 0 0112 6c6 0 9.5 6 9.5 6a15 15 0 01-3.1 3.6M6.3 8.4A15 15 0 002.5 12s3.5 6 9.5 6a9.6 9.6 0 004.1-.9M9.9 9.9a3 3 0 004.2 4.2',
       grip: 'M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01',
       more: 'M5 12h.01M12 12h.01M19 12h.01',
+      maximize: 'M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5',
     }
 
     function Icon({ name, size = 16, className }) {
@@ -1219,7 +1224,7 @@ window.__ModuleLoader__.load({
       )
     }
 
-    function NoteCard({ note, t, localeId, busy, collapseSignal, onExpandAll, onExpandEntry, onUpdate, onDelete, onPin, onTag, canReorder = false, onDragStartNote, onDropNote, active = false }) {
+    function NoteCard({ note, t, localeId, busy, collapseSignal, onExpandAll, onExpandEntry, onUpdate, onDelete, onPin, onTag, onOpen, canReorder = false, onDragStartNote, onDropNote, active = false }) {
       const entries = asArray(note.entries).length
         ? note.entries
         : note.text
@@ -1318,6 +1323,19 @@ window.__ModuleLoader__.load({
           editing
             ? null
             : h('div', { className: 'enw-note-actions' },
+              onOpen
+                ? h(
+                  Btn,
+                  {
+                    variant: 'quiet',
+                    onClick: () => onOpen(note),
+                    disabled: Boolean(busy),
+                    title: t('note.fullView'),
+                    label: t('note.fullView'),
+                  },
+                  h(Icon, { name: 'maximize', size: 14 }),
+                )
+                : null,
               onPin
                 ? h(
                   Btn,
@@ -2350,11 +2368,9 @@ window.__ModuleLoader__.load({
             h('span', null, t('organize.apply')))))
     }
 
-    // -- quiz modal ---------------------------------------------------------
+    // -- modal shell --------------------------------------------------------
 
-    function QuizModal({ open, onClose, ...props }) {
-      const modalRef = useRef(null)
-      const closeRef = useRef(null)
+    function useModalBehavior(open, onClose, modalRef, initialFocusRef) {
       const closeHandler = useRef(onClose)
       const restoreRef = useRef(null)
 
@@ -2367,7 +2383,7 @@ window.__ModuleLoader__.load({
         restoreRef.current = document.activeElement
         const previousOverflow = document.body.style.overflow
         document.body.style.overflow = 'hidden'
-        const timer = setTimeout(() => closeRef.current?.focus(), 0)
+        const timer = setTimeout(() => initialFocusRef?.current?.focus(), 0)
         const onKeyDown = event => {
           if (event.key === 'Escape') {
             event.preventDefault()
@@ -2406,11 +2422,19 @@ window.__ModuleLoader__.load({
           }
         }
       }, [open])
+    }
+
+    // -- quiz modal ---------------------------------------------------------
+
+    function QuizModal({ open, onClose, ...props }) {
+      const modalRef = useRef(null)
+      const closeRef = useRef(null)
+      useModalBehavior(open, onClose, modalRef, closeRef)
 
       return h('div', {
         className: cx('enw-modal-backdrop', !open && 'enw-modal-backdrop--closed'),
         onMouseDown: event => {
-          if (open && event.target === event.currentTarget) closeHandler.current?.()
+          if (open && event.target === event.currentTarget) onClose?.()
         },
       },
       h('div', {
@@ -2431,6 +2455,110 @@ window.__ModuleLoader__.load({
       })))
     }
 
+    // -- note detail modal --------------------------------------------------
+
+    function NoteDetailModal({ note, t, localeId, onClose, onTag }) {
+      const modalRef = useRef(null)
+      const closeRef = useRef(null)
+      useModalBehavior(true, onClose, modalRef, closeRef)
+      if (!note) return null
+
+      const entries = asArray(note.entries).length
+        ? note.entries
+        : note.text
+          ? [{ id: `${note.id}:legacy`, text: note.text, translation: note.translation || '', expansion: note.expansion }]
+          : []
+      const now = Date.now()
+      let created = ''
+      try {
+        created = new Intl.DateTimeFormat(localeId, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(new Date(note.createdAt))
+      } catch {
+        created = ''
+      }
+      const reviewLabel = entry => {
+        const dueAt = entry.review?.dueAt ?? 0
+        if (!dueAt || dueAt <= now) return t('filter.due')
+        try {
+          const date = new Intl.DateTimeFormat(localeId, { month: 'short', day: 'numeric' }).format(new Date(dueAt))
+          return `${t('note.nextReview')} ${date}`
+        } catch {
+          return t('note.nextReview')
+        }
+      }
+
+      return h('div', {
+        className: 'enw-modal-backdrop',
+        onMouseDown: event => {
+          if (event.target === event.currentTarget) onClose?.()
+        },
+      },
+      h('div', {
+        className: 'enw-modal enw-note-modal',
+        ref: modalRef,
+        role: 'dialog',
+        'aria-modal': 'true',
+        'aria-label': t('note.fullView'),
+      },
+      h('div', { className: 'enw-note-modal-head' },
+        h('div', { className: 'enw-note-modal-title' },
+          h('span', { className: 'enw-note-modal-kicker' }, t('note.fullView')),
+          h('span', { className: cx('enw-cat', `enw-cat--${note.category}`) }, t(`category.${note.category}`)),
+          h('span', { className: 'enw-note-modal-date' }, created),
+          h('span', { className: 'enw-note-modal-count' }, `${entries.length} ${t('note.entries')}`)),
+        h('button', {
+          type: 'button',
+          ref: closeRef,
+          className: 'enw-icon-btn enw-note-modal-close',
+          onClick: onClose,
+          title: t('action.close'),
+          'aria-label': t('action.close'),
+        }, h(Icon, { name: 'close', size: 16 }))),
+      note.pinned || asArray(note.tags).length
+        ? h('div', { className: 'enw-note-modal-meta' },
+          note.pinned
+            ? h('span', { className: 'enw-pill enw-pill--brand' }, h(Icon, { name: 'pin', size: 12 }), t('note.pinnedGroup'))
+            : null,
+          asArray(note.tags).map(tag => (onTag
+            ? h('button', {
+              key: tag,
+              type: 'button',
+              className: 'enw-tag enw-tag--button',
+              onClick: () => {
+                onClose?.()
+                onTag(tag)
+              },
+            }, `#${tag}`)
+            : h('span', { key: tag, className: 'enw-tag' }, `#${tag}`))))
+        : null,
+      h('div', { className: 'enw-note-modal-body' },
+        entries.map((entry, index) => h('section', { key: entry.id || index, className: 'enw-note-modal-entry' },
+          h('div', { className: 'enw-entry-head' },
+            h('p', { className: 'enw-entry-text' }, entry.text),
+            h('div', { className: 'enw-entry-tools' },
+              h(SpeakButton, { text: entry.text, t, size: 14 }))),
+          entry.translation ? h('p', { className: 'enw-entry-translation' }, entry.translation) : null,
+          entry.expansion
+            ? h(ExpansionView, {
+              expansion: entry.expansion,
+              t,
+              localeId,
+              showUsage: true,
+              collapseSignal: 0,
+              entryText: entry.text,
+              entryTranslation: entry.translation,
+              category: note.category,
+            })
+            : h('p', { className: 'enw-note-modal-empty' }, t('expansion.empty')),
+          h('div', { className: 'enw-note-modal-review' },
+            h('span', { className: cx('enw-pill', entry.review?.dueAt > now ? 'enw-pill--ok' : 'enw-pill--wait') }, reviewLabel(entry))))))))
+    }
+
     // -- page ---------------------------------------------------------------
 
     function NotesPage({ t, api, ctx, mountError }) {
@@ -2448,6 +2576,7 @@ window.__ModuleLoader__.load({
       const [query, setQuery] = useState('')
       const [settingsOpen, setSettingsOpen] = useState(false)
       const [quizOpen, setQuizOpen] = useState(false)
+      const [detailId, setDetailId] = useState('')
       const [draft, setDraft] = useState({ text: '', tags: '', category: 'word' })
       const [collapseSignal, setCollapseSignal] = useState(0)
       const [deleted, setDeleted] = useState(null)
@@ -2942,7 +3071,7 @@ window.__ModuleLoader__.load({
       }
 
       useEffect(() => {
-        if (quizOpen) return undefined
+        if (quizOpen || detailId) return undefined
         const onKey = event => {
           if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
           const target = event.target
@@ -2987,7 +3116,12 @@ window.__ModuleLoader__.load({
         }
         document.addEventListener('keydown', onKey)
         return () => document.removeEventListener('keydown', onKey)
-      }, [groups, quizOpen])
+      }, [groups, quizOpen, detailId])
+
+      useEffect(() => {
+        if (!detailId) return
+        if (!asArray(snap?.notes).some(note => note.id === detailId)) setDetailId('')
+      }, [snap, detailId])
 
       if (!api) {
         return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
@@ -3020,6 +3154,7 @@ window.__ModuleLoader__.load({
       const stats = snap?.stats || {}
       const dueCount = stats.due ?? 0
       const quizAttention = Boolean(snap?.today && !snap.today.attempt) || Boolean(snap?.quizPending)
+      const detailNote = detailId ? notes.find(note => note.id === detailId) || null : null
       const model = snap?.model || { available: false, label: '' }
       const categories = CATEGORIES
       const hasExpansions = notes.some(note => asArray(note.entries).some(entry => entry.expansion))
@@ -3029,7 +3164,7 @@ window.__ModuleLoader__.load({
         ? `${t('action.expandingMissing')} ${expandProgress?.done ?? 0}/${expandProgress?.total ?? pendingExpansions.length}`
         : `${t('action.expandMissing')} (${pendingExpansions.length})`
 
-      return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`, quizOpen && 'enw-page--modal') },
+      return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`, (quizOpen || detailId) && 'enw-page--modal') },
         h('div', { className: 'enw-inner' },
           h('header', { className: 'enw-head' },
             h('div', { className: 'enw-head-main' },
@@ -3301,6 +3436,7 @@ window.__ModuleLoader__.load({
                             onUpdate: updateNote,
                             onDelete: deleteNote,
                             onPin: pinNote,
+                            onOpen: target => setDetailId(target.id),
                             onTag: tag => {
                               setTagFilter(tag)
                               setFilter('all')
@@ -3359,6 +3495,18 @@ window.__ModuleLoader__.load({
               onGrade: gradeQuiz,
               onModelGrade: gradeWithModel,
             }),
+            detailNote
+              ? h(NoteDetailModal, {
+                note: detailNote,
+                t,
+                localeId,
+                onClose: () => setDetailId(''),
+                onTag: tag => {
+                  setTagFilter(tag)
+                  setFilter('all')
+                },
+              })
+              : null,
           ),
         ),
       )
@@ -3404,6 +3552,21 @@ window.__ModuleLoader__.load({
       .enw-modal .enw-aside-card { padding: 0; border: 0; background: transparent; }
       .enw-modal-close { flex: none; }
       .enw-modal-error { margin: 0 0 12px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-state-error-primary); background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent); color: var(--dsw-alias-state-error-primary); font-size: 12px; }
+      .enw-note-modal { width: min(780px, 100%); }
+      .enw-note-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
+      .enw-note-modal-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
+      .enw-note-modal-kicker { font-size: 13px; font-weight: 650; }
+      .enw-note-modal-date { font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
+      .enw-note-modal-count { font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-note-modal-close { flex: none; }
+      .enw-note-modal-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-bottom: 12px; }
+      .enw-note-modal-meta .enw-pill { display: inline-flex; align-items: center; gap: 4px; }
+      .enw-note-modal-body { display: flex; flex-direction: column; gap: 16px; }
+      .enw-note-modal-entry { display: flex; flex-direction: column; gap: 4px; padding-bottom: 14px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
+      .enw-note-modal-entry:last-child { padding-bottom: 0; border-bottom: 0; }
+      .enw-note-modal-entry .enw-entry-text { font-size: 14px; }
+      .enw-note-modal-empty { margin: 4px 0 0; color: var(--dsw-alias-label-secondary); font-size: 12px; }
+      .enw-note-modal-review { margin-top: 4px; }
       .enw-layout { display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 20px; align-items: start; }
       .enw-layout--collapsed { grid-template-columns: minmax(0, 1fr); }
       .enw-layout--collapsed .enw-aside { display: none; }
@@ -3779,6 +3942,7 @@ window.__ModuleLoader__.load({
         __UsageCard: UsageCard,
         __QuizCard: QuizCard,
         __QuizModal: QuizModal,
+        __NoteDetailModal: NoteDetailModal,
       } : {}),
       async apply(ctx) {
         try {
