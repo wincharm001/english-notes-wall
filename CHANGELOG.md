@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.14.0 — 2026-11-10
+
+- Added a full-note dialog: the expand-corners button on a note opens its complete content in a modal, independent of the card's collapsed state.
+- The dialog shows every entry and translation, all expansions (including long-sentence analysis, examples, forms, collocations, and tips), tags, and each entry's due or next review date; entries and examples remain readable aloud.
+- Clicking a tag in the dialog closes it and filters the wall. Escape, the backdrop, and the close button dismiss the dialog; focus trapping, focus restore, and page scroll locking are shared with the quiz dialog.
+
 ## 1.13.1 — 2026-11-10
 
 - Fixed model grading treating an unanswered question as correct. Only items with a non-empty learner answer are sent for model review or counted toward the score; unanswered items receive a local `blank` verdict with zero points.
