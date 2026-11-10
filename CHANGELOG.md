@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.13.1 — 2026-11-10
+
+- Fixed model grading treating an unanswered question as correct. Only items with a non-empty learner answer are sent for model review or counted toward the score; unanswered items receive a local `blank` verdict with zero points.
+- Unanswered items now display “未作答 / Not answered” instead of being shown as correct or as ordinary wrong answers, for both exact and model grading.
+- Review scheduling skips blank items, so they remain due for the next quiz.
+
 ## 1.13.0 — 2026-11-09
 
 - Moved the daily quiz out of the right sidebar and into a dedicated modal, opened from a new header quiz button with an unread dot.

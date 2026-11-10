@@ -1,6 +1,6 @@
 {
   "name": "@local/english-notes-wall",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "private": true,
   "description": "English learning sticky-note wall with spaced-repetition review, category-colored cards, category-aware long-sentence analysis and practice mode, read-aloud and dictation, a daily quiz dialog, resilient chunked model expansion, JSON/CSV/Anki export with automatic backups, tag and study-status filters, keyboard shortcuts, undo, pinning, whole-wall organization, token cost estimates, and prompt templates.",
   "type": "module",
