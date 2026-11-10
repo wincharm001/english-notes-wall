@@ -610,6 +610,22 @@ assert.equal(afterRetag.organization.groups.length, 1)
 const invalidPlan = await services3.englishNotes.applyOrganization({ groups: [] })
 assert.equal(invalidPlan.status, 'invalid')
 
+// An unanswered question can never be graded as correct by the model.
+const blankId = quizItems[0].id
+const blankAnswers = Object.fromEntries(quizItems
+  .filter(item => item.id !== blankId)
+  .map(item => [item.id, item.open ? 'my own open answer' : item.answer]))
+const blankGraded = await tool3.execute({
+  action: 'gradeModel',
+  date: quizWithUsage.quiz.date,
+  answers: blankAnswers,
+}, {})
+assert.equal(blankGraded.status, 'ok')
+assert.equal(blankGraded.quiz.attempt.feedback[blankId].verdict, 'blank')
+assert.equal(blankGraded.quiz.attempt.feedback[blankId].score, 0)
+assert.equal(blankGraded.quiz.attempt.answers[blankId], undefined)
+assert.equal(blankGraded.quiz.attempt.score, quizItems.length - 1)
+
 // Organization fields survive a Host restart.
 for (const dispose of third.disposers) {
   try {

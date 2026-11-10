@@ -163,6 +163,7 @@ const DEFAULT_PROMPTS = Object.freeze({
     '- Fixed-answer items (cloze, collocation, dictation) accept the intended word or a clearly valid inflection; otherwise mark partial or incorrect.',
     '- Open-ended items (cn2en, en2cn, usage, sentence) accept any natural, grammatically correct answer that conveys the same meaning; never require the reference wording.',
     'For every item, also widen the learner\'s vocabulary from their own answer: offer a more natural expression when useful, and 2-4 related words, collocations, or patterns.',
+    'Only items with a non-empty learner answer are included in this grading request. Never mark an item correct when its answer is missing or empty.',
     'Return JSON: {"items":[{"id":"...","verdict":"correct|partial|incorrect","score":0|0.5|1,',
     '"feedback":"中文点评","better":"a more natural or richer expression, or an empty string",',
     '"related":["2-4 related words, collocations, or patterns"]}],"summary":"中文总评"}',
@@ -643,7 +644,7 @@ function normalizeQuiz(raw) {
       let score = 0
       for (const item of items) {
         const entry = isObject(raw.attempt.feedback[item.id]) ? raw.attempt.feedback[item.id] : {}
-        const verdict = ['correct', 'partial', 'incorrect'].includes(entry.verdict) ? entry.verdict : 'incorrect'
+        const verdict = ['correct', 'partial', 'incorrect', 'blank'].includes(entry.verdict) ? entry.verdict : 'incorrect'
         const value = Math.max(0, Math.min(1, asNumber(
           entry.score,
           verdict === 'correct' ? 1 : verdict === 'partial' ? 0.5 : 0,
@@ -2176,7 +2177,8 @@ class EnglishNotesWall {
     if (!Object.keys(submitted).length) {
       return { status: 'invalid', message: 'Answer at least one question before grading.' }
     }
-    const quizForPrompt = quiz.items.map(item => ({
+    const answeredItems = quiz.items.filter(item => Boolean(submitted[item.id]))
+    const quizForPrompt = answeredItems.map(item => ({
       id: item.id,
       type: item.type,
       open: Boolean(item.open),
@@ -2184,7 +2186,7 @@ class EnglishNotesWall {
       reference: item.answer,
       hint: item.hint,
     }))
-    const noteIds = new Set(quiz.items.map(item => item.noteId).filter(Boolean))
+    const noteIds = new Set(answeredItems.map(item => item.noteId).filter(Boolean))
     const notes = state.notes
       .filter(note => noteIds.size === 0 || noteIds.has(note.id))
       .slice(-20)
@@ -2219,6 +2221,16 @@ class EnglishNotesWall {
     const feedback = {}
     let score = 0
     for (const item of quiz.items) {
+      if (!submitted[item.id]) {
+        feedback[item.id] = {
+          verdict: 'blank',
+          score: 0,
+          feedback: '未作答，按 0 分计。',
+          better: '',
+          related: [],
+        }
+        continue
+      }
       const entry = list.find(candidate => isObject(candidate) && candidate.id === item.id)
       const verdict = entry && ['correct', 'partial', 'incorrect'].includes(entry.verdict)
         ? entry.verdict

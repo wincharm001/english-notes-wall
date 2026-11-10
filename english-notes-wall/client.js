@@ -132,6 +132,7 @@ window.__ModuleLoader__.load({
       'quiz.score': 'Score',
       'quiz.correct': 'Correct',
       'quiz.wrong': 'Review',
+      'quiz.notAnswered': 'Not answered',
       'quiz.yourAnswer': 'Your answer',
       'quiz.answer': 'Answer',
       'quiz.noAnswer': 'No answer',
@@ -407,6 +408,7 @@ window.__ModuleLoader__.load({
       'quiz.score': '得分',
       'quiz.correct': '正确',
       'quiz.wrong': '待复习',
+      'quiz.notAnswered': '未作答',
       'quiz.yourAnswer': '你的答案',
       'quiz.answer': '参考答案',
       'quiz.noAnswer': '未作答',
@@ -1623,6 +1625,7 @@ window.__ModuleLoader__.load({
 
       const verdictOf = item => {
         if (!attempt) return ''
+        if (!String(answers[item.id] ?? '').trim()) return 'blank'
         if (attempt.mode === 'model') {
           return attempt.feedback?.[item.id]?.verdict || 'incorrect'
         }
@@ -1634,6 +1637,7 @@ window.__ModuleLoader__.load({
         if (verdict === 'correct') return t('quiz.correct')
         if (verdict === 'partial') return t('quiz.partial')
         if (verdict === 'review') return t('quiz.openReview')
+        if (verdict === 'blank') return t('quiz.notAnswered')
         return t('quiz.wrong')
       }
 
@@ -1745,8 +1749,8 @@ window.__ModuleLoader__.load({
                   item.hint && !attempt && reveal ? h('p', { className: 'enw-quiz-hint' }, `${t('quiz.hint')}: ${item.hint}`) : null,
                   attempt
                     ? h('div', { className: 'enw-quiz-result' },
-                      h('div', { className: cx('enw-quiz-verdict', `enw-quiz-verdict--${verdict === 'review' ? 'open' : verdict === 'partial' ? 'warn' : verdict === 'correct' ? 'ok' : 'bad'}`) },
-                        h(Icon, { name: verdict === 'correct' ? 'check' : verdict === 'incorrect' ? 'refresh' : 'sparkles', size: 13 }),
+                      h('div', { className: cx('enw-quiz-verdict', `enw-quiz-verdict--${verdict === 'review' ? 'open' : verdict === 'blank' ? 'blank' : verdict === 'partial' ? 'warn' : verdict === 'correct' ? 'ok' : 'bad'}`) },
+                        h(Icon, { name: verdict === 'correct' ? 'check' : verdict === 'incorrect' ? 'refresh' : verdict === 'blank' ? 'close' : 'sparkles', size: 13 }),
                         h('span', null, verdictLabel(verdict))),
                       h('p', { className: 'enw-quiz-your' },
                         h('span', { className: 'enw-quiz-label' }, t('quiz.yourAnswer')),
@@ -3693,6 +3697,7 @@ window.__ModuleLoader__.load({
       .enw-quiz-verdict--ok { color: var(--dsw-alias-state-success-primary); }
       .enw-quiz-verdict--bad { color: var(--dsw-alias-state-error-primary); }
       .enw-quiz-verdict--warn { color: var(--dsw-alias-state-warn-primary); }
+      .enw-quiz-verdict--blank { color: var(--dsw-alias-label-secondary); }
       .enw-quiz-verdict--open { color: var(--dsw-alias-label-secondary); }
       .enw-quiz-feedback, .enw-quiz-better { margin: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
       .enw-quiz-feedback span:last-child, .enw-quiz-better span:last-child { color: var(--dsw-alias-label-primary); }

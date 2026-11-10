@@ -140,6 +140,25 @@ tree = renderTree(exports.__QuizModal({ ...props, open: true, error: 'generation
 assert.equal(collect(tree, 'enw-modal-error').length, 1)
 assert.match(flatten(tree), /generation failed/)
 
+const blankQuiz = {
+  ...quiz,
+  attempt: {
+    mode: 'model',
+    answers: {},
+    feedback: {
+      q1: { verdict: 'blank', score: 0, feedback: '未作答，按 0 分计。', better: '', related: [] },
+    },
+    score: 0,
+    total: 1,
+    summary: '',
+  },
+}
+slots = []
+cursor = 0
+tree = renderTree(exports.__QuizModal({ ...props, quiz: blankQuiz, open: true, onClose: () => {} }))
+assert.match(flatten(tree), /quiz\.notAnswered/, 'an unanswered model-graded item is labelled as blank')
+assert.equal(collect(tree, 'enw-quiz-verdict--blank').length, 1)
+
 assert.match(source, /\.enw-modal-backdrop \{ position: fixed;/)
 assert.match(source, /\.enw-modal-backdrop--closed \{ display: none; \}/)
 
