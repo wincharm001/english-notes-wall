@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.15.0 — 2026-11-10
+
+- Added previous/next arrows on the left and right of the full-note dialog, so any note can be browsed without closing and reopening the dialog.
+- Navigation follows the visible wall order, including the current category, tag, status, and search filters, as well as pinned-first and organized grouping. It wraps around at both ends.
+- The dialog header shows the note's position (“2 / 18”); Left and Right arrow keys move between notes, and the scroll position resets to the top of each note.
+- On narrow screens the side arrows collapse into a compact previous/next row under the dialog header. All navigation buttons stay inside the dialog's focus trap.
+
 ## 1.14.0 — 2026-11-10
 
 - Added a full-note dialog: the expand-corners button on a note opens its complete content in a modal, independent of the card's collapsed state.
