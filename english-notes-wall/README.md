@@ -6,6 +6,7 @@ A DeepSeek Harness bundle for building an English-learning sticky-note wall.
 
 - **Sticky-note wall** — every note stores its creation time and is shown oldest first, grouped by day. A note holds many entries, one per line; duplicate lines are removed and a Chinese meaning can follow `|` on each line. Every note collapses to a single summary line; one click opens the entries and their study cards together, and the chevron/entry-count badge collapses it again, so the wall stays compact. Each note carries a very light tint of its category color so it reads as a sticky note. Notes can be pinned to a top group, and dragged to set a manual order. The toolbar switches between a list layout and a rectangular grid layout.
 - **Back to top** — once the wall is scrolled past about 320px, a floating “Back to top” button fades in at the bottom-right. It returns the wall to the top smoothly (instantly when reduced motion is requested), fades out near the top, and hides while the quiz or full-note dialog is open. `Home` performs the same jump when focus is not in a text field; on narrow screens the button collapses to a compact icon-only circle.
+- **Daily IELTS essay** — the header “Today's essay” button opens a full-screen reader for one IELTS Academic Task 2 model essay per day. Twelve original band-7.5 essays ship with the plugin; the Host picks one deterministically from the local date and avoids repeating the last two weeks. The reader shows the task question, a think-first outline box, the essay, paragraph-by-paragraph Chinese translations, clickable sentence analyses (translation, structure, grammar, natural chunk), an outline, cohesive devices, six vocabulary cards, and three comprehension questions with explanations. Select any text in the essay to add it directly to the wall as a word, phrase, collocation, pattern, or long-sentence note; the category is inferred and can be changed before saving, and saved items join the existing SRS and daily quiz. With a model configured, “AI essay” regenerates today's essay, validates the JSON, caches it for the day, and records its token usage; the built-in essay remains available when the model fails or is not configured.
 - **Full-note dialog** — the expand-corners button on every note opens a focused dialog with the complete note, regardless of the card's collapsed state: all entries and translations, every expansion (meaning, long-sentence analysis, examples, word forms, collocations, synonyms, tips, related), tags, and each entry's due or next review date. Entries are read aloud from the dialog, tags filter the wall, and Escape, the backdrop, or the close button dismiss it. The dialog and its backdrop take the note's category color, side arrows move to the previous or next note in the current wall order (wrapping at both ends), with a position counter, Left/Right keyboard keys, and a compact previous/next row on narrow screens.
 - **Categories and filters** — word, phrase, collocation, sentence pattern, long-sentence analysis, and other, with category filters, counts, tags, search, study-status filters (due for review, not expanded, scheduled), and click-to-filter tags. A note filed as long-sentence analysis is a sentence the learner wants broken down, not a vocabulary example. The category sets the note's edge, tint, and label color: word green, phrase teal, collocation orange, sentence pattern blue, long-sentence analysis violet, and other gray.
 - **Collapsible surfaces** — the new-note form collapses to its title row; the right sidebar hides and returns from the page header; the toolbar closes every expanded study card at once. All three choices are remembered. The light theme adds a brand accent, stronger card borders, and a clearer title hierarchy so the wall keeps a focus.
@@ -29,6 +30,8 @@ A DeepSeek Harness bundle for building an English-learning sticky-note wall.
 `%DSH_HOME%/english-notes-wall/store.json` (normally `C:\Users\<you>\.dsh\english-notes-wall\store.json`).
 Writes are atomic (temp file + rename); a corrupt file is backed up beside the original.
 Automatic daily snapshots and manual backups live in `%DSH_HOME%/english-notes-wall/backups/`.
+The twelve built-in essays live in the bundle at `essays/ielts/`; the selected day, AI-generated
+essay text, and reading progress are stored under `essays` in `store.json` and kept in backups.
 
 ## Host service
 
@@ -36,8 +39,8 @@ The page talks to the Host through the authenticated unary RPC on the shared cli
 `connection.rpc.call('/api', 'englishNotes/<method>', { args })`. The Host registers the
 `englishNotes` service with the methods used in `index.js`: `snapshot`, `addNote`, `updateNote`,
 `deleteNote`, `restoreNote`, `reorderNotes`, `expandNote`, `cancelExpansion`, `generateQuiz`,
-`gradeQuiz`, `gradeWithModel`, `saveSettings`, `llmCatalog`, `exportData`, `importData`, and
-`backupNow`. The page does not depend on the client Typert `$mount` path, so it still works
+`gradeQuiz`, `gradeWithModel`, `essayToday`, `essayGenerate`, `essayProgress`, `saveSettings`,
+`llmCatalog`, `exportData`, `importData`, and `backupNow`. The page does not depend on the client Typert `$mount` path, so it still works
 when that bridge is unavailable.
 
 ## Settings
@@ -46,8 +49,8 @@ The settings card controls the daily publication toggle, the local publication t
 of questions, and the expansion model: provider, model, and thinking effort. It also edits the
 prompt templates for expansion, quiz generation, model grading, and the reserved organise action,
 and hosts the JSON/CSV/Anki export, JSON import, and backup controls. The token usage card reads the
-provider usage recorded for every model call — expansion, quiz generation, model grading, and any
-later organise action — and labels the last call's purpose.
+provider usage recorded for every model call — expansion, quiz generation, model grading, essay
+generation, and any organise action — and labels the last call's purpose.
 
 ## Development
 
@@ -58,6 +61,7 @@ node ../test-host.mjs       # host service, SRS, expansion chunks, export/import
 node ../test-note-card.mjs  # collapsed notes, practice mode, read-aloud, pin/tag controls
 node ../test-back-to-top.mjs # floating back-to-top control and reduced-motion scrolling
 node ../test-note-detail.mjs # full-content dialog and its read-only rendering
+node ../test-essay-reader.mjs # daily IELTS reader, annotations, vocabulary, and selection helpers
 node ../test-note-nav.mjs    # previous/next navigation between notes inside the dialog
 node ../test-quiz-modal.mjs # quiz dialog open/close state and preserved draft answers
 node ../check-locale.mjs

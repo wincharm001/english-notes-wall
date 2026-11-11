@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.17.0 — 2026-11-11
+
+- Added a daily IELTS Academic Task 2 essay reader, opened from a new header button with an unread dot.
+- Bundled twelve original band-7.5 model essays with task questions, four-paragraph essays, paragraph translations, sentence-level analysis, outlines, cohesive devices, six vocabulary items, and three comprehension questions each. The Host selects one per local day, keeps the choice stable all day, avoids the previous two weeks, and stores reading progress.
+- The full-screen reader supports showing or hiding Chinese, clickable sentence analyses, vocabulary cards, comprehension feedback, and an optional think-first outline. Any selected text can be saved directly to the wall as a word, phrase, collocation, pattern, or long-sentence note; the category is inferred and editable, and saved notes join the existing SRS.
+- With a model configured, “AI essay” generates and validates a replacement essay for the day, caches it, resets that day's reading progress, records token usage under `essay`, and leaves the built-in essay untouched when generation fails.
+- Essay selections, progress, and generated text are included in the JSON export and merged on import. The token usage card now has an essay purpose.
+
 ## 1.16.0 — 2026-11-11
 
 - Added a floating “Back to top” button to the wall. It appears at the bottom-right after the page is scrolled past about 320px, fades out near the top, and hides while a dialog is open.
