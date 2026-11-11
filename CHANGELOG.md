@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.0 — 2026-11-11
+
+- Added a floating “Back to top” button to the wall. It appears at the bottom-right after the page is scrolled past about 320px, fades out near the top, and hides while a dialog is open.
+- Clicking it scrolls the wall back to the top smoothly; the jump is instant when the system asks for reduced motion. The `Home` key does the same when focus is not in a text field.
+- On narrow screens the button collapses to a compact icon-only circle.
+
 ## 1.15.1 — 2026-11-11
 
 - The full-note dialog now picks up the note's category color: the page backdrop and the dialog surface are tinted with that category's accent, the dialog gets a matching top border and header rule, and the category chip inside the dialog is colored as well.
