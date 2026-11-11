@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-urbanisation-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Urbanisation",
+  "title": "Relieving Pressure on Crowded Cities",
+  "prompt": "In many countries, cities are becoming increasingly crowded, and some people think governments should encourage residents to move to regional areas. To what extent do you agree or disagree?",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 303,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "作者基本支持鼓励居民迁往地区城镇，但强调必须有就业和服务支撑。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "人口外迁可缓解城市住房压力，并为地区城镇带来发展动力。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "若缺乏就业和公共服务，迁移会造成孤立与资源紧张，因此应先投资。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "自愿迁移值得鼓励，但只有地区真正宜居时政策才会成功。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "As housing costs and congestion intensify in major cities, some governments are considering ways to persuade residents to settle in regional areas. I largely agree that this strategy is worthwhile, but only if it is supported by jobs, services and infrastructure rather than imposed as a simple population target.",
+      "zh": "随着大城市住房成本和拥堵状况加剧，一些政府正在考虑如何说服居民到地区性城镇定居。我基本赞同这一策略值得推行，但前提是它有就业、服务和基础设施作支撑，而不是被当作简单的人口指标强行落实。"
+    },
+    {
+      "role": "Body 1",
+      "en": "To begin with, encouraging people to move to regional towns can relieve pressure on overcrowded urban housing markets. When demand in a capital city outpaces supply, rents rise and low-income households are pushed towards insecure or inadequate accommodation. Regional relocation can offer these households more space at a lower cost while also bringing customers, workers and tax revenue to areas that have lost population. A family that can work remotely, for instance, might afford a house with a garden in a smaller town and contribute to the local economy. Over time, such migration can support schools, transport links and community facilities that would otherwise decline.",
+      "zh": "首先，鼓励人们迁往地区性城镇可以缓解过度拥挤的城市住房市场压力。当首都的住房需求超过供给时，租金上涨，低收入家庭被推向不稳定或不适宜的住所。地区性迁移能为这些家庭提供更便宜、更宽敞的住房，同时为人口流失的地区带来顾客、劳动力和税收。例如，一个可以远程办公的家庭或许能在小城镇买得起带花园的房子，并为当地经济作出贡献。假以时日，这种迁移还能支撑原本会衰落的学校、交通线路和社区设施。"
+    },
+    {
+      "role": "Body 2",
+      "en": "However, relocation policies fail when they treat regional areas merely as destinations rather than communities with their own needs. If newcomers arrive without reliable employment, public transport or healthcare, they may face isolation and financial strain, while existing residents may resent the additional demand on limited services. A new housing estate built far from workplaces, for example, can become a dormitory with few local amenities and long, expensive commutes. Governments should therefore attract employers and invest in regional hospitals, broadband and transport before asking people to move. Incentives such as relocation grants or tax benefits are more effective, and fairer, than forcing families to leave the capital.",
+      "zh": "然而，如果迁移政策只把地区视为目的地，而不是有其自身需求的社区，就会失败。如果新迁入者没有稳定的就业、公共交通或医疗，他们可能面临孤立和经济压力，而原有居民也可能因有限服务承受额外需求而心生不满。例如，在远离工作地点的地方新建的住宅区，可能变成一个缺乏本地便利设施、通勤漫长而昂贵的“睡城”。因此，政府应先吸引雇主，并投资于地区医院、宽带和交通，再请人们搬迁。搬迁补助或税收优惠等激励措施，比强迫家庭离开首都更有效，也更公平。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, I support encouraging voluntary movement away from crowded cities because it can ease housing pressure and revitalise regional communities. Nevertheless, such a policy will only succeed if jobs and essential services are in place to make those areas genuinely liveable.",
+      "zh": "总之，我支持鼓励人们自愿离开拥挤的城市，因为这能缓解住房压力并振兴地区社区。然而，只有当就业和基本服务到位、使这些地区真正宜居时，这样的政策才会成功。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "I largely agree that this strategy is worthwhile, but only if it is supported by jobs, services and infrastructure rather than imposed as a simple population target.",
+      "zh": "我基本赞同这一策略值得推行，但前提是它有就业、服务和基础设施作支撑，而不是被当作简单的人口指标强行落实。",
+      "structure": "主句为 I largely agree that...；but only if... 引导条件；rather than 连接被动结构，形成对比。",
+      "grammar": "agree that 后接宾语从句；only if 强调必要条件；imposed 为过去分词，与 supported 并列。",
+      "chunk": "imposed as a simple population target（被当作简单的人口指标强行落实）"
+    },
+    {
+      "sentence": "A family that can work remotely, for instance, might afford a house with a garden in a smaller town and contribute to the local economy.",
+      "zh": "例如，一个可以远程办公的家庭或许能在小城镇买得起带花园的房子，并为当地经济作出贡献。",
+      "structure": "主句为 A family might afford... and contribute...；that... 为定语从句修饰 family；for instance 作插入语。",
+      "grammar": "can work remotely 表示能力；might 表示可能性；contribute to 表示“对……作出贡献”。",
+      "chunk": "work remotely（远程办公）"
+    },
+    {
+      "sentence": "A new housing estate built far from workplaces, for example, can become a dormitory with few local amenities and long, expensive commutes.",
+      "zh": "例如，在远离工作地点的地方新建的住宅区，可能变成一个缺乏本地便利设施、通勤漫长而昂贵的“睡城”。",
+      "structure": "主句为 A new housing estate can become a dormitory...；built far... 为过去分词短语后置定语；for example 作插入语。",
+      "grammar": "built 的逻辑主语是 estate，构成被动关系；with few... 介词短语补充说明 dormitory 的特征。",
+      "chunk": "long, expensive commutes（漫长而昂贵的通勤）"
+    },
+    {
+      "sentence": "Nevertheless, such a policy will only succeed if jobs and essential services are in place to make those areas genuinely liveable.",
+      "zh": "然而，只有当就业和基本服务到位、使这些地区真正宜居时，这样的政策才会成功。",
+      "structure": "主句为 such a policy will only succeed；if 引导条件状语从句；to make... 为不定式作目的状语。",
+      "grammar": "only...if... 强调必要条件；be in place 表示“到位、准备就绪”；make + 宾语 + 形容词 构成复合宾语。",
+      "chunk": "essential services are in place（基本服务到位）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "congestion",
+      "phonetic": "/kənˈdʒestʃən/",
+      "meaning": "拥堵",
+      "collocation": "traffic congestion",
+      "example": "Better public transport could reduce traffic congestion."
+    },
+    {
+      "term": "outpaces",
+      "phonetic": "/ˌaʊtˈpeɪsɪz/",
+      "meaning": "超过；快于",
+      "collocation": "demand outpaces supply",
+      "example": "Housing demand continues to outpace construction."
+    },
+    {
+      "term": "insecure",
+      "phonetic": "/ˌɪnsɪˈkjʊə(r)/",
+      "meaning": "不稳定的；无保障的",
+      "collocation": "insecure housing",
+      "example": "Many workers remain in insecure accommodation."
+    },
+    {
+      "term": "amenities",
+      "phonetic": "/əˈmiːnətiz/",
+      "meaning": "便利设施",
+      "collocation": "local amenities",
+      "example": "The neighbourhood lacks basic amenities such as shops and clinics."
+    },
+    {
+      "term": "incentives",
+      "phonetic": "/ɪnˈsentɪvz/",
+      "meaning": "激励措施",
+      "collocation": "financial incentives",
+      "example": "The government offered financial incentives to move to rural areas."
+    },
+    {
+      "term": "liveable",
+      "phonetic": "/ˈlɪvəbl/",
+      "meaning": "宜居的",
+      "collocation": "genuinely liveable",
+      "example": "A city is liveable only when housing and transport are affordable."
+    }
+  ],
+  "cohesive": [
+    "To begin with",
+    "for instance",
+    "However",
+    "for example",
+    "therefore",
+    "In conclusion"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's view on encouraging people to move to regional areas?",
+      "options": [
+        "It should be compulsory for all city residents.",
+        "It is worthwhile if jobs and essential services are provided.",
+        "It cannot reduce pressure on urban housing.",
+        "It mainly benefits wealthy commuters."
+      ],
+      "answer": 1,
+      "explanation": "作者开头即表示“基本赞同”，但反复强调必须以就业、服务和基础设施为前提，因此该选项最全面。"
+    },
+    {
+      "prompt": "What problem does the writer associate with a new housing estate built far from workplaces?",
+      "options": [
+        "It usually attracts too many employers to the area.",
+        "It reduces demand for public transport.",
+        "It may offer few local amenities and require long commutes.",
+        "It makes regional hospitals unnecessary."
+      ],
+      "answer": 2,
+      "explanation": "文中说这样的住宅区可能成为“睡城”，本地便利设施少，通勤漫长且昂贵，这正是该选项的内容。"
+    },
+    {
+      "prompt": "In the first body paragraph, \"outpaces\" is closest in meaning to",
+      "options": [
+        "matches",
+        "reduces",
+        "measures",
+        "exceeds"
+      ],
+      "answer": 3,
+      "explanation": "outpace 意为“超过、快于”，此处指住房需求超过供给，因此 exceeds 最接近。"
+    }
+  ]
+}

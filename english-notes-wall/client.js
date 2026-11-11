@@ -18,7 +18,7 @@ window.__ModuleLoader__.load({
     const PANEL_KEY = 'english-notes'
     const CATEGORIES = ['word', 'phrase', 'collocation', 'pattern', 'sentence', 'other']
     const PROMPT_TASKS = ['expansion', 'quiz', 'grading', 'organize']
-    const USAGE_PURPOSE_KEYS = ['expansion', 'quiz', 'grading', 'organize']
+    const USAGE_PURPOSE_KEYS = ['expansion', 'quiz', 'grading', 'organize', 'essay']
     const PROMPT_PLACEHOLDERS = {
       expansion: ['{{note}}'],
       quiz: ['{{count}}', '{{notes}}'],
@@ -102,6 +102,43 @@ window.__ModuleLoader__.load({
       'note.prev': 'Previous note',
       'note.next': 'Next note',
       'note.nextReview': 'Next review',
+      'essay.open': 'Today\'s essay',
+      'essay.title': 'Today\'s IELTS essay',
+      'essay.back': 'Back to wall',
+      'essay.prompt': 'Task question',
+      'essay.think': 'Think first',
+      'essay.outlinePlaceholder': 'Jot down two main ideas before you read…',
+      'essay.showZh': 'Show Chinese',
+      'essay.hideZh': 'Hide Chinese',
+      'essay.structure': 'Structure',
+      'essay.vocab': 'Vocabulary',
+      'essay.questions': 'Comprehension',
+      'essay.annotation': 'Sentence analysis',
+      'essay.annotationHint': 'Click a sentence to see its translation, structure, and natural chunk.',
+      'essay.addToNotes': 'Add to notes',
+      'essay.added': 'Added to your wall.',
+      'essay.addFailed': 'Could not add this text.',
+      'essay.selected': 'Selected',
+      'essay.aiGenerate': 'AI essay',
+      'essay.aiHint': 'Replace today\'s essay with a new one from the model',
+      'essay.generating': 'Generating…',
+      'essay.generated': 'A new AI essay is ready.',
+      'essay.generateFailed': 'The model did not return a usable essay; the built-in essay is unchanged.',
+      'essay.modelUnavailable': 'Configure a model to generate a new essay.',
+      'essay.loading': 'Loading today\'s essay…',
+      'essay.error': 'Could not load the essay.',
+      'essay.empty': 'No essay is available.',
+      'essay.words': 'words',
+      'essay.minutes': 'min',
+      'essay.band': 'Target band',
+      'essay.complete': 'Mark as read',
+      'essay.completed': 'Completed',
+      'essay.correct': 'Correct',
+      'essay.incorrect': 'Not quite',
+      'essay.saveSentence': 'Save this sentence',
+      'essay.saveWord': 'Save this word',
+      'essay.outlineTitle': 'Model outline',
+      'essay.cohesive': 'Cohesive devices',
       'expansion.meaning': 'Meaning',
       'expansion.phonetic': 'Pronunciation',
       'expansion.wordForms': 'Word forms and look-alikes',
@@ -204,6 +241,7 @@ window.__ModuleLoader__.load({
       'usage.purpose.quiz': 'Quiz',
       'usage.purpose.grading': 'Grading',
       'usage.purpose.organize': 'Organize',
+      'usage.purpose.essay': 'Essay',
       'usage.cost': 'Estimated cost',
       'usage.costHint': 'Set token prices in settings to estimate cost.',
       'usage.breakdown': 'By purpose',
@@ -383,6 +421,43 @@ window.__ModuleLoader__.load({
       'note.prev': '上一个便利贴',
       'note.next': '下一个便利贴',
       'note.nextReview': '下次复习',
+      'essay.open': '今日范文',
+      'essay.title': '今日雅思范文',
+      'essay.back': '返回墙面',
+      'essay.prompt': '题目',
+      'essay.think': '先想一想',
+      'essay.outlinePlaceholder': '读之前先写两个主要论点…',
+      'essay.showZh': '显示中文',
+      'essay.hideZh': '隐藏中文',
+      'essay.structure': '文章结构',
+      'essay.vocab': '重点词汇',
+      'essay.questions': '理解题',
+      'essay.annotation': '句子解析',
+      'essay.annotationHint': '点击句子查看翻译、结构和地道表达。',
+      'essay.addToNotes': '添加到便利贴',
+      'essay.added': '已添加到便利贴。',
+      'essay.addFailed': '添加失败。',
+      'essay.selected': '已选',
+      'essay.aiGenerate': 'AI 生成',
+      'essay.aiHint': '用模型重新生成一篇今日范文',
+      'essay.generating': '生成中…',
+      'essay.generated': '新的 AI 范文已生成。',
+      'essay.generateFailed': '模型未返回可用范文，已保留内置范文。',
+      'essay.modelUnavailable': '配置模型后可生成新范文。',
+      'essay.loading': '正在加载今日范文…',
+      'essay.error': '范文加载失败。',
+      'essay.empty': '暂无可用范文。',
+      'essay.words': '词',
+      'essay.minutes': '分钟',
+      'essay.band': '目标分',
+      'essay.complete': '完成今日阅读',
+      'essay.completed': '已完成',
+      'essay.correct': '正确',
+      'essay.incorrect': '不对',
+      'essay.saveSentence': '保存这个句子',
+      'essay.saveWord': '保存这个单词',
+      'essay.outlineTitle': '范文提纲',
+      'essay.cohesive': '衔接表达',
       'expansion.meaning': '释义',
       'expansion.phonetic': '发音',
       'expansion.wordForms': '词形与形近词',
@@ -485,6 +560,7 @@ window.__ModuleLoader__.load({
       'usage.purpose.quiz': '出题',
       'usage.purpose.grading': '改题',
       'usage.purpose.organize': '整理',
+      'usage.purpose.essay': '范文',
       'usage.cost': '预估费用',
       'usage.costHint': '在设置中填写 Token 单价即可估算费用。',
       'usage.breakdown': '按用途',
@@ -647,6 +723,34 @@ window.__ModuleLoader__.load({
       } catch {
         node.scrollTop = 0
       }
+    }
+
+    function essaySentences(text) {
+      const value = String(text ?? '')
+      const matches = value.match(/[^.!?]+[.!?]+["'）)\]]?|[^.!?]+$/g)
+      return (matches ?? [value]).map(part => part.trim()).filter(Boolean)
+    }
+
+    function essayNormalize(text) {
+      return String(text ?? '').replace(/\s+/g, ' ').trim()
+    }
+
+    function essayInferCategory(text) {
+      const words = essayNormalize(text).split(/\s+/).filter(Boolean).length
+      if (/[.!?]["'）)\]]?$/.test(essayNormalize(text)) || words >= 9) return 'sentence'
+      if (words <= 1) return 'word'
+      if (words <= 3) return 'phrase'
+      return 'collocation'
+    }
+
+    function essayLookup(essay, text) {
+      const needle = essayNormalize(text)
+      const lower = needle.toLowerCase()
+      const annotation = asArray(essay?.annotations).find(item => essayNormalize(item.sentence) === needle)
+      if (annotation) return { translation: annotation.zh || '', annotation }
+      const vocab = asArray(essay?.vocab).find(item => String(item.term ?? '').toLowerCase() === lower)
+      if (vocab) return { translation: vocab.meaning || '', vocab }
+      return {}
     }
 
     function dayKey(ms) {
@@ -2668,6 +2772,351 @@ window.__ModuleLoader__.load({
       h('span', { className: 'enw-top-label' }, t('action.backToTop')))
     }
 
+    // -- daily essay reader -------------------------------------------------
+
+    function EssayReader({
+      data,
+      phase,
+      error,
+      busy,
+      modelAvailable,
+      t,
+      localeId,
+      onClose,
+      onRetry,
+      onGenerate,
+      onSaveProgress,
+      onAdd,
+    }) {
+      const readerRef = useRef(null)
+      const backRef = useRef(null)
+      useModalBehavior(true, onClose, readerRef, backRef)
+      const essay = data?.essay ?? null
+      const progress = data?.progress ?? null
+      const [showZh, setShowZh] = useState(false)
+      const [answers, setAnswers] = useState(() => ({ ...(progress?.answers ?? {}) }))
+      const [outline, setOutline] = useState(progress?.outline ?? '')
+      const [activeAnnotation, setActiveAnnotation] = useState(null)
+      const [selection, setSelection] = useState(null)
+      const [savedCounts, setSavedCounts] = useState({
+        words: progress?.savedWords ?? 0,
+        sentences: progress?.savedSentences ?? 0,
+      })
+      const [notice, setNotice] = useState('')
+      const [saving, setSaving] = useState(false)
+      const bodyRef = useRef(null)
+      const touchTimer = useRef(null)
+
+      useEffect(() => {
+        setAnswers({ ...(progress?.answers ?? {}) })
+        setOutline(progress?.outline ?? '')
+        setActiveAnnotation(null)
+        setSelection(null)
+        setSavedCounts({ words: progress?.savedWords ?? 0, sentences: progress?.savedSentences ?? 0 })
+      }, [essay?.id, data?.createdAt])
+
+      useEffect(() => {
+        if (!notice) return undefined
+        const timer = setTimeout(() => setNotice(''), 2600)
+        return () => clearTimeout(timer)
+      }, [notice])
+
+      useEffect(() => () => {
+        if (touchTimer.current) clearTimeout(touchTimer.current)
+      }, [])
+
+      const captureSelection = () => {
+        if (!essay || typeof window === 'undefined') return
+        const current = window.getSelection?.()
+        const text = essayNormalize(current?.toString() ?? '')
+        if (!text || text.length < 2 || text.length > 400) return
+        const anchor = current.anchorNode
+        const element = anchor?.nodeType === 1 ? anchor : anchor?.parentElement
+        if (!bodyRef.current?.contains(element)) return
+        const found = essayLookup(essay, text)
+        setSelection({
+          text,
+          category: essayInferCategory(text),
+          translation: found.translation || '',
+        })
+      }
+
+      const handleTouchEnd = () => {
+        if (touchTimer.current) clearTimeout(touchTimer.current)
+        touchTimer.current = setTimeout(captureSelection, 20)
+      }
+
+      const annotationFor = sentence => essayLookup(essay, sentence).annotation ?? null
+
+      const queueSelection = (text, category, translation) => {
+        setSelection({ text, category, translation: translation || '' })
+      }
+
+      const addSelection = async () => {
+        if (!selection || saving) return
+        setSaving(true)
+        setNotice('')
+        try {
+          const result = await onAdd(selection)
+          if (result?.status === 'ok') {
+            const next = {
+              words: savedCounts.words + (selection.category === 'sentence' ? 0 : 1),
+              sentences: savedCounts.sentences + (selection.category === 'sentence' ? 1 : 0),
+            }
+            setSavedCounts(next)
+            setSelection(null)
+            setNotice(t('essay.added'))
+            try {
+              window.getSelection?.()?.removeAllRanges?.()
+            } catch {
+              /* selection cleanup is best effort */
+            }
+            void onSaveProgress({ savedWords: next.words, savedSentences: next.sentences })
+          } else {
+            setNotice(result?.message || t('essay.addFailed'))
+          }
+        } catch (error) {
+          setNotice(errorText(error) || t('essay.addFailed'))
+        } finally {
+          setSaving(false)
+        }
+      }
+
+      const chooseAnswer = (questionIndex, optionIndex) => {
+        if (!essay) return
+        const next = { ...answers, [questionIndex]: optionIndex }
+        setAnswers(next)
+        void onSaveProgress({ answers: next })
+      }
+
+      const complete = () => {
+        if (!essay) return
+        void onSaveProgress({ completed: true })
+        setNotice(t('essay.completed'))
+      }
+
+      let dateLabel = data?.date ?? ''
+      if (data?.date) {
+        try {
+          dateLabel = new Intl.DateTimeFormat(localeId, { month: 'short', day: 'numeric' }).format(new Date(`${data.date}T12:00:00`))
+        } catch {
+          dateLabel = data.date
+        }
+      }
+      const totalQuestions = asArray(essay?.questions).length
+      const answered = Object.keys(answers).filter(key => Number(key) < totalQuestions).length
+      const completed = Boolean(progress?.completedAt)
+      const loading = phase === 'loading'
+      const unavailable = !essay && !loading
+
+      return h('div', {
+        className: 'enw-essay-view',
+        ref: readerRef,
+        role: 'dialog',
+        'aria-modal': 'true',
+        'aria-label': t('essay.title'),
+      },
+      h('header', { className: 'enw-essay-bar' },
+        h('button', {
+          type: 'button',
+          ref: backRef,
+          className: 'enw-essay-back',
+          onClick: onClose,
+          title: t('essay.back'),
+          'aria-label': t('essay.back'),
+        }, h(Icon, { name: 'arrowLeft', size: 16 }), h('span', null, t('essay.back'))),
+        h('div', { className: 'enw-essay-bar-title' },
+          h('span', { className: 'enw-essay-kicker' }, t('essay.title')),
+          dateLabel ? h('span', { className: 'enw-essay-date' }, dateLabel) : null,
+          essay ? h('span', { className: 'enw-cat enw-essay-cat' }, essay.topic) : null),
+        h('div', { className: 'enw-essay-actions' },
+          essay
+            ? h(Btn, {
+              variant: 'quiet',
+              onClick: () => setShowZh(value => !value),
+              title: t(showZh ? 'essay.hideZh' : 'essay.showZh'),
+              label: t(showZh ? 'essay.hideZh' : 'essay.showZh'),
+              className: showZh ? 'enw-btn--on' : '',
+            }, h(Icon, { name: showZh ? 'eyeOff' : 'eye', size: 15 }), h('span', { className: 'enw-btn-text' }, t(showZh ? 'essay.hideZh' : 'essay.showZh')))
+            : null,
+          essay && modelAvailable
+            ? h(Btn, {
+              variant: 'quiet',
+              onClick: onGenerate,
+              title: t('essay.aiHint'),
+              label: t('essay.aiHint'),
+              disabled: busy === 'generate',
+            }, busy === 'generate'
+              ? h('span', { className: 'enw-spinner' })
+              : h(Icon, { name: 'sparkles', size: 15 }),
+            h('span', { className: 'enw-btn-text' }, t(busy === 'generate' ? 'essay.generating' : 'essay.aiGenerate')))
+            : null,
+          h('button', {
+            type: 'button',
+            className: 'enw-icon-btn enw-essay-close',
+            onClick: onClose,
+            title: t('action.close'),
+            'aria-label': t('action.close'),
+          }, h(Icon, { name: 'close', size: 16 })))),
+      h('div', { className: 'enw-essay-scroll' },
+        loading
+          ? h('div', { className: 'enw-essay-state' },
+            h('span', { className: 'enw-spinner' }),
+            h('p', null, t('essay.loading')))
+          : unavailable
+            ? h('div', { className: 'enw-essay-state' },
+              h(Icon, { name: 'book', size: 30 }),
+              h('p', null, error || t('essay.empty')),
+              h(Btn, { variant: 'primary', onClick: onRetry }, t('common.retry')))
+            : h('div', { className: 'enw-essay-layout' },
+              h('main', { className: 'enw-essay-main' },
+                error ? h('div', { className: 'enw-essay-banner' }, error) : null,
+                h('section', { className: 'enw-essay-hero' },
+                  h('p', { className: 'enw-essay-meta' },
+                    `${essay.wordCount} ${t('essay.words')} · ${essay.minutes} ${t('essay.minutes')} · ${t('essay.band')} ${essay.targetBand}`),
+                  h('h1', { className: 'enw-essay-title' }, essay.title),
+                  h('div', { className: 'enw-essay-prompt-card' },
+                    h('span', { className: 'enw-essay-label' }, t('essay.prompt')),
+                    h('p', { className: 'enw-essay-prompt' }, essay.prompt)),
+                  h('div', { className: 'enw-essay-think' },
+                    h('label', { className: 'enw-essay-label', htmlFor: 'enw-essay-outline' }, t('essay.think')),
+                    h('textarea', {
+                      id: 'enw-essay-outline',
+                      className: 'enw-textarea enw-essay-outline-input',
+                      rows: 3,
+                      value: outline,
+                      placeholder: t('essay.outlinePlaceholder'),
+                      onChange: event => setOutline(event.target.value),
+                      onBlur: () => onSaveProgress({ outline }),
+                    }))),
+                h('div', {
+                  className: 'enw-essay-body',
+                  ref: bodyRef,
+                  onMouseUp: captureSelection,
+                  onTouchEnd: handleTouchEnd,
+                },
+                essay.paragraphs.map((paragraph, index) => h('section', { key: `${index}-${paragraph.role}`, className: 'enw-essay-paragraph' },
+                  h('span', { className: 'enw-essay-role' }, paragraph.role),
+                  h('p', { className: 'enw-essay-text' },
+                    essaySentences(paragraph.en).map((sentence, sentenceIndex) => h('span', {
+                      key: `${sentenceIndex}-${sentence.slice(0, 12)}`,
+                      className: cx('enw-essay-sentence', annotationFor(sentence) && 'enw-essay-sentence--note'),
+                      onClick: annotationFor(sentence) ? () => setActiveAnnotation(annotationFor(sentence)) : undefined,
+                    }, sentence, ' '))),
+                  showZh && paragraph.zh ? h('p', { className: 'enw-essay-zh' }, paragraph.zh) : null))),
+                h('section', { className: 'enw-essay-section' },
+                  h('h2', { className: 'enw-essay-section-title' }, t('essay.structure')),
+                  essay.outline.length
+                    ? h('ol', { className: 'enw-essay-outline' },
+                      essay.outline.map((item, index) => h('li', { key: `${index}-${item.role}` },
+                        h('strong', null, item.role),
+                        h('span', null, item.summary))))
+                    : null,
+                  essay.cohesive.length
+                    ? h('div', { className: 'enw-essay-cohesive' },
+                      h('span', { className: 'enw-essay-label' }, t('essay.cohesive')),
+                      essay.cohesive.map(item => h('span', { key: item, className: 'enw-tag' }, item)))
+                    : null),
+                h('section', { className: 'enw-essay-section' },
+                  h('h2', { className: 'enw-essay-section-title' }, t('essay.vocab')),
+                  h('div', { className: 'enw-essay-vocab-grid' },
+                    essay.vocab.map(item => h('article', { key: item.term, className: 'enw-essay-vocab-card' },
+                      h('div', { className: 'enw-essay-vocab-head' },
+                        h('strong', null, item.term),
+                        item.phonetic ? h('span', null, item.phonetic) : null),
+                      item.meaning ? h('p', { className: 'enw-essay-vocab-line' }, item.meaning) : null,
+                      item.collocation ? h('p', { className: 'enw-essay-vocab-line enw-essay-vocab-collocation' }, item.collocation) : null,
+                      item.example ? h('p', { className: 'enw-essay-vocab-example' }, item.example) : null,
+                      h('button', {
+                        type: 'button',
+                        className: 'enw-link-btn',
+                        onClick: () => queueSelection(item.term, essayInferCategory(item.term), item.meaning),
+                      }, t('essay.saveWord')))))),
+                h('section', { className: 'enw-essay-section' },
+                  h('h2', { className: 'enw-essay-section-title' }, `${t('essay.questions')} · ${answered}/${totalQuestions}`),
+                  essay.questions.map((question, questionIndex) => h('article', { key: questionIndex, className: 'enw-essay-question' },
+                    h('p', { className: 'enw-essay-question-prompt' }, `${questionIndex + 1}. ${question.prompt}`),
+                    h('div', { className: 'enw-essay-options' },
+                      question.options.map((option, optionIndex) => {
+                        const chosen = answers[questionIndex] === optionIndex
+                        const correct = question.answer === optionIndex
+                        const revealed = answers[questionIndex] !== undefined
+                        return h('button', {
+                          key: optionIndex,
+                          type: 'button',
+                          className: cx(
+                            'enw-essay-option',
+                            chosen && 'enw-essay-option--chosen',
+                            revealed && correct && 'enw-essay-option--correct',
+                            revealed && chosen && !correct && 'enw-essay-option--wrong',
+                          ),
+                          onClick: () => chooseAnswer(questionIndex, optionIndex),
+                        }, option)
+                      })),
+                    answers[questionIndex] !== undefined
+                      ? h('p', { className: 'enw-essay-feedback' },
+                        h('strong', null, answers[questionIndex] === question.answer ? t('essay.correct') : t('essay.incorrect')),
+                        question.explanation ? h('span', null, ` · ${question.explanation}`) : null)
+                      : null)))),
+              h('aside', { className: 'enw-essay-rail' },
+                h('div', { className: 'enw-essay-rail-card' },
+                  activeAnnotation
+                    ? h(React.Fragment, null,
+                      h('h3', { className: 'enw-essay-rail-title' }, t('essay.annotation')),
+                      h('p', { className: 'enw-essay-rail-sentence' }, activeAnnotation.sentence),
+                      activeAnnotation.zh ? h('p', { className: 'enw-essay-zh' }, activeAnnotation.zh) : null,
+                      activeAnnotation.structure
+                        ? h('div', { className: 'enw-essay-rail-section' },
+                          h('span', { className: 'enw-essay-label' }, t('essay.structure')),
+                          h('p', null, activeAnnotation.structure))
+                        : null,
+                      activeAnnotation.grammar
+                        ? h('div', { className: 'enw-essay-rail-section' },
+                          h('span', { className: 'enw-essay-label' }, 'Grammar'),
+                          h('p', null, activeAnnotation.grammar))
+                        : null,
+                      activeAnnotation.chunk
+                        ? h('div', { className: 'enw-essay-rail-section' },
+                          h('span', { className: 'enw-essay-label' }, 'Chunk'),
+                          h('p', null, activeAnnotation.chunk))
+                        : null,
+                      h('button', {
+                        type: 'button',
+                        className: 'enw-link-btn',
+                        onClick: () => queueSelection(activeAnnotation.sentence, 'sentence', activeAnnotation.zh),
+                      }, t('essay.saveSentence')))
+                    : h('p', { className: 'enw-essay-rail-hint' }, t('essay.annotationHint')),
+                  h('div', { className: 'enw-essay-rail-progress' },
+                    h('span', null, `${answered}/${totalQuestions}`),
+                    completed
+                      ? h('span', { className: 'enw-pill enw-pill--ok' }, t('essay.completed'))
+                      : h(Btn, { variant: 'primary', onClick: complete }, t('essay.complete')))),
+                h('div', { className: 'enw-essay-rail-card' },
+                  h('h3', { className: 'enw-essay-rail-title' }, t('essay.outlineTitle')),
+                  essay.outline.map((item, index) => h('p', { key: `${index}-${item.role}`, className: 'enw-essay-rail-outline' },
+                    h('strong', null, item.role),
+                    h('span', null, item.summary)))))),
+              ),
+      selection
+        ? h('div', { className: 'enw-essay-selectbar' },
+          h('div', { className: 'enw-essay-select-main' },
+            h('span', { className: 'enw-essay-select-label' }, t('essay.selected')),
+            h('span', { className: 'enw-essay-select-text' }, `“${selection.text.length > 90 ? `${selection.text.slice(0, 90)}…` : selection.text}”`)),
+          h('div', { className: 'enw-essay-select-actions' },
+            h('select', {
+              className: 'enw-select enw-essay-select-cat',
+              value: selection.category,
+              onChange: event => setSelection(current => (current ? { ...current, category: event.target.value } : current)),
+              'aria-label': t('essay.addToNotes'),
+            }, CATEGORIES.map(category => h('option', { key: category, value: category }, t(`category.${category}`)))),
+            h(Btn, { variant: 'primary', onClick: addSelection, disabled: saving },
+              saving ? h('span', { className: 'enw-spinner enw-spinner--light' }) : null,
+              t('essay.addToNotes')),
+            h(Btn, { variant: 'quiet', onClick: () => setSelection(null) }, t('action.cancel'))))
+        : null,
+      notice ? h('div', { className: 'enw-essay-toast', role: 'status' }, notice) : null)
+    }
+
     // -- page ---------------------------------------------------------------
 
     function NotesPage({ t, api, ctx, mountError }) {
@@ -2686,6 +3135,11 @@ window.__ModuleLoader__.load({
       const [settingsOpen, setSettingsOpen] = useState(false)
       const [quizOpen, setQuizOpen] = useState(false)
       const [detailId, setDetailId] = useState('')
+      const [essayOpen, setEssayOpen] = useState(false)
+      const [essayData, setEssayData] = useState(null)
+      const [essayPhase, setEssayPhase] = useState('idle')
+      const [essayError, setEssayError] = useState('')
+      const [essayBusy, setEssayBusy] = useState('')
       const [draft, setDraft] = useState({ text: '', tags: '', category: 'word' })
       const [collapseSignal, setCollapseSignal] = useState(0)
       const [deleted, setDeleted] = useState(null)
@@ -3097,6 +3551,77 @@ window.__ModuleLoader__.load({
         })
       }
 
+      const openEssay = async () => {
+        setEssayOpen(true)
+        setEssayPhase('loading')
+        setEssayError('')
+        setEssayData(null)
+        try {
+          const result = await api.essayToday()
+          if (result?.status === 'ok') {
+            setEssayData(result)
+            setEssayPhase('ready')
+          } else {
+            setEssayError(result?.message || t('essay.empty'))
+            setEssayPhase('error')
+          }
+        } catch (error) {
+          setEssayError(errorText(error) || t('essay.error'))
+          setEssayPhase('error')
+        }
+      }
+
+      const closeEssay = () => {
+        setEssayOpen(false)
+        setEssayError('')
+        setEssayPhase('idle')
+        void refresh()
+      }
+
+      const saveEssayProgress = async patch => {
+        if (!essayData?.date) return
+        try {
+          const result = await api.essayProgress(essayData.date, patch)
+          if (result?.status === 'ok') {
+            setEssayData(current => (current ? { ...current, progress: result.progress } : current))
+          }
+        } catch {
+          /* progress saving is best effort; the reader keeps the local state */
+        }
+      }
+
+      const generateEssay = async () => {
+        if (!essayData?.date || essayBusy) return
+        setEssayBusy('generate')
+        setEssayError('')
+        try {
+          const result = await api.essayGenerate(essayData.date)
+          if (result?.status === 'ok') {
+            setEssayData(result)
+            setEssayPhase('ready')
+          } else {
+            setEssayError(result?.message || t('essay.generateFailed'))
+          }
+        } catch (error) {
+          setEssayError(errorText(error) || t('essay.generateFailed'))
+        } finally {
+          setEssayBusy('')
+        }
+      }
+
+      const addEssaySelection = async selection => {
+        const essay = essayData?.essay
+        const tags = ['雅思范文', essay?.topic].filter(Boolean)
+        const result = await api.addNote({
+          text: selection.text,
+          translation: selection.translation || '',
+          category: selection.category,
+          tags,
+        })
+        if (result?.status === 'ok') void refresh()
+        return result
+      }
+
       const saveSettings = settings => {
         void act('settings', () => api.saveSettings(settings), result => {
           if (result?.status === 'ok') {
@@ -3184,7 +3709,7 @@ window.__ModuleLoader__.load({
       }
 
       useEffect(() => {
-        if (quizOpen || detailId) return undefined
+        if (quizOpen || detailId || essayOpen) return undefined
         const onKey = event => {
           if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
           const target = event.target
@@ -3234,7 +3759,7 @@ window.__ModuleLoader__.load({
         }
         document.addEventListener('keydown', onKey)
         return () => document.removeEventListener('keydown', onKey)
-      }, [groups, quizOpen, detailId])
+      }, [groups, quizOpen, detailId, essayOpen])
 
       useEffect(() => {
         if (!detailId) return
@@ -3298,7 +3823,7 @@ window.__ModuleLoader__.load({
         ? `${t('action.expandingMissing')} ${expandProgress?.done ?? 0}/${expandProgress?.total ?? pendingExpansions.length}`
         : `${t('action.expandMissing')} (${pendingExpansions.length})`
 
-      return h('div', { ref: pageRef, className: cx('enw-page', `enw-scheme-${scheme}`, (quizOpen || detailId) && 'enw-page--modal') },
+      return h('div', { ref: pageRef, className: cx('enw-page', `enw-scheme-${scheme}`, (quizOpen || detailId || essayOpen) && 'enw-page--modal') },
         h('div', { className: 'enw-inner' },
           h('header', { className: 'enw-head' },
             h('div', { className: 'enw-head-main' },
@@ -3306,6 +3831,16 @@ window.__ModuleLoader__.load({
               h('p', { className: 'enw-sub' }, t('panel.subtitle'))),
             h('div', { className: 'enw-head-actions' },
               h('span', { className: 'enw-count' }, `${notes.length}`),
+              h(Btn, {
+                variant: 'quiet',
+                className: essayOpen ? 'enw-btn--on' : '',
+                onClick: () => { void openEssay() },
+                title: t('essay.open'),
+                label: t('essay.open'),
+              },
+              h(Icon, { name: 'book', size: 15 }),
+              h('span', { className: 'enw-btn-text' }, t('essay.open')),
+              snap?.essay && !snap.essay.completed ? h('span', { className: 'enw-dot' }) : null),
               h(Btn, {
                 variant: 'quiet',
                 className: quizOpen ? 'enw-btn--on' : '',
@@ -3648,10 +4183,26 @@ window.__ModuleLoader__.load({
           ),
         ),
         h(BackToTop, {
-          visible: showTop && !quizOpen && !detailId,
+          visible: showTop && !quizOpen && !detailId && !essayOpen,
           onClick: () => scrollToTop(pageRef.current),
           t,
         }),
+        essayOpen
+          ? h(EssayReader, {
+            data: essayData,
+            phase: essayPhase,
+            error: essayError,
+            busy: essayBusy,
+            modelAvailable: model.available,
+            t,
+            localeId,
+            onClose: closeEssay,
+            onRetry: () => { void openEssay() },
+            onGenerate: () => { void generateEssay() },
+            onSaveProgress: patch => { void saveEssayProgress(patch) },
+            onAdd: addEssaySelection,
+          })
+          : null,
       )
     }
 
@@ -3712,6 +4263,86 @@ window.__ModuleLoader__.load({
       .enw-note-foot-btn:hover { border-color: color-mix(in srgb, var(--enw-accent) 55%, var(--dsw-alias-border-l1)); color: var(--enw-accent); }
       .enw-note-foot-btn:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
       .enw-note-foot-pos { font-size: 11.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-essay-view { --enw-accent: var(--dsw-alias-brand-primary); position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; height: 100%; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); }
+      .enw-essay-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 22px; border-bottom: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); flex: none; }
+      .enw-essay-back { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; border: 0; border-radius: 8px; background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; cursor: pointer; }
+      .enw-essay-back:hover { color: var(--dsw-alias-brand-primary); background: var(--dsw-alias-bg-layer-2); }
+      .enw-essay-back:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
+      .enw-essay-bar-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
+      .enw-essay-kicker { font-size: 13px; font-weight: 650; }
+      .enw-essay-date { font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+      .enw-essay-close { flex: none; }
+      .enw-essay-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dsw-alias-label-secondary) 38%, transparent) transparent; }
+      .enw-essay-scroll::-webkit-scrollbar { width: 9px; }
+      .enw-essay-scroll::-webkit-scrollbar-track { background: transparent; }
+      .enw-essay-scroll::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--dsw-alias-label-secondary) 34%, transparent); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+      .enw-essay-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 30px; align-items: start; width: min(1120px, 100%); margin: 0 auto; padding: 28px 28px 110px; box-sizing: border-box; }
+      .enw-essay-main { min-width: 0; }
+      .enw-essay-meta { margin: 0 0 6px; font-size: 12px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+      .enw-essay-title { margin: 0 0 16px; font-size: 27px; line-height: 1.28; letter-spacing: -0.015em; }
+      .enw-essay-prompt-card { padding: 12px 16px; border-left: 3px solid var(--dsw-alias-brand-primary); border-radius: 9px; background: color-mix(in srgb, var(--dsw-alias-brand-primary) 7%, var(--dsw-alias-bg-layer-1)); }
+      .enw-essay-prompt { margin: 6px 0 0; font-size: 13.5px; line-height: 1.7; }
+      .enw-essay-label { font-size: 10.5px; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-think { margin-top: 14px; }
+      .enw-essay-think .enw-essay-label { display: block; margin-bottom: 5px; }
+      .enw-essay-outline-input { min-height: 68px; font-size: 12.5px; }
+      .enw-essay-body { margin-top: 24px; max-width: 72ch; }
+      .enw-essay-paragraph { margin: 0 0 24px; }
+      .enw-essay-role { display: block; margin-bottom: 3px; font-size: 10px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-text { margin: 0; font-size: 15.5px; line-height: 1.9; }
+      .enw-essay-sentence { border-radius: 3px; transition: background-color 120ms ease; }
+      .enw-essay-sentence--note { cursor: pointer; border-bottom: 1px dashed color-mix(in srgb, var(--dsw-alias-brand-primary) 48%, transparent); }
+      .enw-essay-sentence--note:hover { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, transparent); }
+      .enw-essay-zh { margin: 7px 0 0; padding-left: 10px; border-left: 2px solid var(--dsw-alias-border-l2); color: var(--dsw-alias-label-secondary); font-size: 13px; line-height: 1.8; }
+      .enw-essay-section { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--dsw-alias-border-l1); }
+      .enw-essay-section-title { margin: 0 0 12px; font-size: 15px; }
+      .enw-essay-outline { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+      .enw-essay-outline li { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+      .enw-essay-outline strong { font-size: 11.5px; color: var(--dsw-alias-brand-primary); }
+      .enw-essay-outline span { font-size: 13px; color: var(--dsw-alias-label-secondary); line-height: 1.7; }
+      .enw-essay-cohesive { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 14px; }
+      .enw-essay-cohesive .enw-essay-label { margin-right: 4px; }
+      .enw-essay-vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+      .enw-essay-vocab-card { padding: 12px; border-radius: 10px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); }
+      .enw-essay-vocab-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; }
+      .enw-essay-vocab-head strong { font-size: 14px; }
+      .enw-essay-vocab-head span { font-size: 11px; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-vocab-line { margin: 6px 0 0; font-size: 12.5px; line-height: 1.6; }
+      .enw-essay-vocab-collocation { color: var(--dsw-alias-brand-primary); }
+      .enw-essay-vocab-example { margin: 6px 0 8px; font-size: 12px; line-height: 1.6; color: var(--dsw-alias-label-secondary); font-style: italic; }
+      .enw-essay-question { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--dsw-alias-border-l1); }
+      .enw-essay-question:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }
+      .enw-essay-question-prompt { margin: 0 0 9px; font-size: 13.5px; line-height: 1.7; }
+      .enw-essay-options { display: flex; flex-direction: column; gap: 6px; }
+      .enw-essay-option { width: 100%; padding: 8px 11px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12.5px; line-height: 1.55; text-align: left; cursor: pointer; }
+      .enw-essay-option:hover { border-color: var(--dsw-alias-brand-primary); }
+      .enw-essay-option:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
+      .enw-essay-option--chosen { border-color: var(--dsw-alias-brand-primary); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 9%, var(--dsw-alias-bg-layer-1)); }
+      .enw-essay-option--correct { border-color: var(--dsw-alias-state-success-primary); background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 10%, var(--dsw-alias-bg-layer-1)); }
+      .enw-essay-option--wrong { border-color: var(--dsw-alias-state-error-primary); background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 9%, var(--dsw-alias-bg-layer-1)); }
+      .enw-essay-feedback { margin: 7px 0 0; font-size: 12px; line-height: 1.65; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-feedback strong { color: var(--dsw-alias-label-primary); }
+      .enw-essay-rail { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 12px; }
+      .enw-essay-rail-card { padding: 14px; border-radius: 12px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); }
+      .enw-essay-rail-title { margin: 0 0 7px; font-size: 12.5px; }
+      .enw-essay-rail-hint { margin: 0; font-size: 12px; line-height: 1.7; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-rail-sentence { margin: 0 0 8px; font-size: 13px; line-height: 1.7; }
+      .enw-essay-rail-section { margin-top: 10px; }
+      .enw-essay-rail-section p { margin: 3px 0 0; font-size: 12.5px; line-height: 1.7; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-rail-progress { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--dsw-alias-border-l1); font-size: 12px; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-rail-outline { margin: 6px 0 0; font-size: 11.5px; line-height: 1.65; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-rail-outline strong { display: block; color: var(--dsw-alias-label-primary); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+      .enw-essay-banner { margin-bottom: 14px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-state-error-primary); background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent); color: var(--dsw-alias-state-error-primary); font-size: 12px; }
+      .enw-essay-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 50vh; padding: 60px 20px; color: var(--dsw-alias-label-secondary); text-align: center; }
+      .enw-essay-state p { margin: 0; font-size: 13px; }
+      .enw-essay-selectbar { position: fixed; left: 50%; bottom: 18px; z-index: 2; display: flex; align-items: center; gap: 12px; width: min(760px, calc(100vw - 32px)); padding: 10px 12px; transform: translateX(-50%); border-radius: 13px; border: 1px solid var(--dsw-alias-border-l2); background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 96%, transparent); box-shadow: 0 16px 40px color-mix(in srgb, var(--dsw-alias-label-primary) 20%, transparent); backdrop-filter: blur(10px); }
+      .enw-essay-select-main { display: flex; align-items: baseline; gap: 7px; min-width: 0; flex: 1; }
+      .enw-essay-select-label { flex: none; font-size: 10px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-select-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+      .enw-essay-select-actions { display: flex; align-items: center; gap: 6px; flex: none; }
+      .enw-essay-select-cat { width: 118px; }
+      .enw-essay-toast { position: fixed; left: 50%; bottom: 88px; z-index: 3; padding: 7px 12px; transform: translateX(-50%); border-radius: 999px; background: var(--dsw-alias-label-primary); color: var(--dsw-alias-bg-base); font-size: 12px; box-shadow: 0 8px 24px color-mix(in srgb, var(--dsw-alias-label-primary) 24%, transparent); }
       .enw-note-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--enw-accent) 26%, var(--dsw-alias-border-l1)); }
       .enw-note-modal-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
       .enw-note-modal-kicker { font-size: 13px; font-weight: 650; }
@@ -4079,6 +4710,8 @@ window.__ModuleLoader__.load({
       @media (max-width: 1020px) {
         .enw-layout { grid-template-columns: minmax(0, 1fr); }
         .enw-aside { position: static; max-height: none; overflow: visible; padding-right: 0; }
+        .enw-essay-layout { grid-template-columns: minmax(0, 1fr); }
+        .enw-essay-rail { position: static; }
       }
       @media (max-width: 900px) {
         .enw-note-nav { display: none; }
@@ -4091,6 +4724,15 @@ window.__ModuleLoader__.load({
         .enw-btn-text { display: none; }
         .enw-top-btn { right: 14px; bottom: 14px; width: 42px; height: 42px; padding: 0; justify-content: center; }
         .enw-top-label { display: none; }
+        .enw-essay-bar { padding: 10px 12px; }
+        .enw-essay-layout { padding: 18px 16px 110px; gap: 20px; }
+        .enw-essay-title { font-size: 23px; }
+        .enw-essay-text { font-size: 15px; }
+        .enw-essay-selectbar { left: 10px; right: 10px; bottom: 10px; width: auto; transform: none; flex-wrap: wrap; }
+        .enw-essay-select-main { flex-basis: 100%; }
+        .enw-essay-select-actions { width: 100%; }
+        .enw-essay-select-actions .enw-select { flex: 1; width: auto; }
+        .enw-essay-toast { bottom: 132px; }
         .enw-modal-backdrop { padding: 10px; }
         .enw-modal { max-height: 92vh; padding: 16px; border-radius: 14px; }
       }
@@ -4110,6 +4752,10 @@ window.__ModuleLoader__.load({
         __QuizModal: QuizModal,
         __NoteDetailModal: NoteDetailModal,
         __BackToTop: BackToTop,
+        __EssayReader: EssayReader,
+        __essaySentences: essaySentences,
+        __essayInferCategory: essayInferCategory,
+        __essayLookup: essayLookup,
         __scrollToTop: scrollToTop,
         __wrapIndex: wrapIndex,
       } : {}),
@@ -4157,6 +4803,9 @@ window.__ModuleLoader__.load({
             generateQuiz: force => call('generateQuiz', { force: Boolean(force) }),
             gradeQuiz: (date, answers) => call('gradeQuiz', { date, answers }),
             gradeWithModel: (date, answers) => call('gradeWithModel', { date, answers }),
+            essayToday: date => call('essayToday', { date }),
+            essayGenerate: date => call('essayGenerate', { date }),
+            essayProgress: (date, patch) => call('essayProgress', { date, patch }),
             saveSettings: patch => call('saveSettings', { patch }),
             llmCatalog: (provider, model) => call('llmCatalog', { provider, model }),
             cancelExpansion: () => call('cancelExpansion'),

@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-crime-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Crime",
+  "title": "Punishment or Rehabilitation?",
+  "prompt": "Some people believe that the main purpose of prisons should be to punish offenders, while others argue that rehabilitation should be the priority. Discuss both views and give your own opinion.",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 292,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "惩罚有其作用，但作者认为改造应成为监禁的首要目的。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "惩罚体现公正、安抚受害者并威慑犯罪，但单靠惩罚难以改变犯罪根源。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "教育、技能和心理支持能帮助囚犯重返社会并降低再犯率。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "公正有效的监狱制度应结合相称惩罚与切实改造。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Prisons serve several purposes, and societies disagree about which should dominate. While punishment expresses public condemnation and protects citizens, I believe that rehabilitation should be the primary aim of imprisonment, because it offers the best chance of reducing future crime.",
+      "zh": "监狱有多种目的，不同社会对哪一种目的应占主导存在分歧。惩罚表达公众谴责并保护公民，但我认为改造应成为监禁的首要目的，因为它最有可能减少未来的犯罪。"
+    },
+    {
+      "role": "Body 1",
+      "en": "On the one hand, punishment is an essential element of a credible justice system. When someone deliberately harms others, the state has a duty to respond firmly, both to acknowledge the victim's suffering and to deter behaviour that threatens public safety. A lengthy sentence for a violent offender, for example, can reassure a frightened community and signal that such conduct will not be tolerated. Punishment also gives structure and consequence to the legal process, without which victims may feel that their experiences have been ignored. Nevertheless, punishment alone does little to change the attitudes or circumstances that led to the offence in the first place.",
+      "zh": "一方面，惩罚是可信赖司法体系的基本要素。当有人故意伤害他人时，国家有责任坚决回应，既承认受害者的痛苦，也威慑威胁公共安全的行为。例如，对暴力犯罪者判处较长刑期，可以安抚受到惊吓的社区，并表明此类行为不会被容忍。惩罚还赋予法律程序以结构和后果；如果没有惩罚，受害者可能会觉得自己的经历被忽视。然而，单靠惩罚几乎无法改变导致犯罪的态度或处境。"
+    },
+    {
+      "role": "Body 2",
+      "en": "On the other hand, rehabilitation addresses the causes of crime and prepares prisoners for life after release. Many offenders lack education, job skills, mental health support or stable housing, and these disadvantages often remain unchanged during a custodial sentence. If prisons provide training, counselling and help with accommodation, former inmates are far more likely to find work and rebuild relationships instead of returning to crime. A prisoner who completes a carpentry course, for instance, may leave with a qualification and a realistic route into employment. Such measures also protect the wider public, since a rehabilitated person is less likely to become a repeat offender.",
+      "zh": "另一方面，改造针对犯罪的根源，并为囚犯出狱后的生活做准备。许多犯罪者缺乏教育、职业技能、心理健康支持或稳定住所，而这些不利条件在监禁期间往往没有改变。如果监狱提供培训、咨询和住房方面的帮助，刑满释放者更有可能找到工作、重建关系，而不是再次犯罪。例如，一名完成木工课程的囚犯，可能带着一项资格证书和一条现实的就业途径离开。这类措施也保护更广泛的公众，因为经过改造的人成为累犯的可能性更低。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, punishment has a legitimate place in responding to serious wrongdoing, but it should not be the main goal of imprisonment. A just and effective prison system combines proportionate punishment with practical rehabilitation, giving offenders the skills and support to live lawfully.",
+      "zh": "总之，惩罚在回应严重不法行为方面有其正当位置，但不应成为监禁的主要目标。一个公正而有效的监狱体系应将相称的惩罚与切实的改造结合起来，使犯罪者获得遵纪守法生活所需的技能和支持。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "While punishment expresses public condemnation and protects citizens, I believe that rehabilitation should be the primary aim of imprisonment, because it offers the best chance of reducing future crime.",
+      "zh": "惩罚表达公众谴责并保护公民，但我认为改造应成为监禁的首要目的，因为它最有可能减少未来的犯罪。",
+      "structure": "While 引导让步状语从句；主句为 I believe that...；because 引导原因状语从句。",
+      "grammar": "expresses 与 protects 并列；should be 表示主张；the best chance of doing 表示“做某事的最佳机会”。",
+      "chunk": "the primary aim of imprisonment（监禁的首要目的）"
+    },
+    {
+      "sentence": "A lengthy sentence for a violent offender, for example, can reassure a frightened community and signal that such conduct will not be tolerated.",
+      "zh": "例如，对暴力犯罪者判处较长刑期，可以安抚受到惊吓的社区，并表明此类行为不会被容忍。",
+      "structure": "主句为 A lengthy sentence can reassure... and signal...；for example 作插入语；that 引导宾语从句。",
+      "grammar": "a lengthy sentence for... 中 for 表示针对；will not be tolerated 为一般将来时的被动语态。",
+      "chunk": "reassure a frightened community（安抚受到惊吓的社区）"
+    },
+    {
+      "sentence": "A prisoner who completes a carpentry course, for instance, may leave with a qualification and a realistic route into employment.",
+      "zh": "例如，一名完成木工课程的囚犯，可能带着一项资格证书和一条现实的就业途径离开。",
+      "structure": "主句为 A prisoner may leave...；who 引导定语从句；for instance 作插入语。",
+      "grammar": "who completes 用一般现在时表示一般情况；leave with... 表示“带着……离开”；route into employment 表示“通往就业的途径”。",
+      "chunk": "a realistic route into employment（一条现实的就业途径）"
+    },
+    {
+      "sentence": "A just and effective prison system combines proportionate punishment with practical rehabilitation, giving offenders the skills and support to live lawfully.",
+      "zh": "一个公正而有效的监狱体系应将相称的惩罚与切实的改造结合起来，使犯罪者获得遵纪守法生活所需的技能和支持。",
+      "structure": "主句为 A just and effective prison system combines... with...；giving... 为现在分词短语作结果/伴随状语。",
+      "grammar": "combine A with B 表示“把A与B结合”；giving 的逻辑主语是 system；to live lawfully 为不定式作后置定语。",
+      "chunk": "live lawfully（遵纪守法地生活）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "condemnation",
+      "phonetic": "/ˌkɒndemˈneɪʃn/",
+      "meaning": "谴责",
+      "collocation": "public condemnation",
+      "example": "The attack drew widespread public condemnation."
+    },
+    {
+      "term": "deter",
+      "phonetic": "/dɪˈtɜː(r)/",
+      "meaning": "威慑；阻止",
+      "collocation": "deter crime",
+      "example": "Higher fines may deter careless driving."
+    },
+    {
+      "term": "custodial",
+      "phonetic": "/kʌˈstəʊdiəl/",
+      "meaning": "监禁的",
+      "collocation": "custodial sentence",
+      "example": "The judge imposed a custodial sentence."
+    },
+    {
+      "term": "rehabilitation",
+      "phonetic": "/ˌriːəˌbɪlɪˈteɪʃn/",
+      "meaning": "改造；康复",
+      "collocation": "practical rehabilitation",
+      "example": "Rehabilitation programmes can reduce reoffending."
+    },
+    {
+      "term": "proportionate",
+      "phonetic": "/prəˈpɔːʃənət/",
+      "meaning": "相称的；成比例的",
+      "collocation": "proportionate punishment",
+      "example": "The penalty should be proportionate to the harm caused."
+    },
+    {
+      "term": "repeat offender",
+      "phonetic": "/rɪˈpiːt əˈfendə(r)/",
+      "meaning": "累犯",
+      "collocation": "a repeat offender",
+      "example": "The scheme offers mentoring to repeat offenders."
+    }
+  ],
+  "cohesive": [
+    "On the one hand",
+    "for example",
+    "Nevertheless",
+    "On the other hand",
+    "for instance",
+    "In conclusion"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's main argument about prisons?",
+      "options": [
+        "Punishment should be the only purpose of imprisonment.",
+        "Prisons should be replaced by financial penalties.",
+        "Rehabilitation is ineffective in every case.",
+        "Rehabilitation should be the primary aim, though punishment has a place."
+      ],
+      "answer": 3,
+      "explanation": "作者承认惩罚在司法体系中具有正当作用，但明确主张改造应成为监禁的首要目的，因此该选项准确概括了其立场。"
+    },
+    {
+      "prompt": "Why does the writer believe rehabilitation also protects the public?",
+      "options": [
+        "It keeps prisoners in custody for longer periods.",
+        "It reduces the likelihood that offenders will commit crimes again.",
+        "It increases the number of prison officers.",
+        "It removes the need for any punishment."
+      ],
+      "answer": 1,
+      "explanation": "文末指出，经过改造的人成为累犯的可能性更低，因此改造通过减少再犯来保护公众，而不是延长监禁或取消惩罚。"
+    },
+    {
+      "prompt": "In the second body paragraph, a \"custodial sentence\" refers to",
+      "options": [
+        "a fine paid to the court",
+        "a community service order",
+        "a period of imprisonment",
+        "a suspended driving licence"
+      ],
+      "answer": 2,
+      "explanation": "custodial 与 custody（监护、拘留）同源，custodial sentence 指监禁刑；罚款、社区服务或吊销驾照都不是监禁。"
+    }
+  ]
+}

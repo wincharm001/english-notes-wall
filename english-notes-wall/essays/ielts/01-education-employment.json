@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-education-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Education",
+  "title": "Skills or Scholarship: The Purpose of University",
+  "prompt": "Some people believe that universities should focus mainly on preparing students for employment, while others argue that their primary purpose is to provide broad knowledge. Discuss both views and give your own opinion.",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 297,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "大学应以就业培训为核心还是以通识教育为使命存在争议，我认为两者互补，实用技能应嵌入广博的学术基础。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "优先培养就业能力有其道理：学生为职业前景而来，实习与行业项目能提供可信的能力证明。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "只盯着第一份工作目光短浅：技术会过时，广博学习培养的质疑、论证与适应能力才是转岗的根本。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "就业能力重要但不应遮蔽大学更广泛的目的，院校应围绕技能与学识的结合设计课程。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Universities are frequently judged by the jobs their graduates secure, which leads some commentators to argue that employment training should be their central mission. Others insist that higher education exists to cultivate broad understanding rather than to serve the labour market. In my view, the two aims are complementary, and a good university should embed practical skills within a genuinely broad academic foundation.",
+      "zh": "人们常常以毕业生能否找到工作来评判大学，因此一些评论者主张，就业培训应当是大学的核心使命。另一些人则坚持认为，高等教育的存在是为了培养广博的理解力，而不是服务于劳动力市场。在我看来，这两个目标是互补的，一所优秀的大学应当把实用技能嵌入真正广博的学术基础之中。"
+    },
+    {
+      "role": "Body 1",
+      "en": "The case for prioritising employability is easy to appreciate. Most students enrol with the expectation that a degree will improve their career prospects, and in a crowded graduate market, generic knowledge alone may not secure a first interview. Programmes that include work placements, industry projects and training in communication or data analysis give students credible evidence of competence. A computer science undergraduate who spends a year with a software company, for instance, learns to deliver code under real deadlines and leaves university with both a portfolio and professional references.",
+      "zh": "优先考虑就业能力的理由不难理解。大多数学生入学的期望是学位能改善自己的职业前景，而在竞争激烈的毕业生市场中，仅有泛泛的知识或许连第一次面试的机会都争取不到。包含工作实习、企业项目以及沟通或数据分析培训的课程，能为学生提供可信的能力证明。例如，一名在软件公司实习一年的计算机专业本科生，会学会在真实的截止日期前交付代码，毕业时既拥有作品集，也拥有专业人士的推荐信。"
+    },
+    {
+      "role": "Body 2",
+      "en": "Yet a narrow focus on the first job can be shortsighted. Technical skills date quickly, and graduates who have never been taught to question assumptions may struggle when their industry is reshaped by automation or economic change. Broad study in history, philosophy or literature develops the capacity to weigh evidence, construct arguments and understand unfamiliar perspectives, which is precisely what allows people to retrain and adapt. A journalism graduate who has studied political theory, for example, can move into policy analysis when newsrooms shrink, because the underlying skills of research and reasoning remain valuable.",
+      "zh": "然而，只盯着第一份工作可能目光短浅。技术技能很快就会过时，而那些从未被教导去质疑既有假设的毕业生，一旦所在行业被自动化或经济变革重塑，就可能陷入困境。对历史、哲学或文学的广泛学习，培养的是权衡证据、构建论证和理解陌生视角的能力，而这恰恰是人们接受再培训并作出适应的前提。例如，一名学过政治理论的新闻专业毕业生，在新闻编辑室萎缩时可以转入政策分析领域，因为研究与推理这些底层技能依然有价值。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, although employability deserves serious attention, it should not eclipse the wider purpose of university education. The most durable preparation for work is a broad education that also teaches students how to apply their knowledge, and institutions should design their curricula around that combination rather than around a single slogan.",
+      "zh": "总之，尽管就业能力值得认真关注，但它不应遮蔽大学教育更广泛的目的。对工作最持久的准备，是一种同时教会学生如何运用知识的广博教育；各院校应当围绕这种结合来设计课程，而不是围绕某一句口号。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "In my view, the two aims are complementary, and a good university should embed practical skills within a genuinely broad academic foundation.",
+      "zh": "在我看来，这两个目标是互补的，一所优秀的大学应当把实用技能嵌入真正广博的学术基础之中。",
+      "structure": "句子由 and 连接两个并列分句。前一分句说明立场，后一分句用 should 提出主张；句首的 In my view 是观点状语，统摄全句。",
+      "grammar": "embed A within B 表示“把 A 嵌入 B 之中”；genuinely 作副词修饰形容词 broad，起强调作用；a good university 用不定冠词表示泛指。",
+      "chunk": "embed practical skills within a broad foundation（把实用技能融入广博的基础）"
+    },
+    {
+      "sentence": "A computer science undergraduate who spends a year with a software company, for instance, learns to deliver code under real deadlines and leaves university with both a portfolio and professional references.",
+      "zh": "例如，一名在软件公司实习一年的计算机专业本科生，会学会在真实的截止日期前交付代码，毕业时既拥有作品集，也拥有专业人士的推荐信。",
+      "structure": "主语 A computer science undergraduate 后接 who 引导的定语从句，主句谓语为并列的 learns 与 leaves；for instance 是插入语，插在主语与谓语之间。",
+      "grammar": "who 引导限制性定语从句修饰人；learn to do 表示“学会做某事”；both...and... 连接两个并列宾语，使表达更平衡。",
+      "chunk": "deliver code under real deadlines（在真实的截止日期前交付代码）"
+    },
+    {
+      "sentence": "Technical skills date quickly, and graduates who have never been taught to question assumptions may struggle when their industry is reshaped by automation or economic change.",
+      "zh": "技术技能很快就会过时，而那些从未被教导去质疑既有假设的毕业生，一旦所在行业被自动化或经济变革重塑，就可能陷入困境。",
+      "structure": "and 连接两个并列分句。第二分句的主干是 graduates may struggle；who 从句修饰 graduates，when 从句作时间状语。",
+      "grammar": "date 在此作不及物动词，意为“过时”；have been taught 是现在完成时的被动语态；be reshaped by 为被动结构，强调行业被外部力量改变。",
+      "chunk": "question assumptions（质疑既有假设）"
+    },
+    {
+      "sentence": "The most durable preparation for work is a broad education that also teaches students how to apply their knowledge, and institutions should design their curricula around that combination rather than around a single slogan.",
+      "zh": "对工作最持久的准备，是一种同时教会学生如何运用知识的广博教育；各院校应当围绕这种结合来设计课程，而不是围绕某一句口号。",
+      "structure": "and 连接两个并列分句。第一分句的表语 a broad education 后接 that 定语从句；第二分句用 rather than 引出对比成分。",
+      "grammar": "that 引导定语从句修饰 education；how to apply 是“疑问词 + 不定式”结构，作 teaches 的宾语；design...around... 意为“围绕……来设计”。",
+      "chunk": "design the curriculum around a combination（围绕一种结合来设计课程）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "complementary",
+      "phonetic": "/ˌkɒmplɪˈmentri/",
+      "meaning": "互补的；相辅相成的",
+      "collocation": "complementary aims",
+      "example": "The two courses are complementary rather than competitive, and many students take both."
+    },
+    {
+      "term": "embed",
+      "phonetic": "/ɪmˈbed/",
+      "meaning": "把……嵌入；使融入",
+      "collocation": "embed skills in the curriculum",
+      "example": "The training programme embeds safety checks in every stage of the process."
+    },
+    {
+      "term": "generic",
+      "phonetic": "/dʒəˈnerɪk/",
+      "meaning": "通用的；泛泛的",
+      "collocation": "generic advice",
+      "example": "Generic advice about saving money is less useful than guidance tailored to a person's income."
+    },
+    {
+      "term": "shortsighted",
+      "phonetic": "/ˌʃɔːtˈsaɪtɪd/",
+      "meaning": "目光短浅的",
+      "collocation": "a shortsighted decision",
+      "example": "Cutting the training budget to save money this year would be a shortsighted decision."
+    },
+    {
+      "term": "retrain",
+      "phonetic": "/ˌriːˈtreɪn/",
+      "meaning": "再培训；学习新技能",
+      "collocation": "retrain for a new career",
+      "example": "Many workers retrain for a new career after their industry declines."
+    },
+    {
+      "term": "durable",
+      "phonetic": "/ˈdjʊərəbl/",
+      "meaning": "持久的；经久的",
+      "collocation": "durable skills",
+      "example": "Writing clearly is a durable skill that remains useful in almost every profession."
+    }
+  ],
+  "cohesive": [
+    "In my view",
+    "for instance",
+    "Yet",
+    "for example",
+    "In conclusion",
+    "rather than"
+  ],
+  "questions": [
+    {
+      "prompt": "Which statement best summarises the writer's position?",
+      "options": [
+        "Universities should abandon academic subjects in favour of job training.",
+        "Broad knowledge is valuable only when it leads directly to a job.",
+        "Employment skills and broad knowledge should be integrated rather than treated as rivals.",
+        "Employers, rather than universities, should be responsible for training graduates."
+      ],
+      "answer": 2,
+      "explanation": "首段说两个目标互补，结论又主张把就业技能与广博教育结合起来，因此“两者应当融合，而非彼此对立”正确。“放弃学术科目”与“宽泛知识只有带来工作才有价值”都曲解了作者的平衡立场，文中也没有把培训责任推给雇主。"
+    },
+    {
+      "prompt": "Why does the writer mention the journalism graduate?",
+      "options": [
+        "To show that broad academic study helps graduates move into new fields.",
+        "To prove that journalism is a declining profession.",
+        "To argue that political theory should be a compulsory subject.",
+        "To suggest that newsrooms should hire more graduates."
+      ],
+      "answer": 0,
+      "explanation": "新闻专业毕业生转入政策分析的例子，用来说明广博学习培养的研究与推理能力使人能够转岗适应，因此正确选项是“说明广博的学术学习帮助毕业生进入新领域”。作者并未讨论新闻业整体衰落或课程设置。"
+    },
+    {
+      "prompt": "The word \"shortsighted\" in the essay is closest in meaning to",
+      "options": [
+        "difficult to understand",
+        "physically painful",
+        "unusually ambitious",
+        "lacking long-term vision"
+      ],
+      "answer": 3,
+      "explanation": "shortsighted 本义是“近视的”，在此引申为“缺乏长远眼光的”。作者批评只关注第一份工作的做法，正是从长远适应力出发，因此“lacking long-term vision”正确。"
+    }
+  ]
+}

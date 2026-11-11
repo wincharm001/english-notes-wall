@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-environment-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Environment",
+  "title": "Shared Responsibility: Who Should Protect the Environment?",
+  "prompt": "Some people argue that individuals should take more responsibility for protecting the environment, while others believe that only governments and large organisations can make a real difference. Discuss both views and give your own opinion.",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 293,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "个人与政府谁应承担更大环保责任存在争议；我认为政府责任更大，因为只有它能改变个人选择所处的制度环境。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "个人的日常选择累积起来影响可观，并能带动社会风气与企业改变。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "个人行动受基础设施与价格制约，政府通过政策与公共设施能大规模改变行为。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "政府应主导系统性变革，个人则通过选票与日常习惯予以支持。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Environmental degradation is often blamed on ordinary consumers, yet it is equally common to hear that only governments possess the power to reverse it. While households can certainly reduce their footprint, I believe that governments carry the greater responsibility, because they alone can change the systems within which individuals make choices.",
+      "zh": "环境退化常常被归咎于普通消费者，但同样常见的一种说法是，只有政府才拥有扭转局面的力量。虽然家庭确实可以减少自己的碳足迹，但我认为政府承担着更大的责任，因为只有政府才能改变个人作出选择时所处的制度环境。"
+    },
+    {
+      "role": "Body 1",
+      "en": "Individual behaviour is not insignificant. Daily decisions about transport, heating, food and waste, multiplied across millions of people, determine a substantial share of national emissions. A family that insulates its home, repairs appliances instead of replacing them and cycles to work is making a modest but genuine difference, and such choices can also influence others: when neighbours see a solar panel on a roof or a reusable bottle on a desk, sustainable habits become more socially normal. Consumer pressure, moreover, can persuade companies to alter packaging and sourcing.",
+      "zh": "个人行为并非无足轻重。关于出行、取暖、饮食和垃圾的日常决定，在数百万人的层面上叠加起来，就决定了国家排放量的相当大一部分。一个为住宅做隔热处理、修理而非更换家电、骑车上班的家庭，正在产生虽小却真实的改变；这样的选择还能影响他人：当邻居看到屋顶上的太阳能板或桌上的可重复使用水瓶时，可持续的习惯就会显得更加符合社会常态。此外，消费者的压力还能促使企业改变包装和采购方式。"
+    },
+    {
+      "role": "Body 2",
+      "en": "Nevertheless, individual effort is constrained by the infrastructure and prices that governments set. A commuter cannot take a reliable bus that does not exist, and a shopper cannot easily avoid plastic packaging when every local supermarket uses it. Governments can introduce charges, building standards and public transport networks that make the low-carbon option the convenient one, and a single well-designed policy can shift the behaviour of an entire population. Such measures also make the sustainable option cheaper, which matters when household budgets are already stretched. When a city invests in frequent, affordable buses, for example, thousands of drivers leave their cars at home without any personal commitment to environmentalism.",
+      "zh": "然而，个人努力受到政府所设定的基础设施和价格的制约。通勤者无法乘坐一条并不存在的可靠公交线路，当本地每家超市都使用塑料包装时，购物者也难以轻易避开它。政府可以推出收费措施、建筑标准和公共交通网络，使低碳选项成为便利之选，而一项设计良好的政策就能改变全体民众的行为。这类措施还能让可持续的选择更便宜，这在家庭预算已经紧张时尤为重要。例如，当一座城市投资于班次频繁、价格实惠的公交车时，成千上万的司机就会把车留在家里，而无需任何个人的环保信念。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, although personal responsibility should be encouraged, governments are better placed to deliver the large-scale change that the environment requires. Citizens can support those policies through their votes and daily habits, but it is public authorities that must create the conditions for sustainable living.",
+      "zh": "总之，尽管个人责任应当受到鼓励，但政府更有能力实现环境所需的大规模变革。公民可以通过选票和日常习惯支持这些政策，但必须由公共机构来创造可持续生活的条件。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "While households can certainly reduce their footprint, I believe that governments carry the greater responsibility, because they alone can change the systems within which individuals make choices.",
+      "zh": "虽然家庭确实可以减少自己的碳足迹，但我认为政府承担着更大的责任，因为只有政府才能改变个人作出选择时所处的制度环境。",
+      "structure": "While 引导让步状语从句，主句为 I believe that...；that 从句中又含 because 引导的原因状语从句，其中 within which 引导定语从句修饰 systems。",
+      "grammar": "while 在此表示让步“虽然”，与主句形成对比；they alone 中的 alone 后置，强调“唯有它们”；within which 是“介词 + 关系代词”结构，使表达更正式。",
+      "chunk": "carry the greater responsibility（承担更大的责任）"
+    },
+    {
+      "sentence": "A family that insulates its home, repairs appliances instead of replacing them and cycles to work is making a modest but genuine difference, and such choices can also influence others: when neighbours see a solar panel on a roof or a reusable bottle on a desk, sustainable habits become more socially normal.",
+      "zh": "一个为住宅做隔热处理、修理而非更换家电、骑车上班的家庭，正在产生虽小却真实的改变；这样的选择还能影响他人：当邻居看到屋顶上的太阳能板或桌上的可重复使用水瓶时，可持续的习惯就会显得更加符合社会常态。",
+      "structure": "and 连接两个并列分句。前一分句的主语 A family 后接 that 定语从句，谓语是 is making；冒号后的 when 从句说明“影响他人”的具体情形。",
+      "grammar": "定语从句内三个并列谓语 insulates、repairs、cycles 共用主语 family；instead of 后接动名词；make a difference 意为“产生影响”。",
+      "chunk": "make a modest but genuine difference（产生虽小却真实的影响）"
+    },
+    {
+      "sentence": "Governments can introduce charges, building standards and public transport networks that make the low-carbon option the convenient one, and a single well-designed policy can shift the behaviour of an entire population.",
+      "zh": "政府可以推出收费措施、建筑标准和公共交通网络，使低碳选项成为便利之选，而一项设计良好的政策就能改变全体民众的行为。",
+      "structure": "and 连接两个并列分句。前一分句中 that 引导定语从句，修饰 charges、standards 和 networks 这三项并列宾语。",
+      "grammar": "make the low-carbon option the convenient one 是“make + 宾语 + 宾语补足语”结构；well-designed 为复合形容词，作定语修饰 policy。",
+      "chunk": "shift the behaviour of an entire population（改变全体民众的行为）"
+    },
+    {
+      "sentence": "Citizens can support those policies through their votes and daily habits, but it is public authorities that must create the conditions for sustainable living.",
+      "zh": "公民可以通过选票和日常习惯支持这些政策，但必须由公共机构来创造可持续生活的条件。",
+      "structure": "but 连接两个并列分句；第二分句使用 it is...that... 强调句型，突出 public authorities 这一施动者。",
+      "grammar": "it is...that... 是强调结构，这里强调主语；through 引导方式状语；must create 表达义务和必要性。",
+      "chunk": "create the conditions for sustainable living（为可持续生活创造条件）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "degradation",
+      "phonetic": "/ˌdeɡrəˈdeɪʃn/",
+      "meaning": "退化；恶化",
+      "collocation": "environmental degradation",
+      "example": "Environmental degradation is often the result of unregulated industrial growth."
+    },
+    {
+      "term": "footprint",
+      "phonetic": "/ˈfʊtprɪnt/",
+      "meaning": "足迹；碳排放量",
+      "collocation": "reduce one's carbon footprint",
+      "example": "Cycling to work is a simple way to reduce your carbon footprint."
+    },
+    {
+      "term": "infrastructure",
+      "phonetic": "/ˈɪnfrəstrʌktʃə/",
+      "meaning": "基础设施",
+      "collocation": "public transport infrastructure",
+      "example": "The city invested heavily in cycling infrastructure, including protected lanes and secure parking."
+    },
+    {
+      "term": "sustainable",
+      "phonetic": "/səˈsteɪnəbl/",
+      "meaning": "可持续的",
+      "collocation": "sustainable living",
+      "example": "Sustainable living requires changes in both personal habits and public policy."
+    },
+    {
+      "term": "packaging",
+      "phonetic": "/ˈpækɪdʒɪŋ/",
+      "meaning": "包装；包装材料",
+      "collocation": "excessive packaging",
+      "example": "Supermarkets should reduce unnecessary packaging on fresh produce."
+    },
+    {
+      "term": "commuter",
+      "phonetic": "/kəˈmjuːtə/",
+      "meaning": "通勤者",
+      "collocation": "a daily commuter",
+      "example": "A regular commuter spends far more time in traffic than a remote worker does."
+    }
+  ],
+  "cohesive": [
+    "While",
+    "moreover",
+    "Nevertheless",
+    "for example",
+    "In conclusion",
+    "although"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's main argument?",
+      "options": [
+        "Individuals alone can solve environmental problems.",
+        "Large companies are solely to blame for pollution.",
+        "Neither individuals nor governments can make a difference.",
+        "Governments bear the greater responsibility, though individual action still matters."
+      ],
+      "answer": 3,
+      "explanation": "首段明确表示政府承担更大责任，同时承认家庭可以减少碳足迹；第二段也肯定个人行为的意义，因此“政府责任更大，但个人行动仍然重要”最准确。其余选项或把责任完全归于个人或企业，或否定任何一方的作用，都与文章的平衡立场不符。"
+    },
+    {
+      "prompt": "Why does the writer mention frequent, affordable buses?",
+      "options": [
+        "To show that public transport is always cheaper than cars.",
+        "To criticise commuters who drive to work.",
+        "To illustrate how government policy can change behaviour on a large scale.",
+        "To prove that cities should ban private cars."
+      ],
+      "answer": 2,
+      "explanation": "公交例子出现在“政府可以通过政策和设施改变行为”这一论点之后，作用是具体说明政策如何大规模影响选择，因此“说明政府政策如何大规模改变行为”正确。文中没有比较全部成本，也没有主张禁车。"
+    },
+    {
+      "prompt": "The word \"constrained\" in the essay is closest in meaning to",
+      "options": [
+        "encouraged",
+        "limited",
+        "measured",
+        "replaced"
+      ],
+      "answer": 1,
+      "explanation": "constrain 意为“限制、约束”，此处指个人努力受基础设施和价格限制，因此“limited”最接近。encouraged 意思相反，measured 与 replaced 均不符合语境。"
+    }
+  ]
+}

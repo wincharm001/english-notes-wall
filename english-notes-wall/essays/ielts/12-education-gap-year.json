@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-education-02",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Education",
+  "title": "The Case for a Purposeful Gap Year",
+  "prompt": "Some students take a gap year between finishing school and starting university. Do the advantages of this trend outweigh the disadvantages?",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 289,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "间隔年虽有风险，但作者认为有目的的规划能让其利大于弊。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "间隔年培养成熟与独立，工作或志愿服务还能帮助学生明确目标。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "费用和学业中断是现实缺点，但周密规划可降低这些风险。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "间隔年应被视为教育中有目的的阶段，而非长假。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "An increasing number of school leavers choose to delay university in order to work, travel or volunteer. Although a gap year carries financial and academic risks, I believe that its advantages outweigh its disadvantages when the time is planned purposefully.",
+      "zh": "越来越多的中学毕业生选择推迟上大学，先工作、旅行或做志愿者。尽管间隔年存在经济和学业方面的风险，但我认为，只要这段时间有目的地规划，其利大于弊。"
+    },
+    {
+      "role": "Body 1",
+      "en": "To begin with, a well-structured gap year can promote maturity and clarify a young person's goals. Living away from home, managing a budget and dealing with unfamiliar situations encourage independence in a way that continuous schooling may not. Paid work also teaches punctuality, teamwork and responsibility, while volunteering can expose students to social issues that influence their choice of degree. A student who spends six months assisting in a community clinic, for example, may discover a genuine commitment to medicine or, equally valuable, realise that another field suits them better. Such experiences often make returning students more focused and motivated.",
+      "zh": "首先，规划良好的间隔年能促进成熟，并帮助年轻人明确目标。离开家生活、管理预算、应对陌生环境，都会以连续在校学习可能无法做到的方式培养独立性。带薪工作还能教会人守时、团队合作和责任感，而志愿服务可以让学生接触社会议题，从而影响他们对专业的选择。例如，一名在社区诊所协助工作六个月的学生，可能发现自己对医学有真正的热忱，或者同样可贵地意识到另一个领域更适合自己。这类经历往往使返校后的学生更加专注、更有动力。"
+    },
+    {
+      "role": "Body 2",
+      "en": "Admittedly, taking a year out is not without drawbacks. Travel and unpaid placements can be expensive, and students who take on full-time jobs may find it difficult to return to academic study. There is also a risk that a temporary job becomes comfortable, so that university is postponed indefinitely. A school leaver who earns a steady salary in retail, for instance, may delay enrolment for several years and lose confidence in their ability to study. However, these problems can be reduced through careful planning, such as setting a clear timetable, saving a realistic budget and keeping in touch with academic reading.",
+      "zh": "诚然，休学一年并非没有缺点。旅行和无薪实习可能花费不菲，而从事全职工作的学生可能发现很难重新投入学业。还有一种风险：临时工作让人安于现状，导致大学被无限期推迟。例如，一名在零售业挣着稳定工资的中学毕业生，可能推迟入学好几年，并对自己的学习能力失去信心。不过，通过周密规划，如设定明确的时间表、储蓄切合实际的预算并坚持进行学术阅读，这些问题可以减轻。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, although a gap year can be costly and may weaken study habits, I believe that the benefits of greater maturity, practical experience and clearer ambitions generally outweigh these risks. Students should treat the year as a purposeful stage of their education rather than an extended holiday.",
+      "zh": "总之，尽管间隔年可能花费较高，也可能削弱学习习惯，但我认为，成熟度、实践经验和更清晰的目标所带来的好处总体上大于这些风险。学生应把这一年视为教育中有目的的一个阶段，而不是一个长假。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "Although a gap year carries financial and academic risks, I believe that its advantages outweigh its disadvantages when the time is planned purposefully.",
+      "zh": "尽管间隔年存在经济和学业方面的风险，但我认为，只要这段时间有目的地规划，其利大于弊。",
+      "structure": "Although 引导让步状语从句；主句为 I believe that...；when 引导时间/条件状语从句。",
+      "grammar": "outweigh 表示“比……更重要”；its 指代 a gap year；is planned 为被动语态。",
+      "chunk": "outweigh its disadvantages（其优势大于劣势）"
+    },
+    {
+      "sentence": "A student who spends six months assisting in a community clinic, for example, may discover a genuine commitment to medicine or, equally valuable, realise that another field suits them better.",
+      "zh": "例如，一名在社区诊所协助工作六个月的学生，可能发现自己对医学有真正的热忱，或者同样可贵地意识到另一个领域更适合自己。",
+      "structure": "主句为 A student may discover... or realise...；who 引导定语从句；for example 与 equally valuable 作插入语。",
+      "grammar": "spend time doing 结构；a commitment to 表示“对……的投入/热忱”；suits them better 中 them 指代 students。",
+      "chunk": "a genuine commitment to medicine（对医学的真正热忱）"
+    },
+    {
+      "sentence": "A school leaver who earns a steady salary in retail, for instance, may delay enrolment for several years and lose confidence in their ability to study.",
+      "zh": "例如，一名在零售业挣着稳定工资的中学毕业生，可能推迟入学好几年，并对自己的学习能力失去信心。",
+      "structure": "主句为 A school leaver may delay... and lose...；who 引导定语从句；for instance 作插入语。",
+      "grammar": "earns 用一般现在时表一般情况；delay 后接名词 enrolment；lose confidence in 表示“对……失去信心”。",
+      "chunk": "lose confidence in their ability to study（对自己的学习能力失去信心）"
+    },
+    {
+      "sentence": "Students should treat the year as a purposeful stage of their education rather than an extended holiday.",
+      "zh": "学生应把这一年视为教育中有目的的一个阶段，而不是一个长假。",
+      "structure": "主句为 Students should treat the year as...；rather than 连接两个并列名词短语，形成对比。",
+      "grammar": "treat A as B 表示“把A视为B”；rather than 后接与 a purposeful stage 平行的 an extended holiday。",
+      "chunk": "treat the year as a purposeful stage（把这一年视为有目的的阶段）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "school leaver",
+      "phonetic": "/ˈskuːl ˌliːvə(r)/",
+      "meaning": "中学毕业生",
+      "collocation": "a school leaver",
+      "example": "A school leaver may feel uncertain about university."
+    },
+    {
+      "term": "maturity",
+      "phonetic": "/məˈtʃʊərəti/",
+      "meaning": "成熟",
+      "collocation": "gain maturity",
+      "example": "Volunteering abroad can help young people gain maturity."
+    },
+    {
+      "term": "independence",
+      "phonetic": "/ˌɪndɪˈpendəns/",
+      "meaning": "独立",
+      "collocation": "encourage independence",
+      "example": "Living alone for the first time encourages independence."
+    },
+    {
+      "term": "placements",
+      "phonetic": "/ˈpleɪsmənts/",
+      "meaning": "实习；工作安置",
+      "collocation": "unpaid placements",
+      "example": "The course includes two unpaid placements in local clinics."
+    },
+    {
+      "term": "enrolment",
+      "phonetic": "/ɪnˈrəʊlmənt/",
+      "meaning": "入学注册",
+      "collocation": "delay enrolment",
+      "example": "Online enrolment opens in August."
+    },
+    {
+      "term": "purposeful",
+      "phonetic": "/ˈpɜːpəsfəl/",
+      "meaning": "有目的的",
+      "collocation": "a purposeful year",
+      "example": "The trip was purposeful rather than purely recreational."
+    }
+  ],
+  "cohesive": [
+    "To begin with",
+    "for example",
+    "Admittedly",
+    "for instance",
+    "However",
+    "In conclusion"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's overall view of taking a gap year?",
+      "options": [
+        "It is always a waste of time for university applicants.",
+        "Its benefits outweigh its drawbacks when the year is planned carefully.",
+        "It should be compulsory for every school leaver.",
+        "Its financial risks cannot be reduced."
+      ],
+      "answer": 1,
+      "explanation": "作者在开头和结尾都表明，间隔年虽有经济和学业风险，但只要有目的地规划，其好处总体上大于坏处。"
+    },
+    {
+      "prompt": "According to the writer, how can paid work during a gap year help students?",
+      "options": [
+        "It guarantees admission to a top university.",
+        "It replaces the need for academic study.",
+        "It makes travel unnecessary.",
+        "It can teach punctuality, teamwork and responsibility."
+      ],
+      "answer": 3,
+      "explanation": "文中明确说带薪工作能教会学生守时、团队合作和责任感，并未说它能保证录取或取代学业。"
+    },
+    {
+      "prompt": "In the second body paragraph, \"enrolment\" most nearly means",
+      "options": [
+        "official registration for a course",
+        "completion of a degree",
+        "payment of a fine",
+        "a break from employment"
+      ],
+      "answer": 0,
+      "explanation": "enrolment 指正式注册入学或报名课程；此处 delay enrolment 即推迟大学注册，而非毕业、罚款或休假。"
+    }
+  ]
+}

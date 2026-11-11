@@ -9,7 +9,7 @@ process.env.DSH_HOME = home
 const module = await import('./english-notes-wall/index.js')
 const { apply, __internals } = module
 
-const { matchesAnswer, parseModelJson, nextOccurrence, nextQuizPublication, normalizeAnswer, applyReviewResult, reviewStats, quizCandidates } = __internals
+const { matchesAnswer, parseModelJson, nextOccurrence, nextQuizPublication, normalizeAnswer, applyReviewResult, reviewStats, quizCandidates, essayLibrary, normalizeEssay, normalizeEssays, chooseBuiltinEssay, emptyEssayProgress } = __internals
 
 assert.equal(matchesAnswer('give up', 'Give up.'), true)
 assert.equal(matchesAnswer('give up', 'gave up'), false)
@@ -20,6 +20,42 @@ assert.deepEqual(parseModelJson('```json\n{"items":[1]}\n```'), { items: [1] })
 assert.deepEqual(parseModelJson('prefix {"ok":true} suffix'), { ok: true })
 assert.equal(parseModelJson('not json'), null)
 assert.ok(nextOccurrence('08:00') > Date.now())
+
+// Built-in IELTS essay library: twelve complete, internally consistent essays.
+{
+  const library = essayLibrary()
+  assert.equal(library.length, 12, 'twelve built-in IELTS essays')
+  assert.equal(new Set(library.map(essay => essay.id)).size, 12, 'unique essay ids')
+  for (const essay of library) {
+    assert.equal(essay.exam, 'ielts')
+    assert.equal(essay.paragraphs.length, 4, `${essay.id} has four paragraphs`)
+    assert.ok(essay.wordCount >= 280 && essay.wordCount <= 320, `${essay.id} word count ${essay.wordCount}`)
+    assert.equal(essay.annotations.length, 4, `${essay.id} has four annotations`)
+    assert.equal(essay.vocab.length, 6, `${essay.id} has six vocabulary items`)
+    assert.equal(essay.questions.length, 3, `${essay.id} has three questions`)
+    for (const annotation of essay.annotations) {
+      assert.ok(essay.paragraphs.some(paragraph => paragraph.en.includes(annotation.sentence)), `${essay.id} annotation is in the essay`)
+    }
+    for (const item of essay.vocab) {
+      assert.ok(essay.paragraphs.some(paragraph => paragraph.en.toLowerCase().includes(String(item.term).toLowerCase())), `${essay.id} vocabulary appears in the essay`)
+    }
+    for (const question of essay.questions) {
+      assert.ok(question.answer >= 0 && question.answer < question.options.length)
+    }
+  }
+  const state = { essays: { daily: {}, progress: {} } }
+  const picked = chooseBuiltinEssay(state, '2026-11-11')
+  assert.ok(picked)
+  assert.equal(chooseBuiltinEssay(state, '2026-11-11').id, picked.id, 'daily pick is deterministic')
+  state.essays.daily['2026-11-10'] = { date: '2026-11-10', essayId: picked.id, source: 'builtin', createdAt: 1 }
+  const next = chooseBuiltinEssay(state, '2026-11-11')
+  assert.notEqual(next.id, picked.id, 'yesterday\'s essay is not repeated')
+  assert.equal(normalizeEssay({ paragraphs: [] }), null, 'incomplete essays are rejected')
+  const normalized = normalizeEssays({ progress: { '2026-11-11': { answers: { 0: 2 }, completedAt: 10, savedWords: 3 } } })
+  assert.deepEqual(normalized.progress['2026-11-11'].answers, { 0: 2 })
+  assert.equal(normalized.progress['2026-11-11'].savedWords, 3)
+  assert.deepEqual(emptyEssayProgress().answers, {})
+}
 
 // Spaced repetition: correct answers schedule the entry, wrong answers reset it.
 {
@@ -136,7 +172,7 @@ apply(first.ctx)
 
 assert.equal(first.contributions.length, 1, 'one typert contribution')
 assert.equal(first.contributions[0].package, '@local/english-notes-wall')
-assert.equal(first.contributions[0].invocations.length, 18, 'eighteen remote methods')
+assert.equal(first.contributions[0].invocations.length, 21, 'twenty-one remote methods')
 assert.ok(first.registered.has('english_notes'), 'agent tool registered')
 
 const tool = first.registered.get('english_notes')
@@ -236,6 +272,29 @@ assert.equal(snapshot.usage.last, null)
 assert.equal(snapshot.model.configured, false)
 assert.equal(snapshot.model.available, false)
 assert.equal(snapshot.settings.llm.provider, '')
+assert.ok(snapshot.essay, 'today essay metadata is in the snapshot')
+assert.equal(snapshot.essay.completed, false)
+
+const todayEssay = await services.englishNotes.essayToday()
+assert.equal(todayEssay.status, 'ok')
+assert.equal(todayEssay.essay.paragraphs.length, 4)
+assert.equal(todayEssay.essay.exam, 'ielts')
+assert.deepEqual(todayEssay.progress.answers, {})
+const repeatedEssay = await services.englishNotes.essayToday(todayEssay.date)
+assert.equal(repeatedEssay.essay.id, todayEssay.essay.id, 'the same day keeps the same essay')
+const essaySaved = await services.englishNotes.essayProgress(todayEssay.date, {
+  answers: { 0: 2, 1: 0 },
+  completed: true,
+  savedWords: 2,
+  savedSentences: 1,
+})
+assert.equal(essaySaved.status, 'ok')
+assert.deepEqual(essaySaved.progress.answers, { 0: 2, 1: 0 })
+assert.equal(essaySaved.progress.savedWords, 2)
+assert.equal(essaySaved.progress.savedSentences, 1)
+assert.ok(essaySaved.progress.completedAt > 0)
+const essaySnapshot = await services.englishNotes.snapshot()
+assert.equal(essaySnapshot.essay.completed, true)
 
 const rendered = tool.output.render({ action: 'list' }, listed)
 assert.equal(rendered[0].type, 'text')
@@ -366,6 +425,19 @@ services3.llm = {
           }],
           moreExamples: [{ en: `More ${index}.`, zh: `更多${index}` }],
         })),
+      })
+    } else if (prompt.includes('Write one original IELTS Academic Task 2')) {
+      const sample = essayLibrary()[0]
+      text = JSON.stringify({
+        title: `AI ${sample.title}`,
+        prompt: sample.prompt,
+        topic: sample.topic,
+        paragraphs: sample.paragraphs,
+        outline: sample.outline,
+        annotations: sample.annotations,
+        vocab: sample.vocab,
+        cohesive: sample.cohesive,
+        questions: sample.questions,
       })
     } else {
       text = '{"meaning":"测试释义","examples":[{"en":"A test.","zh":"一个测试。"}]}'
@@ -625,6 +697,21 @@ assert.equal(blankGraded.quiz.attempt.feedback[blankId].verdict, 'blank')
 assert.equal(blankGraded.quiz.attempt.feedback[blankId].score, 0)
 assert.equal(blankGraded.quiz.attempt.answers[blankId], undefined)
 assert.equal(blankGraded.quiz.attempt.score, quizItems.length - 1)
+
+// AI essay generation validates the model response, caches it, and records usage.
+const aiEssay = await services3.englishNotes.essayGenerate()
+assert.equal(aiEssay.status, 'ok')
+assert.equal(aiEssay.source, 'model')
+assert.ok(aiEssay.essay.id.startsWith('ai-ielts-'))
+assert.equal(aiEssay.essay.paragraphs.length, 4)
+const aiSnapshot = await services3.englishNotes.snapshot()
+assert.equal(aiSnapshot.essay.source, 'model')
+assert.equal(aiSnapshot.essay.title.startsWith('AI '), true)
+assert.equal(aiSnapshot.usage.last.purpose, 'essay')
+assert.equal(aiSnapshot.usage.purposes.essay.calls, 1)
+const aiProgress = await services3.englishNotes.essayProgress(aiEssay.date, { completed: true })
+assert.equal(aiProgress.status, 'ok')
+assert.ok(aiProgress.progress.completedAt > 0)
 
 // Organization fields survive a Host restart.
 for (const dispose of third.disposers) {

@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-media-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Media",
+  "title": "Can Social Media News Be Trusted?",
+  "prompt": "Some people believe that news shared on social media is reliable, while others argue that it cannot be trusted. Discuss both views and give your own opinion.",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 283,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "社交媒体传播迅速，但作者认为其中的新闻须经独立核实才可信。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "社交媒体速度快、视角多元，可作为有价值的预警和信息渠道。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "缺乏背景、匿名传播和算法驱动使虚假信息容易扩散。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "用户应交叉核实，政府和平台应提升媒介素养并标注未核实内容。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Social media has become a primary source of news for a large proportion of the public, yet its reliability is widely questioned. Although these platforms can spread useful information quickly, I believe that news encountered there should not be trusted until it has undergone independent verification.",
+      "zh": "社交媒体已成为相当一部分公众获取新闻的主要渠道，但其可靠性广受质疑。尽管这些平台能够迅速传播有用信息，我认为其中的新闻在经历独立核实之前不应被信任。"
+    },
+    {
+      "role": "Body 1",
+      "en": "To begin with, social media offers obvious advantages that explain its popularity. It delivers updates within minutes, allows ordinary citizens to report events that professional journalists cannot reach, and exposes users to perspectives beyond their usual news sources. During a severe flood, for example, local residents may post warnings about blocked roads long before an official bulletin appears, potentially saving lives. For people in isolated communities, these networks can also provide a sense of connection and immediate mutual aid. In this sense, social media functions as a valuable alert system rather than a replacement for established journalism.",
+      "zh": "首先，社交媒体具有明显优势，这也是它广受欢迎的原因。它能在几分钟内发布最新消息，让普通民众报道专业记者无法抵达现场的事件，并使使用者接触到日常新闻来源之外的多元视角。例如，在严重洪灾期间，当地居民可能在官方公告发布前很久就发帖警告道路受阻，从而有可能挽救生命。对于身处偏远社区的人而言，这些网络还能带来联结感和即时的互助。从这个意义上说，社交媒体是一个宝贵的预警系统，而不是传统新闻业的替代品。"
+    },
+    {
+      "role": "Body 2",
+      "en": "However, the same features that make these platforms useful also make them vulnerable to misinformation. Posts are often stripped of context, anonymous accounts can invent stories, and algorithms reward whatever attracts the strongest emotional reaction rather than what is accurate. A dramatic claim about a new medical treatment, for instance, may be widely shared before experts have a chance to respond. Because many users forward content that confirms their existing beliefs, corrections rarely travel as far as the original falsehood. Consequently, treating a trending post as verified news can distort public understanding and even endanger health.",
+      "zh": "然而，使这些平台有用的同一批特征，也使它们容易传播错误信息。帖子常常被剥离背景，匿名账号可以编造故事，而算法奖励的是最能引发强烈情绪反应的内容，而非最准确的内容。例如，一则关于某种新疗法的耸动说法，可能在专家来得及回应之前就被广泛转发。由于许多用户只转发印证自己既有观念的内容，更正信息很少能像最初的虚假信息那样广泛传播。因此，把一条热门帖子当作已核实的新闻，会扭曲公众认知，甚至危害健康。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, social media is a fast and accessible news channel, but speed should not be mistaken for credibility. I therefore believe that users should cross-check reports with reliable outlets, while governments and platforms invest in media literacy and clearer labelling of unverified content.",
+      "zh": "总之，社交媒体是一个快速、易得的新闻渠道，但速度不应被误认为可信度。因此我认为，用户应通过可靠媒体交叉核实报道，而政府和平台应加大对媒介素养的投入，并更清晰地标注未经核实的内容。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "Although these platforms can spread useful information quickly, I believe that news encountered there should not be trusted until it has undergone independent verification.",
+      "zh": "尽管这些平台能够迅速传播有用信息，我认为其中的新闻在经历独立核实之前不应被信任。",
+      "structure": "Although 引导让步状语从句；主句为 I believe that...；that 从句中包含 not...until... 时间条件结构。",
+      "grammar": "have undergone 为现在完成时，强调在“被信任”之前必须完成的核实过程；it 指代 news。",
+      "chunk": "undergo independent verification（接受独立核实）"
+    },
+    {
+      "sentence": "During a severe flood, for example, local residents may post warnings about blocked roads long before an official bulletin appears, potentially saving lives.",
+      "zh": "例如，在严重洪灾期间，当地居民可能在官方公告发布前很久就发帖警告道路受阻，从而有可能挽救生命。",
+      "structure": "During... 为时间状语；主句为 local residents may post...；long before 引导时间状语从句；potentially saving lives 为现在分词作结果状语。",
+      "grammar": "may 表示可能性；long before 强调时间上的大幅提前；现在分词 saving 的逻辑主语与主句主语一致。",
+      "chunk": "long before an official bulletin appears（早在官方公告发布之前）"
+    },
+    {
+      "sentence": "Posts are often stripped of context, anonymous accounts can invent stories, and algorithms reward whatever attracts the strongest emotional reaction rather than what is accurate.",
+      "zh": "帖子常常被剥离背景，匿名账号可以编造故事，而算法奖励的是最能引发强烈情绪反应的内容，而非最准确的内容。",
+      "structure": "三个并列分句由 and 连接；whatever... 与 what... 分别作 reward 的宾语，rather than 构成对比。",
+      "grammar": "are stripped of 为被动语态；whatever 引导名词性从句，相当于 anything that；what is accurate 为名词性关系从句。",
+      "chunk": "stripped of context（被剥离背景）"
+    },
+    {
+      "sentence": "I therefore believe that users should cross-check reports with reliable outlets, while governments and platforms invest in media literacy and clearer labelling of unverified content.",
+      "zh": "因此我认为，用户应通过可靠媒体交叉核实报道，而政府和平台应加大对媒介素养的投入，并更清晰地标注未经核实的内容。",
+      "structure": "主句为 I therefore believe that...；while 引导对比状语从句，说明另一项应同步采取的行动。",
+      "grammar": "therefore 作插入语；cross-check A with B 表示“用B核对A”；while 从句中的 invest 用一般现在时，与主句的 should cross-check 形成对照。",
+      "chunk": "cross-check reports with reliable outlets（通过可靠媒体交叉核实报道）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "reliability",
+      "phonetic": "/rɪˌlaɪəˈbɪləti/",
+      "meaning": "可靠性",
+      "collocation": "question the reliability",
+      "example": "The reliability of online reviews depends on independent checks."
+    },
+    {
+      "term": "verification",
+      "phonetic": "/ˌverɪfɪˈkeɪʃn/",
+      "meaning": "核实；验证",
+      "collocation": "independent verification",
+      "example": "Independent verification is essential before a story is published."
+    },
+    {
+      "term": "vulnerable",
+      "phonetic": "/ˈvʌlnərəbl/",
+      "meaning": "易受影响的；脆弱的",
+      "collocation": "vulnerable to misinformation",
+      "example": "Older users may be more vulnerable to online scams."
+    },
+    {
+      "term": "misinformation",
+      "phonetic": "/ˌmɪsɪnfəˈmeɪʃn/",
+      "meaning": "错误信息",
+      "collocation": "spread misinformation",
+      "example": "The campaign aimed to correct misinformation about vaccines."
+    },
+    {
+      "term": "algorithms",
+      "phonetic": "/ˈælɡərɪðəmz/",
+      "meaning": "算法",
+      "collocation": "social media algorithms",
+      "example": "Social media algorithms often promote posts that provoke strong emotions."
+    },
+    {
+      "term": "credibility",
+      "phonetic": "/ˌkredəˈbɪləti/",
+      "meaning": "可信度",
+      "collocation": "establish credibility",
+      "example": "A newspaper's credibility depends on correcting its mistakes."
+    }
+  ],
+  "cohesive": [
+    "To begin with",
+    "for example",
+    "However",
+    "rather than",
+    "Because",
+    "Consequently"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's main view about news on social media?",
+      "options": [
+        "It is always more trustworthy than traditional journalism.",
+        "It is useful for rapid updates but needs independent checking.",
+        "It should be banned because most posts are false.",
+        "It is reliable only when posted by anonymous accounts."
+      ],
+      "answer": 1,
+      "explanation": "作者承认社交媒体在速度和预警方面有价值，但反复强调其新闻必须经过独立核实，因此正确选项概括了这种“有用但需核查”的立场。"
+    },
+    {
+      "prompt": "According to the writer, why do corrections often fail to reach as many people as the original falsehood?",
+      "options": [
+        "Corrections are usually written in confusing technical language.",
+        "Platforms delete all corrections automatically.",
+        "Experts refuse to respond to false claims.",
+        "Users tend to share content that confirms their existing beliefs."
+      ],
+      "answer": 3,
+      "explanation": "文中明确指出，许多用户只转发印证自己既有观念的内容，因此更正信息传播得不如最初的虚假信息远。"
+    },
+    {
+      "prompt": "In the second body paragraph, \"stripped of context\" most nearly means",
+      "options": [
+        "translated into simpler language",
+        "removed from social media by moderators",
+        "presented without the background needed to understand it",
+        "supported by several independent sources"
+      ],
+      "answer": 2,
+      "explanation": "strip something of context 指去掉背景信息，使读者无法全面理解其含义；这与“缺乏理解所需的背景”一致。"
+    }
+  ]
+}

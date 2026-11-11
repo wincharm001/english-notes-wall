@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-work-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Work",
+  "title": "Remote Work: Benefits, Costs and the Hybrid Compromise",
+  "prompt": "Many employees now work from home for at least part of the week. Do the advantages of remote working outweigh the disadvantages for both employees and employers?",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 295,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "远程办公已成常态；我认为只要与定期到岗相结合，它对劳资双方利大于弊。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "员工节省通勤并获得弹性，雇主则可扩大招聘范围、节省场地开支并留住人才。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "弊端是员工孤立、工作与生活界限模糊，以及新员工难以通过观察获得指导。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "远程办公益处可观，但混合模式最佳，应为培训与团队合作保留面对面接触。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "The pandemic turned remote work from a minority arrangement into a routine feature of professional life, and many organisations now allow staff to spend part of the week at home. In my view, the benefits for both employees and employers generally outweigh the drawbacks, provided that remote work is combined with regular office attendance.",
+      "zh": "疫情使远程办公从少数人的安排变成了职业生活的常态，许多组织现在允许员工每周有一部分时间在家工作。在我看来，只要远程办公与定期到办公室上班相结合，它对员工和雇主的好处总体上都大于弊端。"
+    },
+    {
+      "role": "Body 1",
+      "en": "For employees, the most obvious gain is time. Removing a daily commute returns hours to the week, which can be spent on family, rest or exercise, and flexible schedules allow people to work when they are most productive. A parent who no longer travels two hours each day, for instance, can collect a child from school without negotiating with a manager. Employers benefit as well: they can recruit from a wider geographic area, reduce spending on office space and retain skilled staff who value autonomy. Employees who feel trusted tend to respond with greater loyalty and, in many roles, higher output.",
+      "zh": "对员工而言，最明显的好处是时间。取消每日通勤把数小时还给了这一周，可以用来陪伴家人、休息或锻炼，而弹性作息让人们能在效率最高的时候工作。例如，一位不必每天花两小时通勤的家长，可以不用和经理商量就去学校接孩子。雇主同样受益：他们可以从更广的地域范围招聘，减少办公场地开支，并留住看重自主权的熟练员工。感到被信任的员工往往以更高的忠诚度作为回报，在许多岗位上也带来更高的产出。"
+    },
+    {
+      "role": "Body 2",
+      "en": "The drawbacks are nonetheless real. Remote work can leave employees isolated, blur the boundary between work and home, and make it harder for new or junior staff to learn by observing experienced colleagues. Collaboration suffers when complex decisions are reduced to scheduled video calls, and informal conversations that generate ideas rarely happen on screen. A graduate joining a firm remotely, for example, may complete tasks competently yet miss the casual mentoring and workplace friendships that build long-term commitment.",
+      "zh": "不过，弊端确实存在。远程办公可能让员工感到孤立，模糊工作与家庭的界限，也使新员工或初级员工更难通过观察资深同事来学习。当复杂的决策被压缩成预先安排的视频会议时，协作会受损，而那些能激发想法的非正式交谈很少会在屏幕上发生。例如，一名远程入职的毕业生也许能胜任地完成任务，却错过了那些随意的指导和职场友谊，而正是这些建立了长期的归属感。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, remote working offers substantial benefits to both sides, but it works best as part of a hybrid arrangement rather than as a complete replacement for the office. Employers who preserve face-to-face contact for training and teamwork while allowing flexibility at home are likely to gain the most. That balance, rather than a wholesale move online, is what most organisations need.",
+      "zh": "总之，远程办公为双方带来了可观的益处，但它最好作为混合办公安排的一部分，而不是完全取代办公室。那些在允许居家灵活办公的同时，为培训和团队合作保留面对面接触的雇主，很可能获益最多。这种平衡，而不是彻底转向线上办公，才是多数组织所需要的。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "In my view, the benefits for both employees and employers generally outweigh the drawbacks, provided that remote work is combined with regular office attendance.",
+      "zh": "在我看来，只要远程办公与定期到办公室上班相结合，它对员工和雇主的好处总体上都大于弊端。",
+      "structure": "主句为 the benefits outweigh the drawbacks；provided that 引导条件状语从句，对前面的立场作出限定，使观点更严谨。",
+      "grammar": "outweigh 是及物动词，意为“超过、大于”；provided that 引导条件，相当于 on condition that；both...and... 强调劳资双方。",
+      "chunk": "outweigh the drawbacks（超过弊端）"
+    },
+    {
+      "sentence": "A parent who no longer travels two hours each day, for instance, can collect a child from school without negotiating with a manager.",
+      "zh": "例如，一位不必每天花两小时通勤的家长，可以不用和经理商量就去学校接孩子。",
+      "structure": "主语 A parent 后接 who 定语从句，for instance 作插入语；谓语为 can collect；句末 without negotiating 作方式状语。",
+      "grammar": "no longer 表示“不再”；without + 动名词表示“无需做某事”；情态动词 can 表示能力或可能。",
+      "chunk": "collect a child from school（接孩子放学）"
+    },
+    {
+      "sentence": "A graduate joining a firm remotely, for example, may complete tasks competently yet miss the casual mentoring and workplace friendships that build long-term commitment.",
+      "zh": "例如，一名远程入职的毕业生也许能胜任地完成任务，却错过了那些随意的指导和职场友谊，而正是这些建立了长期的归属感。",
+      "structure": "主语 A graduate 后接现在分词短语 joining a firm remotely 作后置定语；for example 插入；谓语为 may complete...yet miss...，yet 连接两个形成对比的动作。",
+      "grammar": "现在分词 joining 作后置定语，相当于 who joins；yet 作并列连词表示转折；that build... 修饰 mentoring 和 friendships。",
+      "chunk": "build long-term commitment（建立长期的归属感）"
+    },
+    {
+      "sentence": "Employers who preserve face-to-face contact for training and teamwork while allowing flexibility at home are likely to gain the most.",
+      "zh": "那些在允许居家灵活办公的同时，为培训和团队合作保留面对面接触的雇主，很可能获益最多。",
+      "structure": "主语 Employers 后接 who 定语从句，从句内部用 while 引导对比状语；主句谓语为 are likely to gain。",
+      "grammar": "who 引导定语从句；while 在此表示对比“而”；be likely to do 表示可能性；gain the most 为最高级，暗含与其他雇主比较。",
+      "chunk": "preserve face-to-face contact（保留面对面接触）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "commute",
+      "phonetic": "/kəˈmjuːt/",
+      "meaning": "通勤；上下班路程",
+      "collocation": "a daily commute",
+      "example": "Her commute takes ninety minutes each way, so she listens to podcasts on the train."
+    },
+    {
+      "term": "autonomy",
+      "phonetic": "/ɔːˈtɒnəmi/",
+      "meaning": "自主权；自治",
+      "collocation": "greater autonomy",
+      "example": "Experienced staff usually perform better when they are given greater autonomy over their schedules."
+    },
+    {
+      "term": "retain",
+      "phonetic": "/rɪˈteɪn/",
+      "meaning": "留住；保留",
+      "collocation": "retain staff",
+      "example": "Flexible hours help the company retain experienced employees."
+    },
+    {
+      "term": "hybrid",
+      "phonetic": "/ˈhaɪbrɪd/",
+      "meaning": "混合的；混合办公的",
+      "collocation": "hybrid working",
+      "example": "The firm adopted hybrid working, with three days in the office and two at home."
+    },
+    {
+      "term": "mentoring",
+      "phonetic": "/ˈmentɔːrɪŋ/",
+      "meaning": "导师指导",
+      "collocation": "informal mentoring",
+      "example": "Junior staff often benefit from informal mentoring during their first year."
+    },
+    {
+      "term": "blur",
+      "phonetic": "/blɜː/",
+      "meaning": "使模糊；模糊",
+      "collocation": "blur the boundary",
+      "example": "Checking emails late at night can blur the boundary between work and rest."
+    }
+  ],
+  "cohesive": [
+    "In my view",
+    "For employees",
+    "for instance",
+    "as well",
+    "nonetheless",
+    "In conclusion"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's overall view?",
+      "options": [
+        "Remote work should completely replace the traditional office.",
+        "Remote work harms employers far more than employees.",
+        "Only parents can benefit from working remotely.",
+        "Remote work benefits both sides but works best when combined with office attendance."
+      ],
+      "answer": 3,
+      "explanation": "首段说好处总体大于弊端，但需与定期到岗相结合；结论又主张混合办公最佳，因此“远程办公对双方都有益，但与到岗结合时效果最好”正确。“完全取代办公室”与作者的混合立场相反，另外两项均属片面或过度推断。"
+    },
+    {
+      "prompt": "Why is the parent mentioned?",
+      "options": [
+        "To argue that parents should work fewer hours than other staff.",
+        "To prove that managers are usually unhelpful.",
+        "To show how remote work can save commuting time and increase flexibility.",
+        "To suggest that schools should change their opening hours."
+      ],
+      "answer": 2,
+      "explanation": "家长例子紧接“取消通勤把时间还给员工”这一论点，用来说明时间节省带来的生活便利，因此“说明远程办公如何节省通勤时间并增加灵活性”正确。文中没有主张家长应少工作，也没有批评经理或学校。"
+    },
+    {
+      "prompt": "The word \"autonomy\" in the essay is closest in meaning to",
+      "options": [
+        "a higher salary",
+        "independence in deciding how to work",
+        "close supervision",
+        "job security"
+      ],
+      "answer": 1,
+      "explanation": "autonomy 指自主决定工作方式的自由，因此与“independence in deciding how to work”最接近。close supervision 意思相反；salary 与 job security 是另外两个不同概念。"
+    }
+  ]
+}

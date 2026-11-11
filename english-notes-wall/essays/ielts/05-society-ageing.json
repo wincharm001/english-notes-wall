@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-society-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Society",
+  "title": "The Ageing Population: Costs and Contributions",
+  "prompt": "In many countries, the proportion of older people is increasing. What are the advantages and disadvantages of an ageing population?",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 287,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "人口老龄化既带来宝贵经验与社会稳定，也给公共财政和劳动力市场带来压力。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "老年人贡献长期积累的经验、志愿服务与照护劳动，并增强社区的社会网络。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "弊端包括养老金与医疗成本上升、用工短缺以及老年人自身的孤立。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "这些困难可以克服，逐步推迟退休年龄、支持照护者与开放移民有助于社会适应。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Improvements in healthcare and falling birth rates mean that many societies now have a growing proportion of elderly citizens. This demographic shift brings valuable experience and social stability, but it also places considerable strain on public finances and the labour market.",
+      "zh": "医疗水平的提高和出生率的下降意味着许多社会现在拥有比例不断上升的老年公民。这一人口结构变化带来了宝贵的经验和社会的稳定，但也给公共财政和劳动力市场带来了相当大的压力。"
+    },
+    {
+      "role": "Body 1",
+      "en": "The advantages are easily overlooked. Older people often hold institutional knowledge and practical judgement that take decades to acquire, and they contribute through paid work, volunteering and caring for grandchildren, which allows younger parents to remain in employment. Communities with a stable older population tend to have stronger social networks and lower levels of crime and disorder. A retired engineer who mentors apprentices at a local college, for example, passes on skills that no textbook can capture, while a grandparent who provides after-school care relieves a family of a significant weekly cost.",
+      "zh": "其优势很容易被忽视。老年人往往拥有需要数十年才能积累的机构运作知识和实践判断力，他们通过有偿工作、志愿服务和照看孙辈作出贡献，使较年轻的父母得以继续工作。老年人口稳定的社区往往拥有更强的社会网络，犯罪和失序程度也更低。例如，一位退休工程师在本地学院指导学徒，传授教科书无法承载的技能；而一位提供课后照看的祖父母，则为家庭省下一笔可观的每周开支。"
+    },
+    {
+      "role": "Body 2",
+      "en": "The disadvantages, however, are substantial. As the ratio of retirees to workers rises, pension systems and health services face mounting costs just as the tax base that funds them grows more slowly. Labour shortages may appear in sectors that depend on younger workers, and older citizens themselves can suffer from isolation when families move away. Care responsibilities often fall on middle-aged relatives, who may reduce their working hours to look after a parent. In a rural town where young adults leave for cities, for instance, the remaining residents may struggle to keep a local clinic or bus service running, and the closure of such amenities deepens their exclusion.",
+      "zh": "然而，弊端也相当大。随着退休者与劳动者的比例上升，养老金体系和医疗服务面临不断攀升的成本，而为其提供资金的税基却增长得更慢。依赖年轻劳动者的行业可能出现用工短缺，而当家人搬走时，老年人自身也可能遭受孤立。照护责任常常落在中年亲属身上，他们可能为了照顾父母而减少工作时间。例如，在一个年轻人纷纷前往城市的乡村小镇，留下来的居民可能难以维持本地诊所或公交服务，而这些设施的关闭又加深了他们的被排斥感。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, an ageing population offers experience and social cohesion but creates genuine fiscal and labour-market pressures. These difficulties are not insurmountable, however, and societies that raise retirement ages gradually, support carers and remain open to immigration can adapt without sacrificing the wellbeing of older citizens.",
+      "zh": "总之，人口老龄化既带来了经验和社会的凝聚力，也造成了真实的财政和劳动力市场压力。然而这些困难并非无法克服；逐步提高退休年龄、支持照护者并对移民保持开放的社会，可以在不牺牲老年人福祉的情况下作出调整。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "This demographic shift brings valuable experience and social stability, but it also places considerable strain on public finances and the labour market.",
+      "zh": "这一人口结构变化带来了宝贵的经验和社会的稳定，但也给公共财政和劳动力市场带来了相当大的压力。",
+      "structure": "but 连接两个并列分句。前一分句说明积极面，后一分句用 it 指代 demographic shift，说明它带来的压力。",
+      "grammar": "place strain on 是固定搭配，意为“给……带来压力”；considerable 修饰不可数名词 strain；两个分句主语不同，形成对照。",
+      "chunk": "place strain on public finances（给公共财政带来压力）"
+    },
+    {
+      "sentence": "A retired engineer who mentors apprentices at a local college, for example, passes on skills that no textbook can capture, while a grandparent who provides after-school care relieves a family of a significant weekly cost.",
+      "zh": "例如，一位退休工程师在本地学院指导学徒，传授教科书无法承载的技能；而一位提供课后照看的祖父母，则为家庭省下一笔可观的每周开支。",
+      "structure": "while 连接两个并列分句，形成对比。前一分句主语 A retired engineer 后接 who 定语从句，后一分句主语 a grandparent 也后接 who 定语从句。",
+      "grammar": "who 引导定语从句；that no textbook can capture 修饰 skills；relieve sb of sth 表示“减轻某人的负担”。",
+      "chunk": "pass on skills（传授技能）"
+    },
+    {
+      "sentence": "In a rural town where young adults leave for cities, for instance, the remaining residents may struggle to keep a local clinic or bus service running, and the closure of such amenities deepens their exclusion.",
+      "zh": "例如，在一个年轻人纷纷前往城市的乡村小镇，留下来的居民可能难以维持本地诊所或公交服务，而这些设施的关闭又加深了他们的被排斥感。",
+      "structure": "主句主干为 the remaining residents may struggle；where 引导定语从句修饰 town，for instance 作插入语；and 连接表示结果的分句。",
+      "grammar": "where 引导定语从句表示地点；keep...running 是“keep + 宾语 + 现在分词”结构；such amenities 回指前文的诊所和公交服务。",
+      "chunk": "keep a local service running（维持本地服务的运转）"
+    },
+    {
+      "sentence": "These difficulties are not insurmountable, however, and societies that raise retirement ages gradually, support carers and remain open to immigration can adapt without sacrificing the wellbeing of older citizens.",
+      "zh": "然而这些困难并非无法克服；逐步提高退休年龄、支持照护者并对移民保持开放的社会，可以在不牺牲老年人福祉的情况下作出调整。",
+      "structure": "however 作插入语，表示转折；and 连接两个并列分句，第二分句的主语 societies 后接 that 定语从句，谓语为 can adapt。",
+      "grammar": "not insurmountable 是“否定词 + 否定含义形容词”的双重否定表达，意为“可以克服”；without sacrificing 为介词短语作方式状语。",
+      "chunk": "adapt without sacrificing wellbeing（在不牺牲福祉的情况下作出调整）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "demographic",
+      "phonetic": "/ˌdeməˈɡræfɪk/",
+      "meaning": "人口结构的",
+      "collocation": "a demographic shift",
+      "example": "A demographic shift towards older residents changes demand for housing and transport."
+    },
+    {
+      "term": "strain",
+      "phonetic": "/streɪn/",
+      "meaning": "压力；负担",
+      "collocation": "put a strain on services",
+      "example": "Rapid population growth has put a strain on local schools."
+    },
+    {
+      "term": "insurmountable",
+      "phonetic": "/ˌɪnsəˈmaʊntəbl/",
+      "meaning": "无法克服的",
+      "collocation": "an insurmountable obstacle",
+      "example": "The language barrier seemed insurmountable at first, but she soon made friends."
+    },
+    {
+      "term": "isolation",
+      "phonetic": "/ˌaɪsəˈleɪʃn/",
+      "meaning": "孤立；孤独",
+      "collocation": "social isolation",
+      "example": "Poor transport links can increase social isolation among older residents."
+    },
+    {
+      "term": "amenities",
+      "phonetic": "/əˈmiːnətiz/",
+      "meaning": "生活便利设施",
+      "collocation": "local amenities",
+      "example": "New housing developments should include amenities such as shops and clinics."
+    },
+    {
+      "term": "cohesion",
+      "phonetic": "/kəʊˈhiːʒn/",
+      "meaning": "凝聚力",
+      "collocation": "social cohesion",
+      "example": "Shared public spaces can strengthen social cohesion in diverse neighbourhoods."
+    }
+  ],
+  "cohesive": [
+    "but it also",
+    "for example",
+    "however",
+    "for instance",
+    "just as",
+    "In conclusion"
+  ],
+  "questions": [
+    {
+      "prompt": "Which statement best captures the writer's view?",
+      "options": [
+        "An ageing population is entirely beneficial.",
+        "Older citizens are a burden with no economic value.",
+        "An ageing population creates both benefits and pressures, which can be managed.",
+        "Governments should discourage people from retiring."
+      ],
+      "answer": 2,
+      "explanation": "第二段肯定老年人的贡献，第三段说明财政与用工压力，结论又说这些困难可以克服，因此“老龄化既带来益处也带来压力，而这些压力可以管理”概括最准确。“完全有益”与“老年人只是负担”各执一端，文中也没有主张劝阻退休。"
+    },
+    {
+      "prompt": "The retired engineer is mentioned to show that",
+      "options": [
+        "engineers earn more than college teachers.",
+        "older people transmit practical knowledge that formal teaching cannot easily replace.",
+        "colleges should hire only retired staff.",
+        "apprentices learn faster than university students."
+      ],
+      "answer": 1,
+      "explanation": "工程师指导学徒的例子紧接“老年人拥有数十年积累的知识与判断力”，并用“教科书无法承载”强调经验传授的独特价值，因此“老年人传递正规教学难以替代的实践知识”正确。其余选项均属过度推断。"
+    },
+    {
+      "prompt": "The word \"insurmountable\" in the essay is closest in meaning to",
+      "options": [
+        "impossible to overcome",
+        "difficult to measure",
+        "easy to ignore",
+        "likely to spread"
+      ],
+      "answer": 0,
+      "explanation": "insurmountable 由 surmount（克服）加否定前缀构成，意为“无法克服的”。句中用 not insurmountable 表示困难可以解决，因此“impossible to overcome”正确。"
+    }
+  ]
+}

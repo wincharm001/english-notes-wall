@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-health-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Health",
+  "title": "Prevention or Treatment: Spending Priorities in Health Care",
+  "prompt": "Some people believe that governments should spend more money on preventing illness than on treating it. To what extent do you agree or disagree?",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 287,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "医疗预算有限，我大体同意预防应占更大份额，但这不能牺牲基本治疗服务。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "预防既减少痛苦又降低长期成本，筛查等项目的花费往往远低于住院治疗。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "但预防无法替代治疗：急重症需要立即干预，且预防见效慢，可能漏掉最脆弱的群体。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "政府应逐步提高预防支出比例，同时保障治疗资源，二者是伙伴而非对手。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Health budgets are finite, and governments must decide how much to devote to stopping illness before it starts rather than to treating patients once they are unwell. I largely agree that prevention deserves a larger share of public spending, although this should not come at the expense of essential treatment services.",
+      "zh": "医疗预算是有限的，政府必须决定把多少资金用于在疾病发生之前加以预防，而不是用于在病人已经患病之后进行治疗。我大体上同意预防应获得更大份额的公共支出，但这不应以牺牲基本治疗服务为代价。"
+    },
+    {
+      "role": "Body 1",
+      "en": "The case for prevention is compelling. Programmes that encourage vaccination, screen for common conditions and discourage smoking or excessive drinking reduce both suffering and the long-term cost of care, often at a fraction of the price of hospital treatment. A national screening programme that identifies diabetes in middle age, for instance, can help patients change their diet and avoid complications that would otherwise require dialysis or surgery. Prevention also protects people who never become patients at all, which is an outcome that treatment spending can never achieve. Investing early therefore eases pressure on hospitals rather than adding to it.",
+      "zh": "支持预防的理由很有说服力。鼓励接种疫苗、筛查常见疾病以及劝阻吸烟和过量饮酒的项目，既能减少痛苦，也能降低长期医疗成本，其花费往往只是医院治疗的一小部分。例如，一项在中年人群中查出糖尿病的全国筛查计划，可以帮助患者改变饮食，避免原本需要透析或手术的并发症。预防还保护了那些根本不会成为病人的人，而这是治疗支出永远无法实现的结果。因此，早期投入减轻而非增加了医院的压力。"
+    },
+    {
+      "role": "Body 2",
+      "en": "Nevertheless, prevention is not a substitute for care. Heart attacks, serious injuries and aggressive cancers demand immediate, sophisticated intervention, and delaying investment in hospitals would cost lives long before any preventive strategy bore fruit. Prevention is also slow to show results and may benefit the health-conscious most, leaving the most vulnerable reliant on emergency services. Those who skip check-ups, whether through cost, language barriers or mistrust, are precisely the people whose conditions are diagnosed late. A stroke patient arriving at hospital, for example, needs a specialist team within hours; no amount of public health advice can replace that.",
+      "zh": "然而，预防并不能替代治疗。心脏病发作、严重外伤和侵袭性癌症需要立即且专业的干预，如果推迟对医院的投入，在预防策略见效之前很久就会有人因此丧命。预防见效也慢，而且可能主要惠及注重健康的人，使最脆弱的群体只能依赖急诊服务。那些因费用、语言障碍或不信任而不去做检查的人，恰恰是病情被较晚发现的人。例如，中风患者被送到医院后需要在数小时内得到专科团队救治；再多的公共卫生建议也无法取代这一点。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, governments should steadily shift a greater proportion of health funding towards prevention, while guaranteeing that treatment remains adequately resourced. The two approaches are partners rather than rivals, and a balanced budget is ultimately the most humane one.",
+      "zh": "总之，政府应逐步把更大比例的卫生资金转向预防，同时保证治疗仍获得充足的资源。这两种方式互为伙伴而非对手，而平衡的预算最终才是最人道的选择。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "I largely agree that prevention deserves a larger share of public spending, although this should not come at the expense of essential treatment services.",
+      "zh": "我大体上同意预防应获得更大份额的公共支出，但这不应以牺牲基本治疗服务为代价。",
+      "structure": "主句为 I largely agree that...，although 引导让步状语从句，对前面的主张加以限制，使立场更加平衡。",
+      "grammar": "largely 是程度副词，修饰 agree；deserve 后接名词短语；come at the expense of 意为“以……为代价”。",
+      "chunk": "at the expense of essential services（以基本服务为代价）"
+    },
+    {
+      "sentence": "A national screening programme that identifies diabetes in middle age, for instance, can help patients change their diet and avoid complications that would otherwise require dialysis or surgery.",
+      "zh": "例如，一项在中年人群中查出糖尿病的全国筛查计划，可以帮助患者改变饮食，避免原本需要透析或手术的并发症。",
+      "structure": "主语 A national screening programme 后接 that 定语从句，for instance 作插入语；谓语为 can help；complications 后又接一个 that 定语从句。",
+      "grammar": "help sb (to) do sth 结构；otherwise 表示“否则”，暗示与事实相反的假设结果；would require 带有虚拟含义。",
+      "chunk": "avoid complications（避免并发症）"
+    },
+    {
+      "sentence": "Prevention is also slow to show results and may benefit the health-conscious most, leaving the most vulnerable reliant on emergency services.",
+      "zh": "预防见效也慢，而且可能主要惠及注重健康的人，使最脆弱的群体只能依赖急诊服务。",
+      "structure": "句子谓语由并列的 is 与 may benefit 构成；句末 leaving 引导的分词短语作结果状语，说明前面情况造成的后果。",
+      "grammar": "be slow to do 表示“做某事很慢”；the health-conscious 是“the + 形容词”结构，指一类人；reliant on 作宾语补足语。",
+      "chunk": "the most vulnerable（最脆弱的群体）"
+    },
+    {
+      "sentence": "The two approaches are partners rather than rivals, and a balanced budget is ultimately the most humane one.",
+      "zh": "这两种方式互为伙伴而非对手，而平衡的预算最终才是最人道的选择。",
+      "structure": "and 连接两个并列分句；第一分句用 partners rather than rivals 作表语，形成鲜明对比；第二分句以 a balanced budget 作主语。",
+      "grammar": "rather than 连接两个并列名词，表示取舍；ultimately 作评注性状语；one 替代前文的 budget，避免重复。",
+      "chunk": "partners rather than rivals（是伙伴而非对手）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "compelling",
+      "phonetic": "/kəmˈpelɪŋ/",
+      "meaning": "令人信服的；有说服力的",
+      "collocation": "a compelling argument",
+      "example": "The evidence for regular exercise is compelling, even without sophisticated equipment."
+    },
+    {
+      "term": "vaccination",
+      "phonetic": "/ˌvæksɪˈneɪʃn/",
+      "meaning": "接种疫苗；疫苗接种",
+      "collocation": "a vaccination programme",
+      "example": "A well-run vaccination programme protects children who cannot yet be immunised themselves."
+    },
+    {
+      "term": "screening",
+      "phonetic": "/ˈskriːnɪŋ/",
+      "meaning": "筛查；检查",
+      "collocation": "cancer screening",
+      "example": "Regular screening can detect problems before symptoms appear."
+    },
+    {
+      "term": "intervention",
+      "phonetic": "/ˌɪntəˈvenʃn/",
+      "meaning": "干预；介入",
+      "collocation": "early intervention",
+      "example": "Early intervention in childhood speech difficulties often prevents later learning problems."
+    },
+    {
+      "term": "vulnerable",
+      "phonetic": "/ˈvʌlnərəbl/",
+      "meaning": "脆弱的；易受伤害的",
+      "collocation": "vulnerable groups",
+      "example": "During heatwaves, vulnerable groups such as older people need extra support."
+    },
+    {
+      "term": "dialysis",
+      "phonetic": "/daɪˈæləsɪs/",
+      "meaning": "透析",
+      "collocation": "undergo dialysis",
+      "example": "Patients with advanced kidney disease may need dialysis several times a week."
+    }
+  ],
+  "cohesive": [
+    "although",
+    "for instance",
+    "Nevertheless",
+    "for example",
+    "In conclusion",
+    "rather than"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's overall position?",
+      "options": [
+        "All health spending should be moved from treatment to prevention.",
+        "Prevention should receive more funding while treatment remains adequately funded.",
+        "Treatment is more important than prevention in every case.",
+        "Governments should fund neither prevention nor treatment."
+      ],
+      "answer": 1,
+      "explanation": "首段表示预防应获更大份额，同时强调不能牺牲基本治疗；结论再次主张两者兼顾，因此“预防应获得更多资金，同时治疗仍得到充足投入”正确。把全部支出转向预防或认为治疗永远更重要都走向极端，主张两者都不资助更与全文立场相悖。"
+    },
+    {
+      "prompt": "Why is the stroke patient mentioned?",
+      "options": [
+        "To illustrate that some conditions require immediate specialist care that prevention cannot replace.",
+        "To show that prevention programmes are ineffective.",
+        "To argue that hospitals employ too many specialists.",
+        "To suggest that patients should ignore public health advice."
+      ],
+      "answer": 0,
+      "explanation": "中风例子用于支持“预防不能替代治疗”这一分论点：急救需要专科团队在数小时内介入，因此“说明某些情况需要预防无法替代的即时专科治疗”正确。作者并未否定预防的整体价值。"
+    },
+    {
+      "prompt": "The word \"compelling\" in the essay is closest in meaning to",
+      "options": [
+        "compulsory",
+        "complicated",
+        "controversial",
+        "convincing"
+      ],
+      "answer": 3,
+      "explanation": "compelling 在此修饰 case，意为“令人信服的、有说服力的”，因此与 convincing 最接近。compulsory 意为“强制的”，complicated 与 controversial 都不符合语境。"
+    }
+  ]
+}

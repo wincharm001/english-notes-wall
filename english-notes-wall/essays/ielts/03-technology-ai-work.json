@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-technology-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Technology",
+  "title": "Artificial Intelligence and the Future of Work",
+  "prompt": "Some people fear that artificial intelligence will ultimately destroy more jobs than it creates. To what extent do you agree or disagree?",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 296,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "对人工智能造成失业的担忧可以理解，但我认为其总体利大于弊，前提是转型得到妥善管理。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "担忧并非无据：人工智能擅长替代常规认知任务，而受影响的劳动者往往最难转岗。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "经济会重组而非只做减法：人工智能接手重复劳动，使人专注于判断与关系，并催生新职业。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "冲击真实但并非必然，益处能否实现取决于社会在再培训与保障上的投入。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Few technological developments have generated as much anxiety as artificial intelligence, which many workers now fear will make their skills redundant. While I accept that AI will displace certain jobs, I disagree that it will do more harm than good overall, since its capacity to create new forms of work and raise productivity is likely to outweigh the losses, provided that the transition is managed.",
+      "zh": "很少有技术发展像人工智能这样引发如此多的焦虑，如今许多劳动者担心自己的技能会变得多余。虽然我承认人工智能会使某些工作岗位消失，但我不同意它总体上弊大于利，因为只要转型得到妥善管理，它创造新型工作并提高生产率的能力很可能超过其造成的损失。"
+    },
+    {
+      "role": "Body 1",
+      "en": "The concerns are not unfounded. AI excels at routine cognitive tasks, such as processing invoices, answering standard customer queries or translating simple documents, and the people who currently perform this work are often those with the least room to retrain. A call centre that automates its first-line support, for instance, may need far fewer agents, and the staff who remain must handle more complex cases with less routine practice. Because such displacement can happen quickly, affected workers may experience prolonged insecurity even if new roles eventually emerge.",
+      "zh": "这些担忧并非毫无根据。人工智能擅长处理常规性的认知任务，例如处理发票、回答标准客户咨询或翻译简单文件，而目前从事这些工作的人往往最缺乏转岗的空间。例如，一家把一线客服自动化的呼叫中心可能只需要少得多的坐席人员，而留下来的员工必须以更少的常规练习去处理更复杂的案例。由于这种岗位消失可能发生得很快，即使新岗位最终出现，受影响的劳动者也可能经历长期的不安全感。"
+    },
+    {
+      "role": "Body 2",
+      "en": "Yet the economy does not simply subtract jobs; it reorganises them. AI tools remove repetitive drudgery, allowing employees to concentrate on judgement, relationships and creativity, which are precisely the areas where human contribution remains distinctive. New occupations also appear around the technology itself, from data curation and model auditing to the maintenance of automated systems. A hospital that uses AI to flag suspicious scans, for example, still needs radiographers to explain results, reassure patients and decide what happens next, and their working day becomes more focused rather than redundant. Earlier waves of automation similarly reshaped employment rather than eliminating it.",
+      "zh": "然而，经济并不会简单地做减法，而是会重组工作。人工智能工具清除了重复性的枯燥劳动，让员工得以专注于判断、人际关系和创造力，而这些恰恰是人类贡献仍然独特的领域。围绕这项技术本身也会出现新的职业，从数据整理、模型审核到自动化系统的维护。例如，一家利用人工智能标记可疑扫描影像的医院，仍然需要放射技师来解释结果、安抚病人并决定下一步怎么做，他们的工作日因此变得更有重点，而不是变得多余。此前的自动化浪潮同样重塑了就业，而不是消灭了就业。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, although AI will cause genuine disruption in specific occupations, it is not inherently a net destroyer of employment. Whether its benefits are realised depends less on the technology than on how deliberately societies invest in retraining and protect those who are displaced.",
+      "zh": "总之，尽管人工智能会在特定职业中造成真实的冲击，但它本质上并不是就业的净毁灭者。其益处能否实现，与其说取决于技术本身，不如说取决于社会如何有意识地在再培训上投入，并保护那些失去岗位的人。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "While I accept that AI will displace certain jobs, I disagree that it will do more harm than good overall, since its capacity to create new forms of work and raise productivity is likely to outweigh the losses, provided that the transition is managed.",
+      "zh": "虽然我承认人工智能会使某些工作岗位消失，但我不同意它总体上弊大于利，因为只要转型得到妥善管理，它创造新型工作并提高生产率的能力很可能超过其造成的损失。",
+      "structure": "While 引导让步状语从句，主句为 I disagree that...；since 引导原因状语从句，句末 provided that 再引导条件状语从句。",
+      "grammar": "accept 与 disagree 形成对比，使立场更平衡；do more harm than good 是固定比较结构；provided that 意为“只要”，引导条件。",
+      "chunk": "do more harm than good（弊大于利）"
+    },
+    {
+      "sentence": "A call centre that automates its first-line support, for instance, may need far fewer agents, and the staff who remain must handle more complex cases with less routine practice.",
+      "zh": "例如，一家把一线客服自动化的呼叫中心可能只需要少得多的坐席人员，而留下来的员工必须以更少的常规练习去处理更复杂的案例。",
+      "structure": "and 连接两个并列分句。前一分句主语 A call centre 后接 that 定语从句，for instance 作插入语；后一分句主语 the staff 后接 who 定语从句。",
+      "grammar": "may need 表示可能性；who remain 是限制性定语从句；with less routine practice 作方式状语，说明处理复杂案例的条件。",
+      "chunk": "handle more complex cases（处理更复杂的案例）"
+    },
+    {
+      "sentence": "A hospital that uses AI to flag suspicious scans, for example, still needs radiographers to explain results, reassure patients and decide what happens next, and their working day becomes more focused rather than redundant.",
+      "zh": "例如，一家利用人工智能标记可疑扫描影像的医院，仍然需要放射技师来解释结果、安抚病人并决定下一步怎么做，他们的工作日因此变得更有重点，而不是变得多余。",
+      "structure": "主句主干为 A hospital still needs radiographers；that 从句修饰 hospital，for example 为插入语；and 连接表示结果的分句。",
+      "grammar": "need sb to do sth 结构；to explain、reassure、decide 三个不定式并列；rather than 连接对比成分。",
+      "chunk": "flag suspicious scans（标记可疑的扫描影像）"
+    },
+    {
+      "sentence": "Whether its benefits are realised depends less on the technology than on how deliberately societies invest in retraining and protect those who are displaced.",
+      "zh": "其益处能否实现，与其说取决于技术本身，不如说取决于社会如何有意识地在再培训上投入，并保护那些失去岗位的人。",
+      "structure": "主语是 Whether 引导的主语从句，谓语为 depends less on A than on B；than 后介词 on 的宾语由 how 引导的从句充当。",
+      "grammar": "whether 引导主语从句；depends less on...than on... 表示“与其说取决于……不如说取决于……”；those who are displaced 中 who 引导定语从句。",
+      "chunk": "invest in retraining（投资于再培训）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "redundant",
+      "phonetic": "/rɪˈdʌndənt/",
+      "meaning": "被裁减的；多余的",
+      "collocation": "make a role redundant",
+      "example": "The company made several administrative roles redundant after automating its records."
+    },
+    {
+      "term": "displace",
+      "phonetic": "/dɪsˈpleɪs/",
+      "meaning": "使失去工作；取代",
+      "collocation": "displace workers",
+      "example": "Automation may displace workers in routine roles while creating demand for technicians."
+    },
+    {
+      "term": "drudgery",
+      "phonetic": "/ˈdrʌdʒəri/",
+      "meaning": "枯燥乏味的苦差事",
+      "collocation": "escape the drudgery",
+      "example": "Software now handles the drudgery of formatting reports, leaving staff free to analyse them."
+    },
+    {
+      "term": "curation",
+      "phonetic": "/kjʊəˈreɪʃn/",
+      "meaning": "筛选整理；（数据）策管",
+      "collocation": "data curation",
+      "example": "Reliable data curation is essential before any model can be trained."
+    },
+    {
+      "term": "distinctive",
+      "phonetic": "/dɪˈstɪŋktɪv/",
+      "meaning": "独特的；有辨识度的",
+      "collocation": "a distinctive contribution",
+      "example": "Her distinctive contribution to the project was the way she interviewed customers."
+    },
+    {
+      "term": "disruption",
+      "phonetic": "/dɪsˈrʌpʃn/",
+      "meaning": "扰乱；中断",
+      "collocation": "economic disruption",
+      "example": "The new technology caused short-term disruption before its benefits became visible."
+    }
+  ],
+  "cohesive": [
+    "While",
+    "for instance",
+    "Yet",
+    "for example",
+    "In conclusion",
+    "rather than"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's overall view of AI's effect on employment?",
+      "options": [
+        "It is likely to be beneficial overall if the transition is managed.",
+        "It will certainly destroy more jobs than it creates.",
+        "It will have almost no effect on employment.",
+        "It should be banned until every job is protected."
+      ],
+      "answer": 0,
+      "explanation": "首段说不同意“弊大于利”，并强调只要转型得到管理，收益可能超过损失，因此“只要转型得到管理，总体可能有益”正确。认为必然摧毁更多工作正是作者反驳的观点，另外两项文中均未出现。"
+    },
+    {
+      "prompt": "Why does the writer mention radiographers?",
+      "options": [
+        "To show that hospitals are slow to adopt new technology.",
+        "To argue that doctors should interpret all scans themselves.",
+        "To prove that AI makes fewer mistakes than human staff.",
+        "To illustrate that AI changes professional roles rather than removing them."
+      ],
+      "answer": 3,
+      "explanation": "医院例子紧接“新职业出现、工作被重组”的论点，说明放射技师的工作重心转移而非岗位消失，因此“说明人工智能改变职业角色而非消除岗位”正确。文中未比较医院采用技术的速度或错误率。"
+    },
+    {
+      "prompt": "The word \"drudgery\" in the essay is closest in meaning to",
+      "options": [
+        "skilled craftsmanship",
+        "dangerous labour",
+        "dull repetitive work",
+        "creative collaboration"
+      ],
+      "answer": 2,
+      "explanation": "drudgery 指单调、枯燥且重复的劳动，与人工智能接手的“重复性工作”对应，因此“dull repetitive work”正确。craftsmanship 与 collaboration 都带有技术或创造性色彩，与语境相反。"
+    }
+  ]
+}

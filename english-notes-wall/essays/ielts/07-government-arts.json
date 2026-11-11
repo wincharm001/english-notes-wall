@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-government-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Government",
+  "title": "Funding the Arts in Hard Times",
+  "prompt": "Some people believe that governments should fund the arts, while others argue that pressing social needs such as healthcare and housing should come first. Discuss both views and give your own opinion.",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 287,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "公共预算有限，作者认为有针对性的艺术资助是正当的公共投资。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "艺术能提供市场难以提供的社会效益，并增强社会凝聚力。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "紧迫的社会需求应优先，但适度的文化投入仍可带来经济回报。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "政府应有选择地资助艺术，同时确保基本福利不被忽视。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Public budgets are always finite, so every allocation of government money invites debate. While some argue that the arts are a luxury that should wait until healthcare and housing are secure, I believe that carefully targeted cultural funding is a legitimate public investment rather than an optional extra.",
+      "zh": "公共预算总是有限的，因此政府每一笔资金的分配都会引发争论。有人主张，艺术属于奢侈享受，应等到医疗和住房得到保障之后再考虑；但我认为，有针对性的人文艺术投入是一项正当的公共投资，而非可有可无的额外开支。"
+    },
+    {
+      "role": "Body 1",
+      "en": "To begin with, the arts deliver social benefits that markets alone rarely provide. Publicly funded museums, libraries and community theatres give people affordable places to learn, meet and express themselves, particularly in poorer neighbourhoods where commercial venues are scarce. A free theatre workshop for teenagers, for instance, can build confidence and teamwork in ways that a formal classroom often cannot. Such programmes also preserve local stories and languages that might otherwise disappear. If governments treat culture as merely entertainment, they overlook its role in strengthening social cohesion and civic identity.",
+      "zh": "首先，艺术能够带来市场本身很少提供的公共效益。由公共资金支持的博物馆、图书馆和社区剧院，为人们提供了负担得起的学习、交流和表达场所，在商业设施匮乏的贫困社区尤其如此。例如，一场面向青少年的免费戏剧工作坊，能以常规课堂往往难以做到的方式培养自信和团队合作能力。这类项目还能保存那些原本可能消失的地方故事和语言。如果政府只把文化当作娱乐，就会忽视它在增强社会凝聚力和公民认同方面的作用。"
+    },
+    {
+      "role": "Body 2",
+      "en": "Nevertheless, it would be irresponsible to defend arts spending while hospitals lack staff or families sleep in temporary accommodation. Immediate needs such as healthcare, housing and education must take priority, and cultural budgets should be transparent and results-based. However, this does not mean that the arts should be abandoned whenever money is tight. In many cities, a modest investment in a regional gallery or festival attracts visitors who then support hotels, cafes and shops, so the money circulates through the local economy. The sensible approach is therefore to protect a small, well-managed cultural budget while directing the bulk of public funds to urgent social services.",
+      "zh": "然而，在医院人手不足、一些家庭只能住在临时住所的情况下，仍为艺术开支辩护是不负责任的。医疗、住房和教育等迫切需求必须优先，文化预算也应保持透明并注重成效。不过，这并不意味着只要资金紧张，艺术就该被放弃。在许多城市，对地区美术馆或节庆活动的一笔适度投入会吸引游客，而游客又会惠及酒店、咖啡馆和商店，于是资金便在地方经济中循环流动。因此，明智的做法是保留一份规模不大、管理良好的文化预算，同时把大部分公共资金用于紧迫的社会服务。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, although social needs must come first, I disagree that the arts are a luxury to be cut at the first sign of difficulty. Governments should fund culture selectively, measuring its social and economic value, while ensuring that basic welfare is never neglected.",
+      "zh": "总之，尽管社会需求必须放在首位，我仍不认同艺术是遇到困难就该首先削减的奢侈品。政府应当有选择地资助文化事业，衡量其社会和经济价值，同时确保基本福利永远不被忽视。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "While some argue that the arts are a luxury that should wait until healthcare and housing are secure, I believe that carefully targeted cultural funding is a legitimate public investment rather than an optional extra.",
+      "zh": "有人主张艺术是应等到医疗和住房有保障后再考虑的奢侈品，但我认为，有针对性的人文艺术资助是一项正当的公共投资，而不是可有可无的额外开支。",
+      "structure": "While 引导让步状语从句，主句为 I believe that...；that 从句中 rather than 连接两个并列名词短语，形成对比。",
+      "grammar": "while 在此表示让步；a luxury 后接 that 引导的定语从句；rather than 表示“而不是”，前后成分需保持一致。",
+      "chunk": "a legitimate public investment（一项正当的公共投资）"
+    },
+    {
+      "sentence": "A free theatre workshop for teenagers, for instance, can build confidence and teamwork in ways that a formal classroom often cannot.",
+      "zh": "例如，一场面向青少年的免费戏剧工作坊，能以常规课堂往往无法做到的方式培养自信和团队合作能力。",
+      "structure": "主句为 A free theatre workshop... can build...，for instance 作插入语；in ways that... 为方式状语，其中 that 引导定语从句。",
+      "grammar": "can build 表示能力或可能性；that a formal classroom often cannot 是定语从句，cannot 后省略了 build confidence and teamwork。",
+      "chunk": "build confidence and teamwork（培养自信与团队合作能力）"
+    },
+    {
+      "sentence": "In many cities, a modest investment in a regional gallery or festival attracts visitors who then support hotels, cafes and shops, so the money circulates through the local economy.",
+      "zh": "在许多城市，对地区美术馆或节庆活动的一笔适度投入会吸引游客，游客继而惠及酒店、咖啡馆和商店，因此资金会在地方经济中循环流动。",
+      "structure": "主句为 a modest investment... attracts visitors；who 引导定语从句修饰 visitors；so 连接结果分句。",
+      "grammar": "who then support... 中 then 表示先后关系；so 连接因果关系；circulates 用一般现在时陈述普遍现象。",
+      "chunk": "circulates through the local economy（在地方经济中循环流动）"
+    },
+    {
+      "sentence": "Governments should fund culture selectively, measuring its social and economic value, while ensuring that basic welfare is never neglected.",
+      "zh": "政府应当有选择地资助文化事业，衡量其社会和经济价值，同时确保基本福利永远不被忽视。",
+      "structure": "句子主干为 Governments should fund culture...；measuring... 为现在分词作伴随状语；while ensuring... 表示同时进行的动作。",
+      "grammar": "should 表示建议；measuring its social and economic value 的逻辑主语是 governments；while 后接动名词短语，保持并列。",
+      "chunk": "fund culture selectively（有选择地资助文化事业）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "allocation",
+      "phonetic": "/ˌæləˈkeɪʃn/",
+      "meaning": "分配；拨款",
+      "collocation": "the allocation of resources",
+      "example": "The allocation of resources to rural schools remains uneven."
+    },
+    {
+      "term": "finite",
+      "phonetic": "/ˈfaɪnaɪt/",
+      "meaning": "有限的",
+      "collocation": "finite resources",
+      "example": "Clean water is a finite resource in many regions."
+    },
+    {
+      "term": "social cohesion",
+      "phonetic": "/ˌsəʊʃl kəʊˈhiːʒn/",
+      "meaning": "社会凝聚力",
+      "collocation": "strengthen social cohesion",
+      "example": "Community sports programmes can strengthen social cohesion."
+    },
+    {
+      "term": "transparent",
+      "phonetic": "/trænsˈpærənt/",
+      "meaning": "透明的；公开的",
+      "collocation": "a transparent budget",
+      "example": "The council promised a transparent budget for the new library."
+    },
+    {
+      "term": "circulate",
+      "phonetic": "/ˈsɜːkjəleɪt/",
+      "meaning": "流通；循环",
+      "collocation": "circulate through the economy",
+      "example": "Money spent in independent shops tends to circulate within the community."
+    },
+    {
+      "term": "selectively",
+      "phonetic": "/sɪˈlektɪvli/",
+      "meaning": "有选择地",
+      "collocation": "fund projects selectively",
+      "example": "The charity distributes aid selectively to the most vulnerable families."
+    }
+  ],
+  "cohesive": [
+    "To begin with",
+    "for instance",
+    "Nevertheless",
+    "However",
+    "therefore",
+    "In conclusion"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's overall position on public funding for the arts?",
+      "options": [
+        "It should be abolished whenever hospitals or housing are under pressure.",
+        "It is more important than healthcare and education.",
+        "It should be maintained selectively even when social needs are urgent.",
+        "It should be left entirely to private sponsors."
+      ],
+      "answer": 2,
+      "explanation": "作者在开头和结尾都明确表示，有针对性的艺术资助是正当投资，但社会基本需求必须优先，因此应“有选择地”保留，而不是取消或置于医疗之上。"
+    },
+    {
+      "prompt": "Why does the writer mention a regional gallery or festival?",
+      "options": [
+        "To argue that tourists should pay higher taxes.",
+        "To show that cultural spending can benefit the wider local economy.",
+        "To prove that museums are more useful than hospitals.",
+        "To suggest that festivals always make a profit."
+      ],
+      "answer": 1,
+      "explanation": "该例子说明文化投入能吸引游客，游客再消费于酒店、咖啡馆和商店，从而让资金在地方经济中循环，支持作者“适度投入仍有价值”的观点。"
+    },
+    {
+      "prompt": "In the second body paragraph, the word \"tight\" is closest in meaning to",
+      "options": [
+        "strictly controlled",
+        "uncomfortable",
+        "rapidly changing",
+        "limited"
+      ],
+      "answer": 3,
+      "explanation": "money is tight 是固定表达，意为“资金紧张、钱不多”，与 limited 最接近；strictly controlled 侧重“受严格控制”，不符合此处语境。"
+    }
+  ]
+}

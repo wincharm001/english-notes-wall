@@ -1,0 +1,168 @@
+{
+  "id": "ielts-t2-culture-01",
+  "exam": "ielts",
+  "task": "task2",
+  "topic": "Culture",
+  "title": "Globalisation and Local Traditions",
+  "prompt": "Some people think that globalisation is destroying local traditions, while others believe that it helps cultures to flourish. Discuss both views and give your own opinion.",
+  "targetBand": "7.5",
+  "minutes": 40,
+  "wordCount": 288,
+  "outline": [
+    {
+      "role": "Introduction",
+      "summary": "全球化带来文化趋同的担忧，但作者认为其影响取决于社区和政府的应对。"
+    },
+    {
+      "role": "Body 1",
+      "summary": "国际品牌和强势语言可能把地方习俗推向边缘，造成文化损失。"
+    },
+    {
+      "role": "Body 2",
+      "summary": "全球受众和跨文化合作也能为地方传统注入新的活力。"
+    },
+    {
+      "role": "Conclusion",
+      "summary": "用心支持地方文化，社区便能在开放交流中保留自身遗产。"
+    }
+  ],
+  "paragraphs": [
+    {
+      "role": "Introduction",
+      "en": "Globalisation has connected economies and cultures more closely than ever before, and this integration has prompted fears that distinctive local traditions will disappear. While these concerns are justified, I believe that globalisation is not an inevitable destroyer of culture; its impact depends on how communities and governments respond.",
+      "zh": "全球化使各国经济与文化的联系比以往任何时候都更紧密，这种融合引发了人们对独特地方传统将会消失的担忧。这些担忧确有道理，但我认为全球化并非文化的必然毁灭者；其影响取决于社区和政府如何应对。"
+    },
+    {
+      "role": "Body 1",
+      "en": "On the one hand, globalisation undoubtedly creates pressures towards uniformity. International brands, streaming services and dominant languages can push local products and customs to the margins, especially when young people regard them as old-fashioned. In many towns, a traditional market may struggle to compete with a large shopping centre that offers familiar global brands and longer opening hours. If such trends continue unchecked, festivals, crafts and dialects may survive only as tourist performances rather than as living practices. The loss is significant because these traditions carry memory, identity and a sense of belonging that cannot be easily replaced.",
+      "zh": "一方面，全球化无疑会带来趋同的压力。国际品牌、流媒体服务和占主导地位的语言，可能把本地产品和习俗推向边缘，尤其是当年轻人视其为过时之物时。在许多城镇，传统市场可能难以与提供熟悉的全球品牌和更长营业时间的大型购物中心竞争。如果这种趋势不受约束地持续下去，节庆、手工艺和方言或许只能作为旅游表演而存续，而不再是鲜活的生活实践。这种损失意义重大，因为这些传统承载着记忆、身份认同和归属感，难以轻易替代。"
+    },
+    {
+      "role": "Body 2",
+      "en": "On the other hand, cultural exchange can give local traditions new audiences and new purposes. Global travel, online marketplaces and collaborative music projects allow artisans and performers to reach people far beyond their own region, while exposure to other cultures can inspire innovation rather than imitation. A village weaver, for example, might sell textiles through an international website and adapt traditional patterns for contemporary customers without abandoning the techniques inherited from previous generations. Similarly, younger musicians often blend local instruments with foreign styles, producing work that is both rooted and modern. In this way, globalisation can revitalise a tradition by making it relevant to new generations.",
+      "zh": "另一方面，文化交流能为地方传统带来新的受众和新的用途。全球旅行、网络市场和合作音乐项目，让手工艺者和表演者能够接触到本地区以外的受众，而接触其他文化可以激发创新，而非单纯模仿。例如，一位乡村织工可以通过国际网站销售织物，并为当代顾客调整传统图案，同时不放弃代代相传的技艺。同样，年轻音乐人常把本地乐器与外国风格融合，创作出既扎根传统又具有现代性的作品。这样，全球化可以通过让传统与新一代产生关联而使它焕发生机。"
+    },
+    {
+      "role": "Conclusion",
+      "en": "In conclusion, globalisation certainly threatens vulnerable customs, but it does not erase them automatically. With thoughtful support for local languages, crafts and festivals, communities can engage with the wider world while keeping their cultural heritage alive.",
+      "zh": "总之，全球化确实威胁着脆弱的习俗，但并不会自动将其抹去。只要对地方语言、手工艺和节庆给予用心支持，社区就能在接触更广阔世界的同时，让自身的文化遗产保持活力。"
+    }
+  ],
+  "annotations": [
+    {
+      "sentence": "While these concerns are justified, I believe that globalisation is not an inevitable destroyer of culture; its impact depends on how communities and governments respond.",
+      "zh": "这些担忧确有道理，但我认为全球化并非文化的必然毁灭者；其影响取决于社区和政府如何应对。",
+      "structure": "While 引导让步状语从句；主句为 I believe that...；分号后另起一个独立分句，对前文作补充说明。",
+      "grammar": "be justified 为被动结构，表示“有道理的”；how 引导宾语从句，作 depends on 的宾语。",
+      "chunk": "an inevitable destroyer of culture（文化的必然毁灭者）"
+    },
+    {
+      "sentence": "If such trends continue unchecked, festivals, crafts and dialects may survive only as tourist performances rather than as living practices.",
+      "zh": "如果这种趋势不受约束地持续下去，节庆、手工艺和方言或许只能作为旅游表演而存续，而不再是鲜活的生活实践。",
+      "structure": "If 引导条件状语从句；主句为 festivals... may survive...；only as... rather than as... 构成对比。",
+      "grammar": "continue unchecked 中 unchecked 为过去分词作主语补足语；may 表示可能性；rather than 后接并列介词短语。",
+      "chunk": "survive as living practices（作为鲜活的生活实践存续）"
+    },
+    {
+      "sentence": "A village weaver, for example, might sell textiles through an international website and adapt traditional patterns for contemporary customers without abandoning the techniques inherited from previous generations.",
+      "zh": "例如，一位乡村织工可以通过国际网站销售织物，并为当代顾客调整传统图案，同时不放弃代代相传的技艺。",
+      "structure": "主句为 A village weaver might sell... and adapt...；for example 作插入语；without abandoning... 为介词短语作伴随状语。",
+      "grammar": "might 表示举例性的可能；inherited from previous generations 为过去分词短语后置修饰 techniques。",
+      "chunk": "techniques inherited from previous generations（代代相传的技艺）"
+    },
+    {
+      "sentence": "With thoughtful support for local languages, crafts and festivals, communities can engage with the wider world while keeping their cultural heritage alive.",
+      "zh": "只要对地方语言、手工艺和节庆给予用心支持，社区就能在接触更广阔世界的同时，让自身的文化遗产保持活力。",
+      "structure": "With... 为条件状语；主句为 communities can engage...；while keeping... 为时间/伴随状语。",
+      "grammar": "With 短语表示条件；engage with 表示“与……接触/互动”；keep...alive 为“动词+宾语+形容词”的复合宾语结构。",
+      "chunk": "keep cultural heritage alive（让文化遗产保持活力）"
+    }
+  ],
+  "vocab": [
+    {
+      "term": "integration",
+      "phonetic": "/ˌɪntɪˈɡreɪʃn/",
+      "meaning": "融合；一体化",
+      "collocation": "economic integration",
+      "example": "Regional integration has made travel and trade easier."
+    },
+    {
+      "term": "uniformity",
+      "phonetic": "/ˌjuːnɪˈfɔːməti/",
+      "meaning": "同质化；统一性",
+      "collocation": "cultural uniformity",
+      "example": "Critics fear that global media will produce cultural uniformity."
+    },
+    {
+      "term": "margins",
+      "phonetic": "/ˈmɑːdʒɪnz/",
+      "meaning": "边缘",
+      "collocation": "push to the margins",
+      "example": "Small languages are often pushed to the margins."
+    },
+    {
+      "term": "revitalise",
+      "phonetic": "/ˌriːˈvaɪtəlaɪz/",
+      "meaning": "使复兴；使恢复活力",
+      "collocation": "revitalise a tradition",
+      "example": "The grant helped revitalise the town's annual festival."
+    },
+    {
+      "term": "heritage",
+      "phonetic": "/ˈherɪtɪdʒ/",
+      "meaning": "遗产",
+      "collocation": "cultural heritage",
+      "example": "The museum works to preserve intangible heritage."
+    },
+    {
+      "term": "rooted",
+      "phonetic": "/ˈruːtɪd/",
+      "meaning": "根植的；有根基的",
+      "collocation": "deeply rooted",
+      "example": "The dance is deeply rooted in rural life."
+    }
+  ],
+  "cohesive": [
+    "On the one hand",
+    "for example",
+    "On the other hand",
+    "Similarly",
+    "In this way",
+    "In conclusion"
+  ],
+  "questions": [
+    {
+      "prompt": "What is the writer's central claim about globalisation and local traditions?",
+      "options": [
+        "It always destroys local traditions completely.",
+        "It has no meaningful effect on local cultures.",
+        "Its effect depends on how communities and governments respond.",
+        "It benefits only wealthy countries and harms all others."
+      ],
+      "answer": 2,
+      "explanation": "作者承认全球化会带来趋同压力，但强调它并非必然摧毁文化，其影响取决于社区和政府的应对，因此该选项最准确。"
+    },
+    {
+      "prompt": "Why does the writer describe the loss of traditions as significant?",
+      "options": [
+        "These traditions carry memory, identity and a sense of belonging.",
+        "They attract more foreign tourists than global brands do.",
+        "They are protected by international law.",
+        "They are always more profitable than modern products."
+      ],
+      "answer": 0,
+      "explanation": "文中明确说这些传统承载着记忆、身份认同和归属感，且难以轻易替代，因此损失重大。"
+    },
+    {
+      "prompt": "In the first body paragraph, the phrase \"to the margins\" suggests that local products and customs",
+      "options": [
+        "become more expensive for local people",
+        "become less central and less visible",
+        "are exported to other countries",
+        "are legally protected from competition"
+      ],
+      "answer": 1,
+      "explanation": "push something to the margins 意为把某事物推到边缘，即削弱其中心地位和可见度，而不是提高价格或将其出口。"
+    }
+  ]
+}
