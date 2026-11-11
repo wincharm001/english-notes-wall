@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.15.1 — 2026-11-11
+
+- The full-note dialog now picks up the note's category color: the page backdrop and the dialog surface are tinted with that category's accent, the dialog gets a matching top border and header rule, and the category chip inside the dialog is colored as well.
+- The tone changes with the note when using the previous/next arrows, so every note keeps its category identity in the dialog.
+
 ## 1.15.0 — 2026-11-10
 
 - Added previous/next arrows on the left and right of the full-note dialog, so any note can be browsed without closing and reopening the dialog.
