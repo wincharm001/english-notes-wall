@@ -2996,7 +2996,9 @@ window.__ModuleLoader__.load({
                   onTouchEnd: handleTouchEnd,
                 },
                 essay.paragraphs.map((paragraph, index) => h('section', { key: `${index}-${paragraph.role}`, className: 'enw-essay-paragraph' },
-                  h('span', { className: 'enw-essay-role' }, paragraph.role),
+                  h('div', { className: 'enw-essay-para-head' },
+                    h('span', { className: 'enw-essay-role' }, paragraph.role),
+                    h(SpeakButton, { text: paragraph.en, t, size: 13 })),
                   h('p', { className: 'enw-essay-text' },
                     essaySentences(paragraph.en).map((sentence, sentenceIndex) => h('span', {
                       key: `${sentenceIndex}-${sentence.slice(0, 12)}`,
@@ -4289,7 +4291,8 @@ window.__ModuleLoader__.load({
       .enw-essay-outline-input { min-height: 68px; font-size: 12.5px; }
       .enw-essay-body { margin-top: 24px; max-width: 72ch; }
       .enw-essay-paragraph { margin: 0 0 24px; }
-      .enw-essay-role { display: block; margin-bottom: 3px; font-size: 10px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
+      .enw-essay-para-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+      .enw-essay-role { display: block; font-size: 10px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dsw-alias-label-secondary); }
       .enw-essay-text { margin: 0; font-size: 15.5px; line-height: 1.9; }
       .enw-essay-sentence { border-radius: 3px; transition: background-color 120ms ease; }
       .enw-essay-sentence--note { cursor: pointer; border-bottom: 1px dashed color-mix(in srgb, var(--dsw-alias-brand-primary) 48%, transparent); }

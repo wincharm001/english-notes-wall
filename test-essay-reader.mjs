@@ -144,6 +144,7 @@ assert.equal(collect(tree, 'enw-essay-sentence--note').length, 4, 'annotated sen
 assert.equal(collect(tree, 'enw-essay-vocab-card').length, 6)
 assert.equal(collect(tree, 'enw-essay-question').length, 3)
 assert.equal(collect(tree, 'enw-essay-option').length, 12)
+assert.equal(collect(tree, 'enw-speak').length, 4, 'each paragraph can be read aloud')
 assert.equal(collect(tree, 'enw-essay-rail').length, 1)
 assert.match(flatten(tree), /297 essay\.words/)
 assert.match(flatten(tree), /essay\.band 7\.5/)
