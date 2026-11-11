@@ -66,6 +66,7 @@ window.__ModuleLoader__.load({
       'action.hideAnswers': 'Hide answers',
       'action.submit': 'Submit answers',
       'action.close': 'Dismiss',
+      'action.backToTop': 'Back to top',
       'form.heading': 'New sticky note',
       'form.placeholder': 'One entry per line: a word, phrase, collocation, sentence pattern, or long sentence to analyze. Add a Chinese meaning after |.',
       'form.entriesHint': 'One entry per line. Use "text | 中文" to add a meaning, e.g. "give up | 放弃".',
@@ -346,6 +347,7 @@ window.__ModuleLoader__.load({
       'action.hideAnswers': '隐藏答案',
       'action.submit': '提交答案',
       'action.close': '关闭',
+      'action.backToTop': '回到顶部',
       'form.heading': '新建便利贴',
       'form.placeholder': '每行一个词条：单词、词组、固定搭配、句式或需要分析的长难句。可用 | 附中文释义。',
       'form.entriesHint': '每行一个词条；可用「词条 | 中文」补充释义，例如「give up | 放弃」。',
@@ -631,6 +633,22 @@ window.__ModuleLoader__.load({
       return (index + delta + length) % length
     }
 
+    function scrollToTop(node) {
+      if (!node) return
+      let behavior = 'smooth'
+      try {
+        if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) behavior = 'auto'
+      } catch {
+        behavior = 'smooth'
+      }
+      try {
+        if (typeof node.scrollTo === 'function') node.scrollTo({ top: 0, behavior })
+        else node.scrollTop = 0
+      } catch {
+        node.scrollTop = 0
+      }
+    }
+
     function dayKey(ms) {
       const date = new Date(ms)
       const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -887,6 +905,7 @@ window.__ModuleLoader__.load({
       chevronUp: 'M6 15l6-6 6 6',
       arrowLeft: 'M15 5l-7 7 7 7M8 12h12',
       arrowRight: 'M9 5l7 7-7 7M4 12h12',
+      arrowUp: 'M12 19V5M5 12l7-7 7 7',
       list: 'M4 6h16M4 12h16M4 18h16',
       grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
       panel: 'M4 5h16v14H4zM15 5v14',
@@ -2630,6 +2649,25 @@ window.__ModuleLoader__.load({
         canNavigate ? navButton('next') : null))
     }
 
+    // -- back to top --------------------------------------------------------
+
+    function BackToTop({ visible, onClick, t }) {
+      return h('button', {
+        type: 'button',
+        className: cx('enw-top-btn', visible && 'enw-top-btn--on'),
+        onClick: event => {
+          if (event?.currentTarget?.blur) event.currentTarget.blur()
+          onClick?.()
+        },
+        title: t('action.backToTop'),
+        'aria-label': t('action.backToTop'),
+        'aria-hidden': !visible ? 'true' : undefined,
+        tabIndex: visible ? 0 : -1,
+      },
+      h(Icon, { name: 'arrowUp', size: 16 }),
+      h('span', { className: 'enw-top-label' }, t('action.backToTop')))
+    }
+
     // -- page ---------------------------------------------------------------
 
     function NotesPage({ t, api, ctx, mountError }) {
@@ -2653,6 +2691,7 @@ window.__ModuleLoader__.load({
       const [deleted, setDeleted] = useState(null)
       const [activeNoteId, setActiveNoteId] = useState('')
       const [dragNoteId, setDragNoteId] = useState('')
+      const [showTop, setShowTop] = useState(false)
       const [composerOpen, setComposerOpen] = useState(() => {
         try {
           return window.localStorage.getItem(COMPOSER_COLLAPSED_KEY) !== '1'
@@ -2690,6 +2729,7 @@ window.__ModuleLoader__.load({
       const undoRef = useRef(null)
       const searchRef = useRef(null)
       const composerRef = useRef(null)
+      const pageRef = useRef(null)
       const stopExpansion = useRef(false)
       const alive = useRef(true)
 
@@ -3170,6 +3210,11 @@ window.__ModuleLoader__.load({
             setTimeout(() => composerRef.current?.focus(), 0)
             return
           }
+          if (event.key === 'Home') {
+            event.preventDefault()
+            scrollToTop(pageRef.current)
+            return
+          }
           if (event.key !== 'j' && event.key !== 'k') return
           event.preventDefault()
           setActiveNoteId(current => {
@@ -3195,6 +3240,15 @@ window.__ModuleLoader__.load({
         if (!detailId) return
         if (!asArray(snap?.notes).some(note => note.id === detailId)) setDetailId('')
       }, [snap, detailId])
+
+      useEffect(() => {
+        const node = pageRef.current
+        if (!node) return undefined
+        const onScroll = () => setShowTop(node.scrollTop > 320)
+        onScroll()
+        node.addEventListener('scroll', onScroll, { passive: true })
+        return () => node.removeEventListener('scroll', onScroll)
+      }, [phase])
 
       if (!api) {
         return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
@@ -3244,7 +3298,7 @@ window.__ModuleLoader__.load({
         ? `${t('action.expandingMissing')} ${expandProgress?.done ?? 0}/${expandProgress?.total ?? pendingExpansions.length}`
         : `${t('action.expandMissing')} (${pendingExpansions.length})`
 
-      return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`, (quizOpen || detailId) && 'enw-page--modal') },
+      return h('div', { ref: pageRef, className: cx('enw-page', `enw-scheme-${scheme}`, (quizOpen || detailId) && 'enw-page--modal') },
         h('div', { className: 'enw-inner' },
           h('header', { className: 'enw-head' },
             h('div', { className: 'enw-head-main' },
@@ -3593,6 +3647,11 @@ window.__ModuleLoader__.load({
               : null,
           ),
         ),
+        h(BackToTop, {
+          visible: showTop && !quizOpen && !detailId,
+          onClick: () => scrollToTop(pageRef.current),
+          t,
+        }),
       )
     }
 
@@ -3619,6 +3678,10 @@ window.__ModuleLoader__.load({
         line-height: 1.55;
       }
       .enw-page--modal { overflow: hidden; }
+      .enw-top-btn { position: fixed; right: 24px; bottom: 24px; z-index: 40; display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12px; cursor: pointer; box-shadow: 0 10px 28px color-mix(in srgb, var(--dsw-alias-label-primary) 16%, transparent); backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease, color 140ms ease, border-color 140ms ease; }
+      .enw-top-btn--on { opacity: 1; visibility: visible; transform: none; }
+      .enw-top-btn:hover { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
+      .enw-top-btn:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
       .enw-inner { max-width: 1120px; margin: 0 auto; padding: 28px 28px 64px; }
       .enw-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
       .enw-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.015em; }
@@ -4026,6 +4089,8 @@ window.__ModuleLoader__.load({
         .enw-inner { padding: 18px 16px 48px; }
         .enw-composer-grid { grid-template-columns: 1fr; }
         .enw-btn-text { display: none; }
+        .enw-top-btn { right: 14px; bottom: 14px; width: 42px; height: 42px; padding: 0; justify-content: center; }
+        .enw-top-label { display: none; }
         .enw-modal-backdrop { padding: 10px; }
         .enw-modal { max-height: 92vh; padding: 16px; border-radius: 14px; }
       }
@@ -4044,6 +4109,8 @@ window.__ModuleLoader__.load({
         __QuizCard: QuizCard,
         __QuizModal: QuizModal,
         __NoteDetailModal: NoteDetailModal,
+        __BackToTop: BackToTop,
+        __scrollToTop: scrollToTop,
         __wrapIndex: wrapIndex,
       } : {}),
       async apply(ctx) {
