@@ -125,6 +125,8 @@ assert.equal(collect(tree, 'enw-note-modal-shell').length, 1)
 const shell = collect(tree, 'enw-note-modal-shell')[0]
 assert.equal(shell.props.role, 'dialog')
 assert.equal(shell.props['aria-modal'], 'true')
+assert.equal(collect(tree, 'enw-note-backdrop').length, 1, 'the note backdrop is tinted separately from the quiz backdrop')
+assert.equal(collect(tree, 'enw-note--word').length, 1, 'the dialog backdrop carries the note category tone')
 assert.equal(collect(tree, 'enw-note-nav').length, 2, 'one arrow on each side')
 assert.equal(collect(shell, 'enw-note-nav').length, 2, 'arrows belong to the dialog')
 assert.equal(collect(tree, 'enw-note-foot-btn').length, 2, 'touch-friendly footer fallback')
@@ -166,6 +168,11 @@ assert.equal(collect(tree, 'enw-note-nav').length, 0)
 assert.equal(collect(tree, 'enw-note-footnav').length, 0)
 assert.doesNotMatch(flatten(tree), /1 \/ 1/)
 assert.equal(listeners.filter(item => item.type === 'keydown' && item.capture !== true).length, 0)
+
+// The backdrop tone follows the note's category, including while navigating.
+tree = render({ note: { ...note, category: 'sentence' }, position: 1, total: 1 })
+assert.equal(collect(tree, 'enw-note--word').length, 0)
+assert.equal(collect(tree, 'enw-note--sentence').length, 1)
 
 // Navigation wraps around the ends of the wall order.
 assert.equal(exports.__wrapIndex(0, -1, 5), 4)

@@ -2555,7 +2555,7 @@ window.__ModuleLoader__.load({
         : null
 
       return h('div', {
-        className: 'enw-modal-backdrop',
+        className: cx('enw-modal-backdrop', 'enw-note-backdrop', `enw-note--${note.category}`),
         onMouseDown: event => {
           if (event.target === event.currentTarget) onClose?.()
         },
@@ -3636,19 +3636,20 @@ window.__ModuleLoader__.load({
       .enw-modal .enw-aside-card { padding: 0; border: 0; background: transparent; }
       .enw-modal-close { flex: none; }
       .enw-modal-error { margin: 0 0 12px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-state-error-primary); background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent); color: var(--dsw-alias-state-error-primary); font-size: 12px; }
+      .enw-note-backdrop { --enw-accent: var(--dsw-alias-state-idle-primary); background: color-mix(in srgb, var(--enw-accent) 7%, color-mix(in srgb, var(--dsw-alias-bg-base) 64%, transparent)); transition: background-color 180ms ease; }
       .enw-note-modal-shell { display: flex; align-items: center; justify-content: center; gap: 12px; width: min(880px, 100%); }
-      .enw-note-modal { width: min(780px, 100%); }
+      .enw-note-modal { width: min(780px, 100%); background: color-mix(in srgb, var(--enw-accent) 9%, var(--dsw-alias-bg-layer-1)); border-color: color-mix(in srgb, var(--enw-accent) 30%, var(--dsw-alias-border-l1)); border-top: 3px solid var(--enw-accent); transition: background-color 180ms ease, border-color 180ms ease; }
       .enw-note-modal-head-actions { display: flex; align-items: center; gap: 8px; flex: none; }
       .enw-note-modal-pos { font-size: 11.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
       .enw-note-nav { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-secondary); cursor: pointer; box-shadow: 0 8px 24px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent); transition: color 140ms ease, border-color 140ms ease, transform 140ms ease; }
-      .enw-note-nav:hover { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); transform: scale(1.04); }
+      .enw-note-nav:hover { color: var(--enw-accent); border-color: color-mix(in srgb, var(--enw-accent) 55%, var(--dsw-alias-border-l1)); transform: scale(1.04); }
       .enw-note-nav:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
       .enw-note-modal-footnav { display: none; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
       .enw-note-foot-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 11px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12px; cursor: pointer; }
-      .enw-note-foot-btn:hover { border-color: var(--dsw-alias-brand-primary); color: var(--dsw-alias-brand-primary); }
+      .enw-note-foot-btn:hover { border-color: color-mix(in srgb, var(--enw-accent) 55%, var(--dsw-alias-border-l1)); color: var(--enw-accent); }
       .enw-note-foot-btn:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
       .enw-note-foot-pos { font-size: 11.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
-      .enw-note-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--dsw-alias-border-l1); }
+      .enw-note-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--enw-accent) 26%, var(--dsw-alias-border-l1)); }
       .enw-note-modal-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
       .enw-note-modal-kicker { font-size: 13px; font-weight: 650; }
       .enw-note-modal-date { font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
