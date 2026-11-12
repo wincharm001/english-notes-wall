@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.17.1 — 2026-11-12
+
+- Fixed “Today's essay” failing with `args fields do not match the descriptor: missing "date"`. The `essayToday` RPC no longer declares a required date argument; the Host uses the local date and the Client sends an empty argument object.
+- Removed the small “one entry per line / text | 中文” hint under the new-note box and its now-unused locale and style entries.
+
 ## 1.17.0 — 2026-11-11
 
 - Added a daily IELTS Academic Task 2 essay reader, opened from a new header button with an unread dot.

@@ -1,6 +1,6 @@
 {
   "name": "@local/english-notes-wall",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "private": true,
   "description": "English learning sticky-note wall with spaced-repetition review, category-colored cards, category-aware long-sentence analysis and practice mode, read-aloud and dictation, a category-tinted full-note dialog with previous/next navigation, a daily IELTS essay reader with sentence analysis, vocabulary, comprehension questions and selection-to-note capture, optional AI essay generation, a daily quiz dialog, a floating back-to-top button, resilient chunked model expansion, JSON/CSV/Anki export with automatic backups, tag and study-status filters, keyboard shortcuts, undo, pinning, whole-wall organization, token cost estimates, and prompt templates.",
   "type": "module",
