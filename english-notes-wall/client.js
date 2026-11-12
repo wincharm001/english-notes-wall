@@ -69,7 +69,6 @@ window.__ModuleLoader__.load({
       'action.backToTop': 'Back to top',
       'form.heading': 'New sticky note',
       'form.placeholder': 'One entry per line: a word, phrase, collocation, sentence pattern, or long sentence to analyze. Add a Chinese meaning after |.',
-      'form.entriesHint': 'One entry per line. Use "text | 中文" to add a meaning, e.g. "give up | 放弃".',
       'form.tags': 'Tags, comma separated (optional)',
       'form.category': 'Category',
       'form.hint': 'Ctrl + Enter to save',
@@ -388,7 +387,6 @@ window.__ModuleLoader__.load({
       'action.backToTop': '回到顶部',
       'form.heading': '新建便利贴',
       'form.placeholder': '每行一个词条：单词、词组、固定搭配、句式或需要分析的长难句。可用 | 附中文释义。',
-      'form.entriesHint': '每行一个词条；可用「词条 | 中文」补充释义，例如「give up | 放弃」。',
       'form.tags': '标签，用逗号分隔（可选）',
       'form.category': '分类',
       'form.hint': 'Ctrl + Enter 保存',
@@ -3915,7 +3913,6 @@ window.__ModuleLoader__.load({
                         }
                       },
                     }),
-                    h('p', { className: 'enw-composer-hint enw-composer-hint--block' }, t('form.entriesHint')),
                     h('input', {
                       className: 'enw-input',
                       value: draft.tags,
@@ -4376,7 +4373,6 @@ window.__ModuleLoader__.load({
       .enw-composer-head-actions { display: inline-flex; align-items: center; gap: 8px; }
       .enw-composer-title { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 13px; }
       .enw-composer-hint { color: var(--dsw-alias-label-secondary); font-size: 11.5px; }
-      .enw-composer-hint--block { margin: 6px 0 8px; }
       .enw-textarea { display: block; width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; line-height: 1.6; }
       .enw-textarea::placeholder, .enw-input::placeholder, .enw-search-input::placeholder { color: var(--dsw-alias-label-secondary); opacity: 0.85; }
       .enw-textarea:focus, .enw-input:focus, .enw-search-input:focus, .enw-quiz-input:focus { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; border-color: transparent; }
@@ -4806,7 +4802,7 @@ window.__ModuleLoader__.load({
             generateQuiz: force => call('generateQuiz', { force: Boolean(force) }),
             gradeQuiz: (date, answers) => call('gradeQuiz', { date, answers }),
             gradeWithModel: (date, answers) => call('gradeWithModel', { date, answers }),
-            essayToday: date => call('essayToday', { date }),
+            essayToday: () => call('essayToday', {}),
             essayGenerate: date => call('essayGenerate', { date }),
             essayProgress: (date, patch) => call('essayProgress', { date, patch }),
             saveSettings: patch => call('saveSettings', { patch }),

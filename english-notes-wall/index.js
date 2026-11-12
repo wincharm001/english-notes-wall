@@ -98,7 +98,7 @@ const DESCRIPTORS = Object.freeze([
   method('generateQuiz', ['force']),
   method('gradeQuiz', ['date', 'answers']),
   method('gradeWithModel', ['date', 'answers']),
-  method('essayToday', ['date']),
+  method('essayToday'),
   method('essayGenerate', ['date']),
   method('essayProgress', ['date', 'patch']),
   method('saveSettings', ['patch']),

@@ -173,6 +173,8 @@ apply(first.ctx)
 assert.equal(first.contributions.length, 1, 'one typert contribution')
 assert.equal(first.contributions[0].package, '@local/english-notes-wall')
 assert.equal(first.contributions[0].invocations.length, 21, 'twenty-one remote methods')
+const essayTodayDescriptor = first.contributions[0].invocations.find(invocation => invocation.method === 'essayToday')
+assert.equal(essayTodayDescriptor.parameters.length, 0, 'essayToday takes no required arguments')
 assert.ok(first.registered.has('english_notes'), 'agent tool registered')
 
 const tool = first.registered.get('english_notes')
