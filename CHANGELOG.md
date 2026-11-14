@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.17.2 — 2026-11-14
+
+- Anchored the essay reader to the plugin page area instead of the whole browser window, so its top bar no longer sits on top of the DSH header and its edges no longer cover the DSH sidebar.
+- The reader re-measures its bounds when the window is resized, including the width change after the page scrollbar is locked.
+
 ## 1.17.1 — 2026-11-12
 
 - Fixed “Today's essay” failing with `args fields do not match the descriptor: missing "date"`. The `essayToday` RPC no longer declares a required date argument; the Host uses the local date and the Client sends an empty argument object.
