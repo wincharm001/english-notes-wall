@@ -2778,6 +2778,7 @@ window.__ModuleLoader__.load({
       error,
       busy,
       modelAvailable,
+      viewport,
       t,
       localeId,
       onClose,
@@ -2913,6 +2914,14 @@ window.__ModuleLoader__.load({
         role: 'dialog',
         'aria-modal': 'true',
         'aria-label': t('essay.title'),
+        style: viewport
+          ? {
+            top: `${viewport.top}px`,
+            left: `${viewport.left}px`,
+            width: `${viewport.width}px`,
+            height: `${viewport.height}px`,
+          }
+          : undefined,
       },
       h('header', { className: 'enw-essay-bar' },
         h('button', {
@@ -3140,6 +3149,7 @@ window.__ModuleLoader__.load({
       const [essayPhase, setEssayPhase] = useState('idle')
       const [essayError, setEssayError] = useState('')
       const [essayBusy, setEssayBusy] = useState('')
+      const [essayViewport, setEssayViewport] = useState(null)
       const [draft, setDraft] = useState({ text: '', tags: '', category: 'word' })
       const [collapseSignal, setCollapseSignal] = useState(0)
       const [deleted, setDeleted] = useState(null)
@@ -3552,6 +3562,10 @@ window.__ModuleLoader__.load({
       }
 
       const openEssay = async () => {
+        const box = pageRef.current?.getBoundingClientRect()
+        if (box && box.width && box.height) {
+          setEssayViewport({ top: box.top, left: box.left, width: box.width, height: box.height })
+        }
         setEssayOpen(true)
         setEssayPhase('loading')
         setEssayError('')
@@ -3774,6 +3788,25 @@ window.__ModuleLoader__.load({
         node.addEventListener('scroll', onScroll, { passive: true })
         return () => node.removeEventListener('scroll', onScroll)
       }, [phase])
+
+      useEffect(() => {
+        if (!essayOpen) return undefined
+        const node = pageRef.current
+        const update = () => {
+          const box = node?.getBoundingClientRect()
+          if (box && box.width && box.height) {
+            setEssayViewport({ top: box.top, left: box.left, width: box.width, height: box.height })
+          }
+        }
+        update()
+        const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(update) : null
+        if (observer && node) observer.observe(node)
+        window.addEventListener('resize', update)
+        return () => {
+          if (observer) observer.disconnect()
+          window.removeEventListener('resize', update)
+        }
+      }, [essayOpen])
 
       if (!api) {
         return h('div', { className: cx('enw-page', `enw-scheme-${scheme}`) },
@@ -4193,6 +4226,7 @@ window.__ModuleLoader__.load({
             error: essayError,
             busy: essayBusy,
             modelAvailable: model.available,
+            viewport: essayViewport,
             t,
             localeId,
             onClose: closeEssay,
@@ -4262,7 +4296,7 @@ window.__ModuleLoader__.load({
       .enw-note-foot-btn:hover { border-color: color-mix(in srgb, var(--enw-accent) 55%, var(--dsw-alias-border-l1)); color: var(--enw-accent); }
       .enw-note-foot-btn:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
       .enw-note-foot-pos { font-size: 11.5px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
-      .enw-essay-view { --enw-accent: var(--dsw-alias-brand-primary); position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; height: 100%; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); }
+      .enw-essay-view { --enw-accent: var(--dsw-alias-brand-primary); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 90; display: flex; flex-direction: column; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); }
       .enw-essay-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 22px; border-bottom: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); flex: none; }
       .enw-essay-back { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; border: 0; border-radius: 8px; background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; cursor: pointer; }
       .enw-essay-back:hover { color: var(--dsw-alias-brand-primary); background: var(--dsw-alias-bg-layer-2); }

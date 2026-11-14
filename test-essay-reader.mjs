@@ -166,6 +166,14 @@ saved.length = 0
 findAll(tree, node => flatten(node) === 'essay.complete' && node.type === 'button')[0].props.onClick()
 assert.equal(JSON.stringify(saved[0]), JSON.stringify({ completed: true }))
 
+// The reader is anchored to the plugin page area, not the whole DSH window.
+tree = render(data, { viewport: { top: 64, left: 220, width: 900, height: 700 } })
+const view = collect(tree, 'enw-essay-view')[0]
+assert.equal(view.props.style.top, '64px')
+assert.equal(view.props.style.left, '220px')
+assert.equal(view.props.style.width, '900px')
+assert.equal(view.props.style.height, '700px')
+
 // AI generation is offered only when a model is available.
 assert.equal(findAll(tree, node => node.props?.title === 'essay.aiHint').length, 0)
 tree = render(data, { modelAvailable: true, onGenerate: () => { generated += 1 } })
