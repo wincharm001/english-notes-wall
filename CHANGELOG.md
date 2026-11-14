@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.17.3 — 2026-11-14
+
+- Removed the redundant close icon from the essay reader header. The labelled “Back to wall” control is now the single dismiss button; Escape still closes the reader.
+
 ## 1.17.2 — 2026-11-14
 
 - Anchored the essay reader to the plugin page area instead of the whole browser window, so its top bar no longer sits on top of the DSH header and its edges no longer cover the DSH sidebar.
