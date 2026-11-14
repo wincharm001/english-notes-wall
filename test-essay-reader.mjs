@@ -150,11 +150,10 @@ assert.match(flatten(tree), /297 essay\.words/)
 assert.match(flatten(tree), /essay\.band 7\.5/)
 assert.match(flatten(tree), /essay\.outlineTitle/)
 
-// Back and close dismiss the reader.
+// Back is the only dismiss control in the reader header; Escape remains available.
 findAll(tree, node => node.props?.title === 'essay.back')[0].props.onClick()
 assert.equal(closed, 1)
-findAll(tree, node => node.props?.title === 'action.close')[0].props.onClick()
-assert.equal(closed, 2)
+assert.equal(findAll(tree, node => node.props?.title === 'action.close').length, 0, 'no duplicate close button')
 
 // Answering a question records the answer and the local choice.
 saved.length = 0

@@ -2957,14 +2957,7 @@ window.__ModuleLoader__.load({
               ? h('span', { className: 'enw-spinner' })
               : h(Icon, { name: 'sparkles', size: 15 }),
             h('span', { className: 'enw-btn-text' }, t(busy === 'generate' ? 'essay.generating' : 'essay.aiGenerate')))
-            : null,
-          h('button', {
-            type: 'button',
-            className: 'enw-icon-btn enw-essay-close',
-            onClick: onClose,
-            title: t('action.close'),
-            'aria-label': t('action.close'),
-          }, h(Icon, { name: 'close', size: 16 })))),
+            : null)),
       h('div', { className: 'enw-essay-scroll' },
         loading
           ? h('div', { className: 'enw-essay-state' },
@@ -4305,7 +4298,6 @@ window.__ModuleLoader__.load({
       .enw-essay-kicker { font-size: 13px; font-weight: 650; }
       .enw-essay-date { font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
       .enw-essay-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-      .enw-essay-close { flex: none; }
       .enw-essay-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dsw-alias-label-secondary) 38%, transparent) transparent; }
       .enw-essay-scroll::-webkit-scrollbar { width: 9px; }
       .enw-essay-scroll::-webkit-scrollbar-track { background: transparent; }
