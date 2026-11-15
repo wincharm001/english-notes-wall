@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.18.0 — 2026-11-15
+
+- Quiz fill-in questions now show their constraint hint before the learner answers, not only after revealing the answer.
+- The model quiz prompt now requires a hint for every cloze, collocation, and dictation item: part of speech, Chinese meaning, a base form in parentheses, a required tense/form, a first letter and length, or a small word bank. It also forbids fixed-answer blanks with several equally natural answers.
+- Collocation and grammar blanks can carry a 2–6 item `wordBank`; the quiz displays it as a “词库 / Word bank” row above the input.
+- If a model-generated fixed item still has no hint, the Host adds a safe first-letter/letter-count fallback. Local cloze and dictation questions now use the same constraint style, and old stored quizzes gain the fallback when reloaded.
+
 ## 1.17.3 — 2026-11-14
 
 - Removed the redundant close icon from the essay reader header. The labelled “Back to wall” control is now the single dismiss button; Escape still closes the reader.
