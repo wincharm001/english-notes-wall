@@ -187,6 +187,7 @@ window.__ModuleLoader__.load({
       'quiz.type.collocation': 'Collocation',
       'quiz.type.usage': 'Use it in a sentence',
       'quiz.hint': 'Hint',
+      'quiz.wordBank': 'Word bank',
       'quiz.explanation': 'Note',
       'quiz.history': 'Recent days',
       'quiz.localNote': 'The model was unavailable, so this quiz was built from your notes.',
@@ -505,6 +506,7 @@ window.__ModuleLoader__.load({
       'quiz.type.collocation': '搭配填空',
       'quiz.type.usage': '造句运用',
       'quiz.hint': '提示',
+      'quiz.wordBank': '词库',
       'quiz.explanation': '说明',
       'quiz.history': '最近几天',
       'quiz.localNote': '大模型暂时不可用，这套题由已记录的内容自动组成。',
@@ -1896,7 +1898,17 @@ window.__ModuleLoader__.load({
                       }, h(Icon, { name: 'volume', size: 15 }), t('quiz.play')))
                     : h('p', { className: 'enw-quiz-prompt' }, item.prompt),
                   openHint,
-                  item.hint && !attempt && reveal ? h('p', { className: 'enw-quiz-hint' }, `${t('quiz.hint')}: ${item.hint}`) : null,
+                  item.hint
+                    ? h('p', { className: 'enw-quiz-hint' },
+                      h('strong', null, `${t('quiz.hint')}:`),
+                      ` ${item.hint}`)
+                    : null,
+                  asArray(item.wordBank).length && !attempt
+                    ? h('div', { className: 'enw-quiz-wordbank' },
+                      h('span', { className: 'enw-quiz-label' }, t('quiz.wordBank')),
+                      h('div', { className: 'enw-exp-chips' },
+                        item.wordBank.map((entry, entryIndex) => h('span', { key: entryIndex, className: 'enw-exp-chip' }, entry))))
+                    : null,
                   attempt
                     ? h('div', { className: 'enw-quiz-result' },
                       h('div', { className: cx('enw-quiz-verdict', `enw-quiz-verdict--${verdict === 'review' ? 'open' : verdict === 'blank' ? 'blank' : verdict === 'partial' ? 'warn' : verdict === 'correct' ? 'ok' : 'bad'}`) },
@@ -4664,7 +4676,10 @@ window.__ModuleLoader__.load({
       .enw-dictation { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
       .enw-dictation-play { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--dsw-alias-brand-primary); background: transparent; color: var(--dsw-alias-brand-primary); border-radius: 8px; padding: 5px 10px; font: inherit; font-size: 11.5px; cursor: pointer; }
       .enw-dictation-play:hover { background: var(--dsw-alias-bg-layer-2); }
-      .enw-quiz-hint { margin: 0; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-hint { margin: 0; padding: 5px 8px; border-radius: 7px; border: 1px dashed var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); font-size: 11.5px; line-height: 1.55; color: var(--dsw-alias-label-secondary); }
+      .enw-quiz-hint strong { color: var(--dsw-alias-label-primary); font-weight: 600; }
+      .enw-quiz-wordbank { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; }
+      .enw-quiz-wordbank .enw-quiz-label { flex: none; }
       .enw-quiz-input { width: 100%; box-sizing: border-box; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; font-size: 12.5px; resize: vertical; }
       .enw-quiz-answer { margin: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
       .enw-quiz-answer strong { color: var(--dsw-alias-label-primary); font-weight: 600; }

@@ -87,7 +87,8 @@ const quiz = {
     type: 'cloze',
     prompt: 'She ____ to school every day.',
     answer: 'goes',
-    hint: '',
+    hint: '首字母 g，共 4 个字母',
+    wordBank: ['goes', 'go', 'going'],
     explanation: '',
     open: false,
   }],
@@ -118,6 +119,10 @@ assert.equal(collect(tree, 'enw-modal-backdrop--closed').length, 0, 'open modal 
 assert.equal(collect(tree, 'enw-quiz-list').length, 1, 'modal quiz starts expanded')
 assert.equal(collect(tree, 'enw-modal-close').length, 1, 'modal has a close button')
 assert.match(flatten(tree), /quiz\.title/)
+assert.match(flatten(tree), /quiz\.hint/, 'the fill-in constraint is visible before answering')
+assert.match(flatten(tree), /首字母 g，共 4 个字母/)
+assert.equal(collect(tree, 'enw-quiz-wordbank').length, 1, 'a constrained blank shows its word bank')
+assert.equal(collect(tree, 'enw-exp-chip').length, 3)
 collect(tree, 'enw-modal-close')[0].props.onClick()
 assert.equal(closed, 1, 'close button calls the handler')
 

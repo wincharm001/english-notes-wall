@@ -9,7 +9,7 @@ process.env.DSH_HOME = home
 const module = await import('./english-notes-wall/index.js')
 const { apply, __internals } = module
 
-const { matchesAnswer, parseModelJson, nextOccurrence, nextQuizPublication, normalizeAnswer, applyReviewResult, reviewStats, quizCandidates, essayLibrary, normalizeEssay, normalizeEssays, chooseBuiltinEssay, emptyEssayProgress } = __internals
+const { matchesAnswer, parseModelJson, nextOccurrence, nextQuizPublication, normalizeAnswer, applyReviewResult, reviewStats, quizCandidates, essayLibrary, normalizeEssay, normalizeEssays, chooseBuiltinEssay, emptyEssayProgress, fillHint, normalizeQuiz } = __internals
 
 assert.equal(matchesAnswer('give up', 'Give up.'), true)
 assert.equal(matchesAnswer('give up', 'gave up'), false)
@@ -20,6 +20,32 @@ assert.deepEqual(parseModelJson('```json\n{"items":[1]}\n```'), { items: [1] })
 assert.deepEqual(parseModelJson('prefix {"ok":true} suffix'), { ok: true })
 assert.equal(parseModelJson('not json'), null)
 assert.ok(nextOccurrence('08:00') > Date.now())
+
+// Fixed fill-in items always keep a constraint, even when the model omits one.
+assert.equal(fillHint('decision'), '首字母 d，共 8 个字母')
+assert.equal(fillHint('give up'), '首字母 g，共 2 个单词')
+assert.equal(fillHint('（无）'), '')
+{
+  const hinted = normalizeQuiz({
+    items: [
+      { type: 'collocation', prompt: 'make a ____', answer: 'decision' },
+      {
+        type: 'cloze',
+        prompt: 'He ____ (go) to school yesterday.',
+        answer: 'went',
+        hint: '一般过去时',
+        wordBank: ['go', 'went', 'gone'],
+      },
+      { type: 'cn2en', prompt: '决定', answer: 'decision' },
+    ],
+  })
+  assert.ok(hinted)
+  assert.equal(hinted.items[0].hint, fillHint('decision'), 'fixed items get a fallback hint')
+  assert.deepEqual(hinted.items[0].wordBank, [])
+  assert.equal(hinted.items[1].hint, '一般过去时')
+  assert.deepEqual(hinted.items[1].wordBank, ['go', 'went', 'gone'])
+  assert.equal(hinted.items[2].hint, '', 'open items are not given a fill-in hint')
+}
 
 // Built-in IELTS essay library: twelve complete, internally consistent essays.
 {
@@ -216,6 +242,9 @@ assert.ok(generated.quiz.items.every(item => item.noteId), 'local items point at
 assert.ok(generated.quiz.items.some(item => item.open === true), 'translation items are open-ended')
 assert.ok(generated.quiz.items.some(item => item.open === false), 'cloze items are fixed-answer')
 assert.equal(generated.quiz.items.find(item => item.type === 'cloze').open, false)
+const localFixed = generated.quiz.items.filter(item => item.type === 'cloze' || item.type === 'dictation')
+assert.ok(localFixed.every(item => item.hint), 'local fixed items carry a constraint hint')
+assert.ok(localFixed.some(item => /首字母/.test(item.hint)), 'local hints include a first-letter constraint')
 
 const correct = {}
 for (const item of generated.quiz.items) correct[item.id] = item.answer
@@ -527,6 +556,9 @@ assert.equal(snapshot4.usage.last.total, 120)
 assert.equal(snapshot4.usage.purposes.quiz.calls, 1)
 assert.equal(snapshot4.usage.purposes.quiz.total, 120)
 assert.equal(streamCalls.length, 2)
+const quizPrompt = streamCalls[1].messages[0].content[0].text
+assert.ok(quizPrompt.includes('wordBank'), 'quiz prompt asks for optional word banks')
+assert.ok(quizPrompt.includes('MUST include a hint'), 'quiz prompt requires constraints for fixed blanks')
 
 // Model grading accepts open answers and enriches them.
 const quizItems = quizWithUsage.quiz.items
