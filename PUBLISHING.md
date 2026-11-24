@@ -1,6 +1,6 @@
 # 发布方案（English Notes Wall）
 
-当前仓库仍是本地开发形态：包名 `@local/english-notes-wall`、`private: true`、通过 `link:` 装进 desktop profile。下面是把它发布为公开 DSH 插件的完整方案。
+当前仓库仍是本地开发形态：包名 `dsh-english-notes-wall`、`private: true`、通过 `link:` 装进 desktop profile。下面是把它发布为公开 DSH 插件的完整方案。
 
 > 结论先说：DSH 没有“官方插件市场”的提交入口，官方 catalog 编译在发行版里。第三方发布 = **npm 包 + 自己生成市场索引 `index.json` + HTTPS 静态托管**；用户把索引 URL 加到 Discover 后即可安装。因此发布分成“npm 发布”和“索引发布”两条独立流水线。
 
@@ -21,7 +21,7 @@ npm view dsh-english-notes-wall version   # 404 表示可用
 | `english-notes-wall/client.js` | `window.__ModuleLoader__.load({ id })` | **必须等于包名**，否则 Client 不激活 |
 | `english-notes-wall/cordis.patch.yml` | `name` | Loader 安装的包名 |
 
-改完执行 `grep -R "@local/english-notes-wall" .` 确认无残留。数据目录 `%DSH_HOME%/english-notes-wall/` 不需要迁移。
+改完执行 `grep -R "dsh-english-notes-wall" .` 确认无残留。数据目录 `%DSH_HOME%/english-notes-wall/` 不需要迁移。
 
 ## 2. package.json 发布字段
 
@@ -161,7 +161,7 @@ pnpm --filter @deepseek-ai/dsh-plugin-market-generator start \
 当前 desktop profile 里是：
 
 ```json
-"@local/english-notes-wall": "link:E:/DSH_WorkSpace/English_Notes_Wall/english-notes-wall"
+"dsh-english-notes-wall": "link:E:/DSH_WorkSpace/English_Notes_Wall/english-notes-wall"
 ```
 
 发布后不要直接覆盖安装，HMR 会报 `already-installed`。正确顺序：
