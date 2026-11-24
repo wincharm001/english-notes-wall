@@ -5,6 +5,7 @@ A DeepSeek Harness plugin for an English-learning sticky-note wall: words, phras
 - Plugin source and user guide: [`english-notes-wall/README.md`](english-notes-wall/README.md)
 - Release history: [`CHANGELOG.md`](CHANGELOG.md)
 - Publishing plan (npm + DSH market index): [`PUBLISHING.md`](PUBLISHING.md)
+- General DSH plugin development guide: [`docs/dsh-plugin-development-guide.md`](docs/dsh-plugin-development-guide.md)
 
 ## Layout
 
