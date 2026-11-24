@@ -1,119 +1,119 @@
-# Changelog
+# 版本历史
 
 ## 1.18.0 — 2026-11-15
 
-- Quiz fill-in questions now show their constraint hint before the learner answers, not only after revealing the answer.
-- The model quiz prompt now requires a hint for every cloze, collocation, and dictation item: part of speech, Chinese meaning, a base form in parentheses, a required tense/form, a first letter and length, or a small word bank. It also forbids fixed-answer blanks with several equally natural answers.
-- Collocation and grammar blanks can carry a 2–6 item `wordBank`; the quiz displays it as a “词库 / Word bank” row above the input.
-- If a model-generated fixed item still has no hint, the Host adds a safe first-letter/letter-count fallback. Local cloze and dictation questions now use the same constraint style, and old stored quizzes gain the fallback when reloaded.
+- 测验填空题现在在作答前就显示限定提示，而不是只在查看答案后出现。
+- 模型出题提示词要求每个填空、搭配和听写题都带提示：词性、中文意思、括号中的原形、要求的时态/形式、首字母与长度，或一个小词库；同时禁止出现多个同样自然的答案的固定填空题。
+- 搭配与语法填空可以带 2–6 个选项的 `wordBank`；测验会在输入框上方以“词库”一行显示。
+- 如果模型生成的固定题仍没有提示，Host 会补一个安全的“首字母/字母数”兜底提示。本地填空与听写题改用同样的约束方式，旧的已存测验在重新加载时也会补上兜底提示。
 
 ## 1.17.3 — 2026-11-14
 
-- Removed the redundant close icon from the essay reader header. The labelled “Back to wall” control is now the single dismiss button; Escape still closes the reader.
+- 移除范文阅读器标题栏里重复的关闭图标。带文字的“返回墙面”成为唯一的关闭控件；Escape 仍可关闭阅读器。
 
 ## 1.17.2 — 2026-11-14
 
-- Anchored the essay reader to the plugin page area instead of the whole browser window, so its top bar no longer sits on top of the DSH header and its edges no longer cover the DSH sidebar.
-- The reader re-measures its bounds when the window is resized, including the width change after the page scrollbar is locked.
+- 把范文阅读器锚定到插件页面区域，而不是整个浏览器窗口，因此它的顶栏不再压在 DSH 顶栏上，边缘也不再盖住 DSH 侧栏。
+- 窗口尺寸变化时阅读器会重新测量边界，包括页面滚动条被锁定后的宽度变化。
 
 ## 1.17.1 — 2026-11-12
 
-- Fixed “Today's essay” failing with `args fields do not match the descriptor: missing "date"`. The `essayToday` RPC no longer declares a required date argument; the Host uses the local date and the Client sends an empty argument object.
-- Removed the small “one entry per line / text | 中文” hint under the new-note box and its now-unused locale and style entries.
+- 修复“今日范文”报 `args fields do not match the descriptor: missing "date"` 的问题。`essayToday` RPC 不再声明必填的 date 参数；Host 使用本地日期，Client 发送空参数对象。
+- 移除新建便签框下方“每行一个词条；可用「词条 | 中文」补充释义”的小字提示，以及因此不再使用的 locale 与样式条目。
 
 ## 1.17.0 — 2026-11-11
 
-- Added a daily IELTS Academic Task 2 essay reader, opened from a new header button with an unread dot.
-- Bundled twelve original band-7.5 model essays with task questions, four-paragraph essays, paragraph translations, sentence-level analysis, outlines, cohesive devices, six vocabulary items, and three comprehension questions each. The Host selects one per local day, keeps the choice stable all day, avoids the previous two weeks, and stores reading progress.
-- The full-screen reader supports showing or hiding Chinese, clickable sentence analyses, read-aloud for each paragraph, vocabulary cards, comprehension feedback, and an optional think-first outline. Any selected text can be saved directly to the wall as a word, phrase, collocation, pattern, or long-sentence note; the category is inferred and editable, and saved notes join the existing SRS.
-- With a model configured, “AI essay” generates and validates a replacement essay for the day, caches it, resets that day's reading progress, records token usage under `essay`, and leaves the built-in essay untouched when generation fails.
-- Essay selections, progress, and generated text are included in the JSON export and merged on import. The token usage card now has an essay purpose.
+- 新增每日雅思学术类 Task 2 范文阅读器，从带未读点的顶栏按钮打开。
+- 内置十二篇原创 7.5 分范文，每篇包含题目、四段正文、逐段翻译、句级解析、提纲、衔接手段、六个词汇条目和三道理解题。Host 每个本地自然日选一篇，当天保持不变，避开最近两周，并保存阅读进度。
+- 全屏阅读器支持显示/隐藏中文、点击句子解析、逐段朗读、词汇卡、理解题反馈，以及可选的“先想后写”提纲。选中的任意文字都可直接保存到墙面，作为单词、短语、搭配、句型或长难句；分类自动推断且可修改，保存的便签进入现有 SRS。
+- 配置模型后，“AI 范文”会为当天生成并校验一篇替代范文，按天缓存，重置当天阅读进度，把 token 用量记在 `essay` 用途下；生成失败时内置范文保持不变。
+- 范文的选词、进度和生成正文都包含在 JSON 导出中，导入时合并。Token 用量卡新增“范文”用途。
 
 ## 1.16.0 — 2026-11-11
 
-- Added a floating “Back to top” button to the wall. It appears at the bottom-right after the page is scrolled past about 320px, fades out near the top, and hides while a dialog is open.
-- Clicking it scrolls the wall back to the top smoothly; the jump is instant when the system asks for reduced motion. The `Home` key does the same when focus is not in a text field.
-- On narrow screens the button collapses to a compact icon-only circle.
+- 墙面新增悬浮“返回顶部”按钮。页面滚动超过约 320px 后出现在右下角，接近顶部时淡出，弹窗打开时隐藏。
+- 点击后平滑回到顶部；系统要求减少动态效果时立即跳转。焦点不在文本输入框时，`Home` 键执行同样的操作。
+- 窄屏下按钮收成一个只有图标的紧凑圆形。
 
 ## 1.15.1 — 2026-11-11
 
-- The full-note dialog now picks up the note's category color: the page backdrop and the dialog surface are tinted with that category's accent, the dialog gets a matching top border and header rule, and the category chip inside the dialog is colored as well.
-- The tone changes with the note when using the previous/next arrows, so every note keeps its category identity in the dialog.
+- 全文弹窗现在会采用便签的分类色：页面遮罩和弹窗表面都染上该分类的强调色，弹窗获得匹配的顶部边框和标题分隔线，弹窗内的分类标签也会着色。
+- 使用上一条/下一条箭头时色调随便签切换，因此每条便签在弹窗里都保持自己的分类标识。
 
 ## 1.15.0 — 2026-11-10
 
-- Added previous/next arrows on the left and right of the full-note dialog, so any note can be browsed without closing and reopening the dialog.
-- Navigation follows the visible wall order, including the current category, tag, status, and search filters, as well as pinned-first and organized grouping. It wraps around at both ends.
-- The dialog header shows the note's position (“2 / 18”); Left and Right arrow keys move between notes, and the scroll position resets to the top of each note.
-- On narrow screens the side arrows collapse into a compact previous/next row under the dialog header. All navigation buttons stay inside the dialog's focus trap.
+- 全文弹窗左右两侧新增上一条/下一条箭头，不必关闭再打开弹窗就能浏览任意便签。
+- 导航遵循当前可见的墙面顺序，包括当前的分类、标签、状态和搜索筛选，以及置顶优先和整理后的分组；两端循环。
+- 弹窗标题显示便签位置（如“2 / 18”）；方向键 `←`/`→` 在便签间移动，滚动位置在切换后回到该便签顶部。
+- 窄屏下侧边箭头收成弹窗标题下方的紧凑“上一篇/下一篇”一行。所有导航按钮都在弹窗的焦点陷阱内。
 
 ## 1.14.0 — 2026-11-10
 
-- Added a full-note dialog: the expand-corners button on a note opens its complete content in a modal, independent of the card's collapsed state.
-- The dialog shows every entry and translation, all expansions (including long-sentence analysis, examples, forms, collocations, and tips), tags, and each entry's due or next review date; entries and examples remain readable aloud.
-- Clicking a tag in the dialog closes it and filters the wall. Escape, the backdrop, and the close button dismiss the dialog; focus trapping, focus restore, and page scroll locking are shared with the quiz dialog.
+- 新增全文弹窗：便签上的“展开”按钮在模态框中打开完整内容，不受卡片折叠状态影响。
+- 弹窗展示每个词条和释义、全部拓展（含长难句解析、例句、词形、搭配和提示）、标签，以及每个词条的到期或下次复习日期；词条和例句仍可朗读。
+- 点击弹窗内的标签会关闭弹窗并筛选墙面。Escape、遮罩和关闭按钮都能关闭弹窗；焦点陷阱、焦点恢复和页面滚动锁定与测验弹窗共用。
 
 ## 1.13.1 — 2026-11-10
 
-- Fixed model grading treating an unanswered question as correct. Only items with a non-empty learner answer are sent for model review or counted toward the score; unanswered items receive a local `blank` verdict with zero points.
-- Unanswered items now display “未作答 / Not answered” instead of being shown as correct or as ordinary wrong answers, for both exact and model grading.
-- Review scheduling skips blank items, so they remain due for the next quiz.
+- 修复模型评分把未作答题目判为正确的问题。只有学习者答案非空的题目才会送去模型评分或计入分数；未作答题目得到本地的 `blank` 判定，计零分。
+- 未作答题目现在显示“未作答”，而不是被判为正确或普通错误，精确评分和模型评分都如此。
+- 复习排期会跳过空答案，让它们在下一次测验中继续到期。
 
 ## 1.13.0 — 2026-11-09
 
-- Moved the daily quiz out of the right sidebar and into a dedicated modal, opened from a new header quiz button with an unread dot.
-- The modal keeps its draft answers when closed, starts expanded, pauses the countdown while hidden, traps keyboard focus, closes on Escape or a backdrop click, and locks page scrolling while open.
-- The quiz header keeps the regenerate, collapse, and close controls; the sidebar now holds only settings, usage, and wall overview.
+- 把每日测验从右侧栏移到专门的弹窗，由带未读点的新顶栏测验按钮打开。
+- 弹窗关闭时保留草稿答案，打开时默认展开，隐藏时暂停倒计时，锁定键盘焦点，支持 Escape 或点击遮罩关闭，并在打开期间锁定页面滚动。
+- 测验标题栏保留重新生成、折叠和关闭控件；右侧栏现在只放设置、用量和墙面总览。
 
 ## 1.12.1 — 2026-11-09
 
-- The right sidebar now has its own scroll container and scrollbar, so settings, quiz, usage, and overview stay usable without scrolling the whole page.
-- Removed the delete button from the note card header. Delete now lives inside the inline editor and keeps the same confirmation step.
+- 右侧栏现在有自己的滚动容器和滚动条，设置、测验、用量和总览无需滚动整页即可使用。
+- 从便签卡片标题栏移除删除按钮。删除移入原地编辑器，并保留同样的确认步骤。
 
 ## 1.12.0 — 2026-11-09
 
-### Category-level long-sentence analysis
+### 分类级长难句分析
 
-- Renamed the `sentence` category from “例句” / “Sentence” to “长难句分析” / “Long-sentence analysis”. The stored category key stays `sentence`, so existing notes, colors, filters, and organization data need no migration.
-- Moved long-sentence positioning to the category layer: a note in “长难句分析” now expands into an analysis of its saved sentence — Chinese translation, structure, grammar, and an authentic chunk — instead of generating unrelated long sentences.
-- Word, phrase, collocation, and sentence-pattern entries go back to ordinary examples: 2–3 natural sentences with translations and optional structure/grammar notes.
-- Expansion headings follow the category: “例句” for word-like notes, “长难句分析” for sentence notes; optional extra sentences appear as “更多例句” or “更多长难句”.
-- Practice mode now shows a category-specific hint: main clause and subordinate clauses for sentence notes, self-translation for word examples.
-- Quiz material for a sentence note uses the analyzed saved sentence when available.
+- 把 `sentence` 分类从“例句”改名为“长难句分析”。存储的分类键仍是 `sentence`，因此现有便签、颜色、筛选和整理数据都无需迁移。
+- 把长难句的定位移到分类层：标为“长难句分析”的便签，拓展的是它保存的句子——中文翻译、结构、语法和地道表达——而不是另造不相关的长句。
+- 单词、短语、搭配和句型词条回到普通例句：2–3 个带翻译的自然句，外加可选的结构/语法说明。
+- 拓展标题跟随分类：单词类便签用“例句”，句子便签用“长难句分析”；额外的句子显示为“更多例句”或“更多长难句”。
+- 练习模式显示分类相关的提示：句子便签提示主句与从句，单词例句提示自己先翻译。
+- 句子便签的测验素材在可用时使用已解析的那句原句。
 
 ## 1.11.0 — 2026-11-08
 
-### Learning loop
+### 学习闭环
 
-- Added spaced repetition per entry: levels 1/3/7/15/30/60 days, wrong fixed answers reset the level and become due in ten minutes, and the daily quiz now draws due and most-overdue entries first.
-- Added due counts to the quiz card and the wall overview, plus 7-day accuracy, reviewed-today, entry count, and scheduled counts.
-- Added a long-sentence practice mode that hides the Chinese translation, structure, grammar, and chunk until revealed.
-- Added `sentence` (long-sentence translation) and `dictation` quiz types; local fallback quizzes use them when material allows.
+- 新增按词条的间隔复习：间隔为 1/3/7/15/30/60 天，固定答案答错会重置等级并在十分钟后到期，每日测验现在优先抽取到期和最久未复习的词条。
+- 测验卡和墙面总览新增待复习数量，以及近 7 天正确率、今日已复习、词条总数和已排期数量。
+- 新增长难句练习模式，在展开前隐藏中文翻译、结构、语法和地道表达。
+- 新增 `sentence`（长难句翻译）和 `dictation`（听写）两种题型；本地兜底测验在素材允许时使用它们。
 
-### Reliability
+### 可靠性
 
-- Expansion now runs in chunks of two entries, retries a bad response once, keeps successful chunks, and reports partial results with per-entry failures instead of losing the whole note.
-- Batch “fill missing expansions” now runs two notes at a time, can be stopped, and offers a retry list for failures. An in-flight expansion can be cancelled through the Host.
-- Automatic daily backups keep the last seven days; manual backups are also available.
+- 拓展改为每次两个词条分块执行，坏响应重试一次，保留成功的分块，并在部分失败时按词条报告，而不是丢掉整条便签。
+- 批量“补全未拓展”每次处理两条便签，可随时停止，并提供失败重试列表。进行中的拓展可通过 Host 取消。
+- 自动每日备份保留最近七天；也支持手动备份。
 
-### Data
+### 数据
 
-- Added JSON, CSV, and Anki TSV export.
-- Added JSON import with entry-level deduplication and expansion enrichment.
-- Added note restore for the twelve-second delete undo.
+- 新增 JSON、CSV 和 Anki TSV 导出。
+- 新增 JSON 导入，支持词条级去重和拓展补全。
+- 新增便签恢复，配合十二秒删除撤销。
 
-### Wall and interaction
+### 墙面与交互
 
-- Added pinning (pinned notes get a top group), drag-to-reorder in the unfiltered date view, and study-status filters (due, not expanded, scheduled).
-- Tags are now clickable filters.
-- Added `/`, `n`, `j`/`k`, `Esc`, and `Ctrl/Cmd + Enter` keyboard shortcuts.
-- Added browser read-aloud buttons for entries and long sentences.
+- 新增置顶（置顶便签进入顶部独立分组）、在未筛选的日期视图中拖动排序，以及学习状态筛选（待复习、未拓展、已排期）。
+- 标签现在可点击筛选。
+- 新增 `/`、`n`、`j`/`k`、`Esc` 和 `Ctrl/Cmd + Enter` 快捷键。
+- 新增词条和长句的浏览器朗读按钮。
 
-### Docs
+### 文档
 
-- Documented the new data model, quiz types, backup location, host methods, and publishing plan.
+- 补充了新数据模型、题型、备份位置、Host 方法和发布方案的文档。
 
 ## 1.10.0 — 2026-11-06
 
-- Repositioned “examples” as long-sentence analysis: 2–3 long complex sentences per entry with translation, structure, grammar, and an authentic chunk, plus optional extra long sentences.
-- Added word forms, discrimination, one-click expansion, batch expansion, prompt templates, model selection, token cost estimates, and the daily quiz countdown.
+- 把“例句”重新定位为长难句解析：每个词条给出 2–3 个长难句，附翻译、结构、语法和地道表达，并可选补充额外长句。
+- 新增词形、词义辨析、一键拓展、批量拓展、提示词模板、模型选择、token 费用估算和每日测验倒计时。

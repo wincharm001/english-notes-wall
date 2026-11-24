@@ -1,21 +1,21 @@
 # English Notes Wall
 
-A DeepSeek Harness plugin for an English-learning sticky-note wall: words, phrases, collocations, sentence patterns, long-sentence analysis, spaced-repetition review, read-aloud, and a daily quiz.
+一个 DeepSeek Harness 插件，提供英语学习便利贴墙：单词、短语、搭配、句型、长难句分析、间隔复习、朗读和每日测验。
 
-- Plugin source and user guide: [`english-notes-wall/README.md`](english-notes-wall/README.md)
-- Release history: [`CHANGELOG.md`](CHANGELOG.md)
-- Publishing plan (npm + DSH market index): [`PUBLISHING.md`](PUBLISHING.md)
-- General DSH plugin development guide: [`docs/dsh-plugin-development-guide.md`](docs/dsh-plugin-development-guide.md)
+- 插件源码与使用说明：[`english-notes-wall/README.md`](english-notes-wall/README.md)
+- 版本历史：[`CHANGELOG.md`](CHANGELOG.md)
+- 发布方案（npm + DSH 市场索引）：[`PUBLISHING.md`](PUBLISHING.md)
+- 通用 DSH 插件开发指南：[`docs/dsh-plugin-development-guide.md`](docs/dsh-plugin-development-guide.md)
 
-## Layout
+## 目录结构
 
 ```text
-english-notes-wall/   the installable bundle (Host index.js, Client client.js, essay library, patch, locale, icon)
-check-*.mjs           structural and locale checks
-test-*.mjs            Host service, Client component, quiz, SRS, export/backup tests
+english-notes-wall/   可安装的 bundle（Host index.js、Client client.js、范文库、patch、locale、图标）
+check-*.mjs           结构与 locale 检查
+test-*.mjs            Host 服务、Client 组件、测验、SRS、导出/备份测试
 ```
 
-## Development
+## 开发
 
 ```bash
 node --check english-notes-wall/index.js
@@ -23,8 +23,8 @@ node --check english-notes-wall/client.js
 for file in check-*.mjs test-*.mjs; do node "$file"; done
 ```
 
-The plugin is installed into the `desktop` profile with a local `link:` while it is under development. Host changes require a full DeepSeek Harness restart; Client changes also need the plugin bundle to reload.
+开发期间插件通过本地 `link:` 安装进 `desktop` profile。Host 改动需要完整重启 DeepSeek Harness；Client 改动还需要插件 bundle 重新加载。
 
-## Status
+## 状态
 
-Version 1.18.0 adds visible constraints and word banks to quiz fill-in questions so ambiguous blanks have one defensible answer. 1.17.3 removes the duplicate close control from the essay reader, leaving the labelled back button and Escape. 1.17.2 anchors the essay reader to the plugin page area so it no longer overlaps the DSH header or sidebar. 1.17.1 fixes the “Today's essay” RPC argument mismatch and removes the redundant new-note hint. 1.17.0 adds a daily IELTS essay reader with twelve bundled model essays, sentence analysis, translations, vocabulary, comprehension questions, direct selection-to-note capture, and optional AI essay generation. 1.16.0 adds a floating back-to-top button to the wall, including a `Home` shortcut and reduced-motion-aware scrolling. 1.15.1 tints the full-note dialog and its backdrop with the note's category color, so the dialog matches the sticky note being read. 1.15.0 adds previous/next arrows to the full-note dialog, so notes can be browsed in wall order without closing it. 1.14.0 adds a full-note dialog for reading every entry and expansion without expanding the card. 1.13.1 fixes model grading so unanswered questions score zero instead of being marked correct. 1.13.0 moves the daily quiz into a header-opened dialog with focus handling and preserved draft answers. 1.12.0 positions long-sentence analysis at the category layer: a “长难句分析” note analyzes its saved sentence, while word, phrase, collocation, and pattern notes keep ordinary examples.
+1.18.0 为测验填空加上作答前可见的限定提示与词库，让有歧义的空格只有一个可判定的答案。1.17.3 移除范文阅读器里重复的关闭按钮，只保留带文字的返回按钮和 Escape。1.17.2 把范文阅读器锚定到插件页面区域，不再遮挡 DSH 顶栏和侧栏。1.17.1 修复“今日范文”的 RPC 参数不匹配，并删除多余的新建提示。1.17.0 新增每日雅思范文阅读器，内置十二篇范文，支持句子解析、翻译、词汇、理解题、划词建卡，以及可选的 AI 范文生成。1.16.0 为墙面新增悬浮返回顶部按钮，支持 `Home` 快捷键，并在系统要求减少动态效果时立即跳转。1.15.1 用便签的分类色为全文弹窗及其遮罩着色，让弹窗与正在阅读的便签一致。1.15.0 为全文弹窗加上“上一篇/下一篇”箭头，不必关闭弹窗就能按墙面顺序浏览。1.14.0 新增全文弹窗，无需展开卡片即可阅读全部词条与拓展。1.13.1 修复模型评分把未作答题目判为正确的问题。1.13.0 把每日测验移入由顶栏打开的弹窗，带焦点管理与草稿答案保留。1.12.0 把长难句分析放到分类层级：“长难句分析”便签分析已保存的句子，单词、短语、搭配和句型便签保留普通例句。

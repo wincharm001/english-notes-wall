@@ -1,72 +1,61 @@
 # English Notes Wall
 
-A DeepSeek Harness bundle for building an English-learning sticky-note wall.
+一个用于搭建英语学习便利贴墙的 DeepSeek Harness bundle。
 
-## What it does
+## 功能
 
-- **Sticky-note wall** — every note stores its creation time and is shown oldest first, grouped by day. A note holds many entries, one per line; duplicate lines are removed and a Chinese meaning can follow `|` on each line. Every note collapses to a single summary line; one click opens the entries and their study cards together, and the chevron/entry-count badge collapses it again, so the wall stays compact. Each note carries a very light tint of its category color so it reads as a sticky note. Notes can be pinned to a top group, and dragged to set a manual order. The toolbar switches between a list layout and a rectangular grid layout.
-- **Back to top** — once the wall is scrolled past about 320px, a floating “Back to top” button fades in at the bottom-right. It returns the wall to the top smoothly (instantly when reduced motion is requested), fades out near the top, and hides while the quiz or full-note dialog is open. `Home` performs the same jump when focus is not in a text field; on narrow screens the button collapses to a compact icon-only circle.
-- **Daily IELTS essay** — the header “Today's essay” button opens a reader that fills the plugin page area below the DSH header, leaving DSH's own top bar and sidebar visible. One IELTS Academic Task 2 model essay is recommended per day. Twelve original band-7.5 essays ship with the plugin; the Host picks one deterministically from the local date and avoids repeating the last two weeks. The reader shows the task question, a think-first outline box, the essay, paragraph-by-paragraph Chinese translations, clickable sentence analyses (translation, structure, grammar, natural chunk), an outline, cohesive devices, six vocabulary cards, and three comprehension questions with explanations; each paragraph can be read aloud. Select any text in the essay to add it directly to the wall as a word, phrase, collocation, pattern, or long-sentence note; the category is inferred and can be changed before saving, and saved items join the existing SRS and daily quiz. With a model configured, “AI essay” regenerates today's essay, validates the JSON, caches it for the day, and records its token usage; the built-in essay remains available when the model fails or is not configured.
-- **Full-note dialog** — the expand-corners button on every note opens a focused dialog with the complete note, regardless of the card's collapsed state: all entries and translations, every expansion (meaning, long-sentence analysis, examples, word forms, collocations, synonyms, tips, related), tags, and each entry's due or next review date. Entries are read aloud from the dialog, tags filter the wall, and Escape, the backdrop, or the close button dismiss it. The dialog and its backdrop take the note's category color, side arrows move to the previous or next note in the current wall order (wrapping at both ends), with a position counter, Left/Right keyboard keys, and a compact previous/next row on narrow screens.
-- **Categories and filters** — word, phrase, collocation, sentence pattern, long-sentence analysis, and other, with category filters, counts, tags, search, study-status filters (due for review, not expanded, scheduled), and click-to-filter tags. A note filed as long-sentence analysis is a sentence the learner wants broken down, not a vocabulary example. The category sets the note's edge, tint, and label color: word green, phrase teal, collocation orange, sentence pattern blue, long-sentence analysis violet, and other gray.
-- **Collapsible surfaces** — the new-note form collapses to its title row; the right sidebar hides and returns from the page header; the toolbar closes every expanded study card at once. All three choices are remembered. The light theme adds a brand accent, stronger card borders, and a clearer title hierarchy so the wall keeps a focus.
-- **Model expansion** — one click expands every entry of a note. Word, phrase, collocation, and sentence-pattern entries get meaning, phonetics, word forms (derivatives, same-root words, and look-alikes when useful), collocations, synonyms, word discrimination, 2-3 natural example sentences with Chinese translations, optional structure/grammar notes, usage tips, and related expressions. An entry in the long-sentence analysis category is treated as the target sentence: the expansion returns its Chinese translation, structure breakdown, grammar analysis, and an extracted authentic chunk instead of inventing a new example, and may add a few extra long sentences. Requests are split into chunks of two entries, retried once on a bad response, and saved partially when one chunk fails, so a long multi-entry response cannot lose the whole note. Results are stored per entry; repeated forms, collocations, synonyms, and examples are removed across the note. Examples highlight a saved word or phrase literally; an entry containing a placeholder such as `sb.` or `sth.`, and every sentence pattern, highlights the whole frame (fillers included) by following the entry's words through the sentence after dropping the placeholders. The Chinese sentence highlights the saved meaning.
-- **Practice mode and read-aloud** — each expansion can hide its Chinese translation and analysis behind “Practice mode”, so the learner can parse the long sentence first and reveal the breakdown afterwards. A speaker button reads entries, long sentences, and extra sentences aloud with the browser speech engine; dictation quiz items play the hidden word or phrase.
-- **Fill missing expansions** — one toolbar button expands every note that still has an unexpanded entry, two notes at a time, with a live progress counter, a stop button, and a retry list for failures. Complete notes are skipped.
-- **Spaced repetition** — every entry keeps a review state (level, due time, seen/correct counts). New entries start due; a correct answer moves the entry up a Leitner ladder (1, 3, 7, 15, 30, 60 days) and a wrong fixed answer resets it and makes it due again in ten minutes. The daily quiz draws due and most-overdue entries first, and the quiz dialog plus the overview card show the due count. Model grading also updates the review state.
-- **Editing** — any saved note reopens in an inline editor for its entry lines, category, and tags. Expansions survive edits for entries whose text is unchanged; new lines start unexpanded.
-- **Whole-wall organization** — the Organize button sends every note, with its meanings, collocations, and synonyms, to the model. The model returns topic groups, category fixes, and synonym/confusable relations. The plan is previewed first; applying it writes each note's topic, order, category, and topic tags, then the wall switches to a topic-grouped view that can be toggled back to the date view.
-- **Expansion model settings** — choose the provider and model used for expansion and its thinking effort from the model catalog; follow the default session model when no override is set.
-- **Token usage and cost** — a compact card shows the input, output, and total tokens of the last model call plus the cumulative totals and call count, covering expansion, quiz generation, model grading, and wall organization. It also breaks usage down by purpose and estimates cost from configurable input/output prices per 1M tokens and a currency label set in the settings card. Each note also records the tokens of its own expansion.
-- **Data and backup** — the settings card exports the wall as JSON (notes, review state, and organization), CSV, or Anki-ready TSV, imports a JSON export with entry-level deduplication, and creates a manual backup. Every write also keeps one automatic snapshot per day in `backups/`, retaining the last seven days.
-- **Daily quiz dialog** — the header quiz button (with an unread dot) opens the daily quiz in a focused modal instead of the right sidebar. At the configured local time the Host builds a quiz from due entries first. Question types mix Chinese → English, English → Chinese, cloze, collocation, sentence translation, dictation, and free-sentence use. Fixed-answer fill-ins carry a visible constraint hint — part of speech, meaning, base form, required tense, first letter and length, or a small word bank — so a blank has one defensible answer; hints and the optional word bank are shown before answering. A deterministic local set is used when no model is configured. A live countdown shows the next publication (today or tomorrow), switches to “publishing soon” when the slot has passed, polls briefly for the new quiz, and reads “paused” when the daily quiz is disabled. The modal keeps draft answers when it is closed, traps focus, closes on Escape or a backdrop click, and restores page scrolling afterwards.
-- **Open answers and model grading** — translation, long-sentence, and sentence-use items are marked open-ended; their reference answer is only one good answer. `Grade with model` checks open answers by meaning, returns per-item feedback, suggests a more natural expression, and adds related vocabulary. Fixed items (cloze, collocation, dictation) keep their exact answer.
-- **Keyboard and undo** — `/` focuses search, `n` opens the composer, `j`/`k` moves through the visible notes, `Home` returns to the top, `Esc` clears, and `Ctrl/Cmd + Enter` saves. Deleting a note leaves a twelve-second undo bar.
-- **Prompt settings** — the settings card edits the prompt templates for expansion, quiz generation, model grading, and whole-wall organization. Placeholders such as `{{note}}`, `{{count}}`, `{{notes}}`, `{{quiz}}`, and `{{answers}}` inject the current data; an empty field restores the default.
-- **Agent tool** — `english_notes` lets the model add, list, update, expand, delete, generate, and grade through the same Host service the page uses, with `gradeModel` for model grading and `models` to inspect the catalog.
+- **便利贴墙** —— 每条便签保存创建时间，按从旧到新、以日期分组展示。一条便签可包含多个词条，每行一个；重复行会被去掉，行内可用 `|` 补充中文释义。每条便签都折叠成一行摘要；点一下同时展开词条和学习卡，点箭头或词条数徽标再收起，墙面因此保持紧凑。每条便签带一层很淡的分类色，看起来像便签纸。便签可以置顶到独立分组，也可以拖动调整手动顺序。工具栏可在列表与网格两种布局间切换。
+- **返回顶部** —— 墙面滚动超过约 320px 后，右下角淡入一个悬浮“返回顶部”按钮。它平滑回到顶部（系统要求减少动态效果时立即跳转），接近顶部时淡出，在测验弹窗或全文弹窗打开时隐藏。当焦点不在文本输入框内时，`Home` 键执行同样的跳转；窄屏下按钮收成一个只有图标的圆形按钮。
+- **每日雅思范文** —— 顶栏的“今日范文”按钮打开阅读器，阅读器填满 DSH 顶栏下方、侧栏右侧的插件页面区域，DSH 自己的顶栏和侧栏保持可见。每天推荐一篇雅思学术类 Task 2 范文；插件内置十二篇原创 7.5 分范文，Host 根据本地日期确定性地挑一篇，并避开最近两周已出现过的篇目。阅读器展示题目、先想后写的提纲框、范文正文、逐段中文翻译、可点击的句子解析（翻译、结构、语法、自然表达）、文章提纲、衔接手段、六张词汇卡，以及三道带解析的理解题；每段都可以朗读。在范文中选中任意文字即可直接加入墙面，归类为单词、短语、搭配、句型或长难句；分类会自动推断且可修改，保存的内容进入现有的 SRS 和每日测验。配置了模型时，“AI 范文”会重新生成当天的范文，校验 JSON、按天缓存并记录 token 用量；模型失败或未配置时，内置范文仍然可用。
+- **全文弹窗** —— 每条便签上的“展开”按钮打开一个专注阅读的弹窗，不论卡片当前是否折叠，都展示完整便签：全部词条与释义、所有拓展（词义、长难句解析、例句、词形、搭配、近义词、提示、相关表达）、标签，以及每个词条的到期或下次复习日期。词条可在弹窗内朗读，标签可用来筛选墙面，Escape、遮罩或关闭按钮都能关闭弹窗。弹窗及其遮罩采用该便签的分类色；侧边箭头在当前墙面顺序中切到上一条或下一条（两端循环），并显示位置计数；方向键 `←`/`→` 同样可用，窄屏下侧边箭头收成弹窗标题下方的紧凑“上一篇/下一篇”一行。
+- **分类与筛选** —— 包括单词、短语、搭配、句型、长难句分析和其他，配合分类筛选、计数、标签、搜索、学习状态筛选（待复习、未拓展、已排期）以及点击标签筛选。标为长难句分析的便签是学习者希望拆解的句子，而不是词汇例句。分类决定便签的边线、底色和标签色：单词绿色、短语青色、搭配橙色、句型蓝色、长难句分析紫色、其他灰色。
+- **可折叠区域** —— 新建便签表单折叠为标题行；右侧栏可从页头隐藏并在之后恢复；工具栏可一次收起所有展开的学习卡。这三种选择都会被记住。浅色主题增加了品牌强调色、更强的卡片边框和更清晰的标题层级，让墙面保持焦点。
+- **模型拓展** —— 一键拓展一条便签的全部词条。单词、短语、搭配和句型词条会得到词义、音标、词形（派生词、同根词，必要时还有易混词）、搭配、近义词、词义辨析、2–3 个带中文翻译的自然例句、可选的结构/语法说明、用法提示和相关表达。长难句分析分类下的词条会被当作目标句：拓展返回中文翻译、结构拆解、语法分析和提取出的地道表达，而不是另造一个例句，并可能补充几个额外长句。请求按两个词条一组拆分，坏响应重试一次，某一组失败时保留已完成的部分，因此多词条的长响应不会整条丢失。结果按词条存储；同一便签内重复的词形、搭配、近义词和例句会被去掉。例句会按字面高亮已保存的单词或短语；包含 `sb.`、`sth.` 这类占位符的词条以及所有句型，会在去掉占位符后按词条中的词穿过句子，高亮整个框架（含可替换部分）。中文例句会高亮已保存的释义。
+- **练习模式与朗读** —— 每个拓展都可以把中文翻译和解析藏在“练习模式”后面，让学习者先自己解析长句，再展开对照。朗读按钮用浏览器语音引擎读出词条、长句和额外例句；听写题会播放被隐藏的单词或短语。
+- **补全未拓展** —— 工具栏上的一个按钮会拓展所有仍有未拓展词条的便签，每次两条，并显示实时进度、停止按钮和失败重试列表。已完成的便签会跳过。
+- **间隔复习** —— 每个词条保存复习状态（等级、到期时间、作答次数、正确次数）。新词条一开始就到期；答对沿 Leitner 阶梯上升（1、3、7、15、30、60 天），固定答案题答错会重置等级并让它在十分钟后再次到期。每日测验优先抽取到期和最久未复习的词条，测验弹窗和总览卡片都会显示待复习数量。模型评分同样会更新复习状态。
+- **编辑** —— 已保存的便签可在原地编辑器中重新打开，修改词条行、分类和标签。文本未变的词条会保留原有拓展；新增的行处于未拓展状态。
+- **整墙整理** —— “整理”按钮会把所有便签及其释义、搭配和近义词交给模型，模型返回主题分组、分类修正和近义/易混关系。方案先预览，应用后写入每条便签的主题、顺序、分类和主题标签，墙面切换到按主题分组的视图，并可切回日期视图。
+- **拓展模型设置** —— 从模型目录中选择拓展使用的供应商、模型和思考强度；未设置时跟随会话默认模型。
+- **Token 用量与费用** —— 一张紧凑卡片显示最近一次模型调用的输入、输出和总 token，以及累计总量和调用次数，覆盖拓展、测验生成、模型评分和整墙整理。它还按用途拆分用量，并根据可配置的每百万 token 输入/输出价格和设置卡里的货币标签估算费用。每条便签也记录自己那次拓展的 token。
+- **数据与备份** —— 设置卡可把墙面导出为 JSON（便签、复习状态和整理结果）、CSV 或 Anki 可用的 TSV，可导入 JSON 导出文件并按词条去重，也可手动备份。每次写入还会在 `backups/` 里保留一份按天的自动快照，最多保留最近七天。
+- **每日测验弹窗** —— 顶栏的测验按钮（带未读点）在专注弹窗中打开每日测验，而不是放在右侧栏。到了设置的本地时间，Host 会优先从到期词条构建测验。题型混合中文 → 英文、英文 → 中文、填空、搭配、句子翻译、听写和自由造句。固定答案的填空题带有作答前就可见的限定提示——词性、中文意思、括号中的原形、要求的时态/形式、首字母和长度，或一个小词库——让空格只有一个可判定的答案；提示和可选词库在作答前显示。未配置模型时使用确定性的本地题组。实时倒计时显示下一次发布时间（今天或明天），时间已过时显示“即将发布”并短暂轮询新测验，禁用每日测验时显示“已暂停”。弹窗关闭时保留草稿答案，会锁定焦点，支持 Escape 和点击遮罩关闭，并在关闭后恢复页面滚动。
+- **开放题与模型评分** —— 翻译、长难句和造句题按开放题处理，参考答案只是其中一种好答案。“用模型评分”会按意思检查开放题答案，返回逐题反馈，建议更自然的表达，并补充相关词汇。固定题（填空、搭配、听写）仍按精确答案判定。
+- **键盘与撤销** —— `/` 聚焦搜索，`n` 打开新建表单，`j`/`k` 在可见便签间移动，`Home` 回到顶部，`Esc` 清空，`Ctrl/Cmd + Enter` 保存。删除便签后会留出十二秒的撤销条。
+- **提示词设置** —— 设置卡可编辑拓展、测验生成、模型评分和整墙整理的提示词模板。`{{note}}`、`{{count}}`、`{{notes}}`、`{{quiz}}`、`{{answers}}` 等占位符会注入当前数据；留空即恢复默认。
+- **Agent 工具** —— `english_notes` 让模型通过页面所用的同一个 Host 服务添加、列出、更新、拓展、删除、生成和评分，其中 `gradeModel` 用于模型评分，`models` 用于查看模型目录。
 
-## Where data lives
+## 数据位置
 
-`%DSH_HOME%/english-notes-wall/store.json` (normally `C:\Users\<you>\.dsh\english-notes-wall\store.json`).
-Writes are atomic (temp file + rename); a corrupt file is backed up beside the original.
-Automatic daily snapshots and manual backups live in `%DSH_HOME%/english-notes-wall/backups/`.
-The twelve built-in essays live in the bundle at `essays/ielts/`; the selected day, AI-generated
-essay text, and reading progress are stored under `essays` in `store.json` and kept in backups.
+`%DSH_HOME%/english-notes-wall/store.json`（通常是 `C:\Users\<你>\.dsh\english-notes-wall\store.json`）。
+写入是原子的（临时文件 + 重命名）；文件损坏时会先备份到原文件旁边。
+自动每日快照与手动备份位于 `%DSH_HOME%/english-notes-wall/backups/`。
+十二篇内置范文在 bundle 的 `essays/ielts/` 里；选中的日期、AI 生成的范文正文和阅读进度保存在 `store.json` 的 `essays` 下，并包含在备份中。
 
-## Host service
+## Host 服务
 
-The page talks to the Host through the authenticated unary RPC on the shared client connection:
-`connection.rpc.call('/api', 'englishNotes/<method>', { args })`. The Host registers the
-`englishNotes` service with the methods used in `index.js`: `snapshot`, `addNote`, `updateNote`,
-`deleteNote`, `restoreNote`, `reorderNotes`, `expandNote`, `cancelExpansion`, `generateQuiz`,
-`gradeQuiz`, `gradeWithModel`, `essayToday`, `essayGenerate`, `essayProgress`, `saveSettings`,
-`llmCatalog`, `exportData`, `importData`, and `backupNow`. The page does not depend on the client Typert `$mount` path, so it still works
-when that bridge is unavailable.
+页面通过共享客户端连接上的认证一元 RPC 与 Host 通信：
+`connection.rpc.call('/api', 'englishNotes/<method>', { args })`。Host 注册了 `englishNotes` 服务，方法见 `index.js`：`snapshot`、`addNote`、`updateNote`、`deleteNote`、`restoreNote`、`reorderNotes`、`expandNote`、`cancelExpansion`、`generateQuiz`、`gradeQuiz`、`gradeWithModel`、`essayToday`、`essayGenerate`、`essayProgress`、`saveSettings`、`llmCatalog`、`exportData`、`importData` 和 `backupNow`。页面不依赖客户端 Typert 的 `$mount` 路径，因此该桥不可用时页面仍能工作。
 
-## Settings
+## 设置
 
-The settings card controls the daily publication toggle, the local publication time, the number
-of questions, and the expansion model: provider, model, and thinking effort. It also edits the
-prompt templates for expansion, quiz generation, model grading, and the reserved organise action,
-and hosts the JSON/CSV/Anki export, JSON import, and backup controls. The token usage card reads the
-provider usage recorded for every model call — expansion, quiz generation, model grading, essay
-generation, and any organise action — and labels the last call's purpose.
+设置卡控制每日发布开关、本地发布时间、题目数量，以及拓展模型：供应商、模型和思考强度。它还可以编辑拓展、测验生成、模型评分和预留的整理动作的提示词模板，并放置 JSON/CSV/Anki 导出、JSON 导入和备份控件。Token 用量卡片读取每次模型调用记录的供应商用量——拓展、测验生成、模型评分、范文生成以及任何整理动作——并标注最近一次调用的用途。
 
-## Development
+## 开发
 
 ```bash
 node --check index.js
 node --check client.js
-node ../test-host.mjs       # host service, SRS, expansion chunks, export/import/backup
-node ../test-note-card.mjs  # collapsed notes, practice mode, read-aloud, pin/tag controls
-node ../test-back-to-top.mjs # floating back-to-top control and reduced-motion scrolling
-node ../test-note-detail.mjs # full-content dialog and its read-only rendering
-node ../test-essay-reader.mjs # daily IELTS reader, annotations, vocabulary, and selection helpers
-node ../test-note-nav.mjs    # previous/next navigation between notes inside the dialog
-node ../test-quiz-modal.mjs # quiz dialog open/close state and preserved draft answers
+node ../test-host.mjs       # Host 服务、SRS、拓展分块、导出/导入/备份
+node ../test-note-card.mjs  # 折叠便签、练习模式、朗读、置顶/标签控件
+node ../test-back-to-top.mjs # 悬浮返回顶部控件与减少动态效果时的滚动
+node ../test-note-detail.mjs # 全文弹窗及其只读渲染
+node ../test-essay-reader.mjs # 每日雅思阅读器、解析、词汇和划词辅助函数
+node ../test-note-nav.mjs    # 弹窗内便签的上一条/下一条导航
+node ../test-quiz-modal.mjs # 测验弹窗的打开/关闭状态与草稿答案保留
 node ../check-locale.mjs
 node ../check-balance.mjs
 node ../check-layout.mjs
 ```
 
-Publishing notes are in [`../PUBLISHING.md`](../PUBLISHING.md).
+发布说明见 [`../PUBLISHING.md`](../PUBLISHING.md)。
