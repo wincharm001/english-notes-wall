@@ -9,10 +9,14 @@
 | npm 包 | [`dsh-english-notes-wall`](https://www.npmjs.com/package/dsh-english-notes-wall) |
 | 最新版本 | `1.18.1`（2026-11-24 发布） |
 | 仓库 | <https://github.com/wincharm001/english-notes-wall> |
-| 市场索引 | `https://wincharm001.github.io/english-notes-wall/index.json`（GitHub Pages，源为 `main` 的 `/docs`） |
+| 市场索引 | `https://wincharm001.github.io/english-notes-wall/index.json`（GitHub Pages，源为 `main` 的 `/docs`，2026-11-24 启用） |
 | 许可证 | MIT |
 
-发布时 npm 另外留下了一个 `0.0.0-stage` 占位版本，它不是安装目标，索引生成器会跳过；72 小时内可以用 `npm unpublish dsh-english-notes-wall@0.0.0-stage` 清掉。
+发布时 npm 另外留下了一个 `0.0.0-stage` 占位版本，它不是安装目标，索引生成器会跳过。删除需要 2FA，72 小时内执行：
+
+```bash
+npm unpublish dsh-english-notes-wall@0.0.0-stage --registry https://registry.npmjs.org --otp <code>
+```
 
 ## 发版流程
 
@@ -103,21 +107,20 @@ GitHub Pages 设置：仓库 **Settings → Pages → Deploy from a branch → m
 
 安装完成后需要完整重启一次 DSH。索引有缓存（约十分钟），新版本可能延迟出现，重启可强制刷新。
 
-## 从本地 link 迁移到 registry
+## 本地源码与 registry 版本切换
 
-开发期 desktop profile 里是：
+当前 desktop profile 链接的是本仓库源码，方便继续开发：
 
 ```json
-"@local/english-notes-wall": "link:E:/DSH_WorkSpace/English_Notes_Wall/english-notes-wall"
+"dsh-english-notes-wall": "link:E:/DSH_WorkSpace/English_Notes_Wall/english-notes-wall"
 ```
 
-包名已改为 `dsh-english-notes-wall`，旧 link 条目不再对应任何包。迁移顺序：
+两种安装的包名、patch 行 id、数据目录都相同，所以只能装一个：
 
-1. 在插件管理里移除 link 版本（或从 profile 的 `package.json` 与 bundle 列表里删掉 `@local/english-notes-wall`）；
-2. 完整重启 DSH，避免残留的 `package-moved`；
-3. 安装 `dsh-english-notes-wall@1.18.1`；
-4. 确认插件行启用、没有 `skippedBundles`；
-5. 数据目录不变，`%DSH_HOME%/english-notes-wall/` 里的笔记和范文进度继续可用。
+- **切到 registry 版本验证发布**：在插件管理里移除本地 link，完整重启 DSH，再安装 `dsh-english-notes-wall@1.18.1`。
+- **切回源码开发**：移除 registry 版本，完整重启，再用 `plugin_manager install_bundle` 指向本地 `english-notes-wall/` 目录。
+- 两种方式共用 `%DSH_HOME%/english-notes-wall/`，笔记、复习进度和范文进度不会丢。
+- link 安装不会校验 `files` 白名单，发布前仍要用 `npm pack --dry-run` 核对。
 
 ## 撤包与回滚
 
