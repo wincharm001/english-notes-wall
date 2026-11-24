@@ -1,0 +1,42 @@
+{
+  "format": 1,
+  "title": {
+    "en": "English Notes Wall",
+    "zh": "英语便利贴墙"
+  },
+  "description": {
+    "en": "An English-learning sticky-note wall with spaced repetition, daily quizzes and an IELTS essay reader.",
+    "zh": "英语学习便利贴墙：间隔复习、每日测验和雅思范文阅读器。"
+  },
+  "plugins": [
+    {
+      "name": "dsh-english-notes-wall",
+      "title": {
+        "en": "English Notes Wall",
+        "zh": "英语便利贴墙"
+      },
+      "description": {
+        "en": "An English-learning sticky-note wall with spaced repetition, daily quizzes and an IELTS essay reader.",
+        "zh": "英语学习便利贴墙：间隔复习、每日测验和雅思范文阅读器。"
+      },
+      "author": "wincharm001",
+      "icon": "./icon.svg",
+      "homepage": "https://github.com/wincharm001/english-notes-wall#readme",
+      "repository": {
+        "url": "https://github.com/wincharm001/english-notes-wall"
+      },
+      "versions": [
+        {
+          "version": "1.18.1",
+          "publishTimestamp": 1795526115,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+          }
+        }
+      ]
+    }
+  ]
+}

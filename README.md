@@ -7,6 +7,13 @@
 - 发布方案（npm + DSH 市场索引）：[`PUBLISHING.md`](PUBLISHING.md)
 - 通用 DSH 插件开发指南：[`docs/dsh-plugin-development-guide.md`](docs/dsh-plugin-development-guide.md)
 
+## 安装
+
+- **Discover**：设置 → 插件 → Discover → 添加索引源 `https://wincharm001.github.io/english-notes-wall/index.json`，找到 “English Notes Wall” 后安装。
+- **按包名安装**：在插件页面安装 `dsh-english-notes-wall@1.18.1`，包地址为 [npmjs.com/package/dsh-english-notes-wall](https://www.npmjs.com/package/dsh-english-notes-wall)。
+
+安装完成后完整重启一次 DSH。数据仍保存在 `%DSH_HOME%/english-notes-wall/`，与开发版一致。
+
 ## 目录结构
 
 ```text

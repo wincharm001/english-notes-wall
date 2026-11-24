@@ -29,7 +29,9 @@ if (!response.ok) {
 }
 const meta = await response.json()
 
+// npm can leave a `0.0.0-stage` placeholder next to a real release; it is not an install target.
 const versions = Object.keys(meta.versions)
+  .filter(version => !version.startsWith('0.0.0-'))
   .map(version => ({
     version,
     publishTimestamp: Math.floor(Date.parse(meta.time[version]) / 1000),
