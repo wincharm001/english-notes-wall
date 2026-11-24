@@ -2,4 +2,4 @@
 # and the agent tool; the Client half renders the wall in the main column.
 - insert:
     - id: english-notes-wall
-      name: '@local/english-notes-wall'
+      name: 'dsh-english-notes-wall'

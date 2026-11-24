@@ -1,5 +1,10 @@
 # 版本历史
 
+## 1.18.1 — 2026-11-24
+
+- 首次公开发布：包名改为 `dsh-english-notes-wall`，以 MIT 许可证发布到 npm，并提供 DSH 市场索引。
+- 补齐 `license`、`author`、`keywords`、`repository`、`engines`、`publishConfig` 等发布元数据；功能与 1.18.0 相同。
+
 ## 1.18.0 — 2026-11-15
 
 - 测验填空题现在在作答前就显示限定提示，而不是只在查看答案后出现。

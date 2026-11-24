@@ -1,9 +1,10 @@
 {
-  "name": "@local/english-notes-wall",
-  "version": "1.18.0",
-  "private": true,
+  "name": "dsh-english-notes-wall",
+  "version": "1.18.1",
   "description": "English learning sticky-note wall with spaced-repetition review, category-colored cards, category-aware long-sentence analysis and practice mode, read-aloud and dictation, a category-tinted full-note dialog with previous/next navigation, a daily IELTS essay reader with sentence analysis, vocabulary, comprehension questions and selection-to-note capture, optional AI essay generation, a daily quiz dialog, a floating back-to-top button, resilient chunked model expansion, JSON/CSV/Anki export with automatic backups, tag and study-status filters, keyboard shortcuts, undo, pinning, whole-wall organization, token cost estimates, and prompt templates.",
   "type": "module",
+  "license": "MIT",
+  "author": "wincharm001",
   "homepage": "https://github.com/wincharm001/english-notes-wall#readme",
   "repository": {
     "type": "git",
@@ -12,6 +13,14 @@
   "bugs": {
     "url": "https://github.com/wincharm001/english-notes-wall/issues"
   },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "english-learning",
+    "vocabulary",
+    "flashcards",
+    "ielts"
+  ],
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
@@ -25,8 +34,16 @@
     "essays",
     "locale/*.json",
     "icon.svg",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
+  "engines": {
+    "node": ">=20",
+    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"

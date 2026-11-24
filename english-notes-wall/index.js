@@ -12,7 +12,7 @@ import { copyFile, mkdir, readFile, readdir, rename, stat, unlink, writeFile } f
 import os from 'node:os'
 import path from 'node:path'
 
-const PACKAGE = '@local/english-notes-wall'
+const PACKAGE = 'dsh-english-notes-wall'
 const SERVICE_KEY = 'englishNotes'
 const STORE_VERSION = 1
 const MAX_TEXT = 4000

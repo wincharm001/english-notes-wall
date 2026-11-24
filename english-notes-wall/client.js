@@ -7,7 +7,7 @@
  * Host service the `english_notes` tool calls.
  */
 window.__ModuleLoader__.load({
-  id: '@local/english-notes-wall',
+  id: 'dsh-english-notes-wall',
   factory(require) {
     const React = require('react')
     const h = React.createElement
